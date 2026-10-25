@@ -1,0 +1,17 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Scripts and wrappers
+*.sh text eol=lf
+mvnw text eol=lf
+*.cmd text eol=crlf
+*.bat text eol=crlf
+mvnw.cmd text eol=crlf
+
+# Java sources and configs
+*.java text diff=java
+*.xml text
+*.yml text
+*.yaml text
+*.properties text
+*.md text

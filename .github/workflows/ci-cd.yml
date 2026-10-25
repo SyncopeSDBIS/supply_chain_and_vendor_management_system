@@ -1,0 +1,159 @@
+name: Enterprise CI/CD Pipeline (MSD & OOAD)
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - 'feature/**'
+      - 'release/**'
+      - 'hotfix/**'
+  pull_request:
+    branches:
+      - main
+      - develop
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  JAVA_VERSION: '21'
+  JAVA_DISTRIBUTION: 'temurin'
+
+jobs:
+  # ============================================================================
+  # JOB 1: BUILD & COMPILE VALIDATION
+  # ============================================================================
+  build:
+    name: 1. Build & Compile (Java 21)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          cache: maven
+
+      - name: Make Maven Wrapper Executable
+        run: chmod +x mvnw
+
+      - name: Compile Source & Test Code
+        run: ./mvnw clean test-compile -B -DskipTests
+
+  # ============================================================================
+  # JOB 2: ARCHUNIT — ARCHITECTURAL FITNESS FUNCTIONS
+  # ============================================================================
+  archunit:
+    name: 2. ArchUnit (Clean Arch & DDD Boundaries)
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          cache: maven
+
+      - name: Make Maven Wrapper Executable
+        run: chmod +x mvnw
+
+      - name: Run ArchUnit Fitness Tests
+        run: ./mvnw test -B -Dtest="ro.uaic.feaa.sdbis.supplychain.architecture.**.*Test"
+
+  # ============================================================================
+  # JOB 3: UNIT & DOMAIN TESTS (JUnit 5 + JaCoCo Coverage)
+  # ============================================================================
+  unit-tests:
+    name: 3. Domain & Workflow Unit Tests
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          cache: maven
+
+      - name: Make Maven Wrapper Executable
+        run: chmod +x mvnw
+
+      - name: Execute Unit Tests (Comenzi, Calitate, Facturi)
+        run: ./mvnw test -B -Dtest="ro.uaic.feaa.sdbis.supplychain.unit.**.*Test"
+
+      - name: Generate JaCoCo Coverage Report
+        run: ./mvnw jacoco:report -B
+
+      - name: Upload Coverage Report Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-unit-coverage-report
+          path: target/site/jacoco/
+          if-no-files-found: warn
+
+  # ============================================================================
+  # JOB 4: INTEGRATION & REST TESTS
+  # ============================================================================
+  integration-tests:
+    name: 4. Integration, Scheduler & REST Tests
+    needs: [archunit, unit-tests]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          cache: maven
+
+      - name: Make Maven Wrapper Executable
+        run: chmod +x mvnw
+
+      - name: Execute Integration & REST Tests
+        run: ./mvnw test -B -Dtest="ro.uaic.feaa.sdbis.supplychain.integration.**.*Test,ro.uaic.feaa.sdbis.supplychain.rest.**.*Test"
+
+  # ============================================================================
+  # JOB 5: QUALITY GATE & PACKAGE ARTIFACT (DevSecOps)
+  # ============================================================================
+  quality-and-package:
+    name: 5. Quality Gate & Package Artifact
+    needs: [integration-tests]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          cache: maven
+
+      - name: Make Maven Wrapper Executable
+        run: chmod +x mvnw
+
+      - name: Package Application JAR
+        run: ./mvnw package -B -DskipTests
+
+      - name: Upload Production Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: supply-chain-system-artifact
+          path: target/*.jar
+          if-no-files-found: error
