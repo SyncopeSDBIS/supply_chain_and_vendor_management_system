@@ -174,6 +174,13 @@ public class ComandaApplicationService implements IComandaWorkflowService {
     }
 
     @Override
+    public void valideazaSiAproba(IdComanda id) {
+        ComandaAprovizionare comanda = gasesteComanda(id);
+        comandaRepo.save(comanda);
+        jurnalAudit.inregistreazaAcces("APROBA_COMANDA", "Comanda: " + comanda.getNumarComanda());
+    }
+
+    @Override
     public ComandaAprovizionare obtineComanda(IdComanda id) {
         return gasesteComanda(id);
     }

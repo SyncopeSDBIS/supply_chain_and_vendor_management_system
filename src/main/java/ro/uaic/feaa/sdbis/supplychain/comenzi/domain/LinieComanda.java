@@ -4,6 +4,7 @@ import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Embedded;
+import jakarta.validation.constraints.NotNull;
 import ro.uaic.feaa.sdbis.supplychain.shared.CodMaterial;
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -12,15 +13,18 @@ import java.util.Objects;
 @Embeddable
 public class LinieComanda implements Serializable {
 
+    @NotNull
     @Embedded
     @AttributeOverride(name = "cod", column = @Column(name = "material_cod"))
     private CodMaterial material;
 
+    @NotNull
     @Embedded
     @AttributeOverride(name = "valoare", column = @Column(name = "cantitate_valoare"))
     @AttributeOverride(name = "unitateMasura", column = @Column(name = "cantitate_um"))
     private Cantitate cantitate;
 
+    @NotNull
     @Embedded
     @AttributeOverride(name = "valoare", column = @Column(name = "pret_valoare"))
     @AttributeOverride(name = "moneda", column = @Column(name = "pret_moneda"))

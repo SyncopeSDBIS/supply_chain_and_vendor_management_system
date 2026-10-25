@@ -1,6 +1,7 @@
 package ro.uaic.feaa.sdbis.supplychain.calitate.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import ro.uaic.feaa.sdbis.supplychain.calitate.domain.event.InspectieProgramataEvent;
 import ro.uaic.feaa.sdbis.supplychain.calitate.domain.event.VerdictInspectieEvent;
 import ro.uaic.feaa.sdbis.supplychain.shared.CodMaterial;
@@ -21,33 +22,41 @@ import java.util.UUID;
 @Table(name = "calitate_inspectii")
 public class InspectieCalitate implements Serializable {
 
+    @NotNull
     @Id
     private UUID idInspectie;
 
+    @NotNull
     @Embedded
     @AttributeOverride(name = "value", column = @Column(name = "lot_id"))
     private IdLot lotId;
 
+    @NotNull
     @Embedded
     @AttributeOverride(name = "value", column = @Column(name = "comanda_id"))
     private IdComanda comandaId;
 
+    @NotNull
     @Embedded
     @AttributeOverride(name = "value", column = @Column(name = "furnizor_id"))
     private IdFurnizor furnizorId;
 
+    @NotNull
     @Embedded
     @AttributeOverride(name = "cod", column = @Column(name = "material_cod"))
     private CodMaterial material;
 
+    @NotNull
     @Embedded
     private PlanAQL plan;
 
+    @NotNull
     @Embedded
     private Perioada perioadaPlanificata;
 
     private UUID inspectorId;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private StareInspectie stareInspectie;

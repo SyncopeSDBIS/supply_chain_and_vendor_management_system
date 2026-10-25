@@ -3,18 +3,25 @@ package ro.uaic.feaa.sdbis.supplychain.unit;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
 import ro.uaic.feaa.sdbis.supplychain.calitate.domain.*;
 import ro.uaic.feaa.sdbis.supplychain.calitate.domain.factory.FurnizorFactory;
 import ro.uaic.feaa.sdbis.supplychain.calitate.domain.factory.InspectieCalitateFactory;
+import ro.uaic.feaa.sdbis.supplychain.calitate.domain.policy.PoliticaSelectieAQL;
 import ro.uaic.feaa.sdbis.supplychain.calitate.domain.validation.CalitateValidationService;
 import ro.uaic.feaa.sdbis.supplychain.calitate.domain.validation.ICalitateValidationService;
 import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.*;
 import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.factory.ComandaFactory;
+import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.policy.PoliticaAprobareComanda;
 import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.validation.ComandaValidationService;
 import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.validation.IComandaValidationService;
 import ro.uaic.feaa.sdbis.supplychain.facturi.domain.*;
 import ro.uaic.feaa.sdbis.supplychain.facturi.domain.factory.FacturaFactory;
 import ro.uaic.feaa.sdbis.supplychain.facturi.domain.factory.NIRFactory;
+import ro.uaic.feaa.sdbis.supplychain.facturi.domain.policy.PoliticaAutorizarePlata;
 import ro.uaic.feaa.sdbis.supplychain.facturi.domain.validation.FacturaValidationService;
 import ro.uaic.feaa.sdbis.supplychain.facturi.domain.validation.IFacturaValidationService;
 import ro.uaic.feaa.sdbis.supplychain.shared.*;
@@ -26,18 +33,29 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@DisplayName("Sprint 2 - Validation Services & Aggregate Factories Tests (ADR-003)")
+@DisplayName("Sprint 2 - Validation Services, Bean Validation & Business Policies Tests (ADR-003)")
 public class ValidationServicesTest {
 
     private IComandaValidationService comandaValidationService;
     private ICalitateValidationService calitateValidationService;
     private IFacturaValidationService facturaValidationService;
+    private Validator validator;
+    private PoliticaAprobareComanda politicaAprobareComanda;
+    private PoliticaSelectieAQL politicaSelectieAQL;
+    private PoliticaAutorizarePlata politicaAutorizarePlata;
 
     @BeforeEach
     void setUp() {
         comandaValidationService = new ComandaValidationService();
         calitateValidationService = new CalitateValidationService();
         facturaValidationService = new FacturaValidationService();
+
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        validator = factory.getValidator();
+
+        politicaAprobareComanda = new PoliticaAprobareComanda();
+        politicaSelectieAQL = new PoliticaSelectieAQL();
+        politicaAutorizarePlata = new PoliticaAutorizarePlata();
     }
 
     // =========================================================================
@@ -348,5 +366,168 @@ public class ValidationServicesTest {
 
         // Scenariu 3: Suma valida (500 RON <= 1190 RON)
         assertDoesNotThrow(() -> facturaValidationService.valideazaOrdinPlata(f, BigDecimal.valueOf(500)));
+    }
+
+    // =========================================================================
+    // 4. Bean Validation (Jakarta Validation Constraints) Tests
+    // =========================================================================
+
+    @Test
+    @DisplayName("Bean Validation: Entitati create valid respecta toate constrangerile de validare")
+    void testBeanValidation_ValidEntities_NoViolations() {
+        ComandaAprovizionare comanda = ComandaFactory.creeaza(
+            "CMD-2026-BV-01",
+            IdFurnizor.random(),
+            UUID.randomUUID(),
+            LocalDate.now(),
+            LocalDate.now().plusDays(10),
+            "Depozit Central",
+            List.of(new LinieComanda(CodMaterial.of("MAT-01"), Cantitate.of(10, "BUC"), PretUnitar.of(15, "RON")))
+        );
+        assertTrue(validator.validate(comanda).isEmpty(), "Comanda valida nu trebuie sa aiba incalcari Bean Validation");
+
+        Furnizor furnizor = FurnizorFactory.creeaza(
+            "RO12345678",
+            "Furnizor Test SRL",
+            new Adresa("Str. Industriala 10", "Iasi", "700000", "Romania"),
+            Set.of(new Email("contact@test.ro")),
+            new Iban("RO49AAAA1B31007593840000"),
+            Set.of("MateriiPrime"),
+            new ConditiiContractuale(30, Currency.getInstance("RON"), Collections.emptyMap())
+        );
+        assertTrue(validator.validate(furnizor).isEmpty(), "Furnizor valid nu trebuie sa aiba incalcari Bean Validation");
+
+        InspectieCalitate inspectie = InspectieCalitateFactory.programeaza(
+            IdLot.random(),
+            comanda.getId(),
+            furnizor.getId(),
+            CodMaterial.of("MAT-01"),
+            PlanAQL.standard(1.5, 20, 1),
+            Perioada.of(LocalDate.now(), LocalDate.now().plusDays(5))
+        );
+        assertTrue(validator.validate(inspectie).isEmpty(), "Inspectie valida nu trebuie sa aiba incalcari Bean Validation");
+
+        FacturaFurnizor factura = FacturaFactory.creeaza(
+            "FC",
+            "9901",
+            LocalDate.now(),
+            LocalDate.now().plusDays(30),
+            comanda.getId(),
+            furnizor.getId(),
+            List.of(new LinieFactura(CodMaterial.of("MAT-01"), BigDecimal.valueOf(10), "BUC", Suma.of(15, "RON"), BigDecimal.valueOf(0.19))),
+            Currency.getInstance("RON")
+        );
+        assertTrue(validator.validate(factura).isEmpty(), "Factura valida nu trebuie sa aiba incalcari Bean Validation");
+
+        NIR nir = NIRFactory.creeaza(
+            "NIR-1234",
+            comanda.getId(),
+            UUID.randomUUID(),
+            LocalDate.now(),
+            List.of(new LinieNIR(IdLot.random(), CodMaterial.of("MAT-01"), BigDecimal.valueOf(10), "BUC"))
+        );
+        assertTrue(validator.validate(nir).isEmpty(), "NIR valid nu trebuie sa aiba incalcari Bean Validation");
+    }
+
+    @Test
+    @DisplayName("Bean Validation: Constrangeri incalcate sunt detectate corespunzator")
+    void testBeanValidation_InvalidConstraints_ViolationsDetected() {
+        LinieFactura lfInvalid = new LinieFactura(
+            CodMaterial.of("MAT-01"),
+            BigDecimal.valueOf(-5), // cantitate negativa -> incalca @DecimalMin("0.01")
+            "BUC",
+            Suma.of(15, "RON"),
+            BigDecimal.valueOf(1.5)  // TVA > 1.0 -> incalca @DecimalMax("1.00")
+        );
+        Set<ConstraintViolation<LinieFactura>> violations = validator.validate(lfInvalid);
+        assertFalse(violations.isEmpty(), "LinieFactura invalida trebuie sa declanseze erori Bean Validation");
+        assertTrue(violations.stream().anyMatch(v -> v.getPropertyPath().toString().equals("cantitate")));
+        assertTrue(violations.stream().anyMatch(v -> v.getPropertyPath().toString().equals("cotaTVA")));
+    }
+
+    // =========================================================================
+    // 5. Business Policies Tests (Other Business Rules - ADR-003)
+    // =========================================================================
+
+    @Test
+    @DisplayName("PoliticaAprobareComanda: Praguri valorice si ierarhie nivele de aprobare")
+    void testPoliticaAprobareComanda_PraguriSiIerarhie() {
+        // Praguri: < 10k (Responsabil), 10k - 50k (Manager), > 50k (Director General)
+        assertEquals(PoliticaAprobareComanda.NivelAprobare.RESPONSABIL_ACHIZITII,
+                politicaAprobareComanda.determinaNivelNecesar(BigDecimal.valueOf(5000)));
+        assertEquals(PoliticaAprobareComanda.NivelAprobare.MANAGER_DEPARTAMENT,
+                politicaAprobareComanda.determinaNivelNecesar(BigDecimal.valueOf(10000)));
+        assertEquals(PoliticaAprobareComanda.NivelAprobare.MANAGER_DEPARTAMENT,
+                politicaAprobareComanda.determinaNivelNecesar(BigDecimal.valueOf(45000)));
+        assertEquals(PoliticaAprobareComanda.NivelAprobare.DIRECTOR_GENERAL,
+                politicaAprobareComanda.determinaNivelNecesar(BigDecimal.valueOf(50000.01)));
+
+        // Poate aproba in functie de rang
+        assertTrue(politicaAprobareComanda.poateAproba(
+                PoliticaAprobareComanda.NivelAprobare.MANAGER_DEPARTAMENT, BigDecimal.valueOf(8000)));
+        assertTrue(politicaAprobareComanda.poateAproba(
+                PoliticaAprobareComanda.NivelAprobare.DIRECTOR_GENERAL, BigDecimal.valueOf(75000)));
+        assertFalse(politicaAprobareComanda.poateAproba(
+                PoliticaAprobareComanda.NivelAprobare.RESPONSABIL_ACHIZITII, BigDecimal.valueOf(25000)));
+    }
+
+    @Test
+    @DisplayName("PoliticaSelectieAQL: Selectie regim si generare plan ISO 2859-1")
+    void testPoliticaSelectieAQL_RegimuriSiPlanuri() {
+        assertEquals(PoliticaSelectieAQL.RegimInspectie.REDUS, politicaSelectieAQL.determinaRegim(Calificativ.A));
+        assertEquals(PoliticaSelectieAQL.RegimInspectie.NORMAL, politicaSelectieAQL.determinaRegim(Calificativ.B));
+        assertEquals(PoliticaSelectieAQL.RegimInspectie.SEVER, politicaSelectieAQL.determinaRegim(Calificativ.C));
+        assertEquals(PoliticaSelectieAQL.RegimInspectie.TOTAL_100_PROCENT, politicaSelectieAQL.determinaRegim(Calificativ.D));
+
+        // Verificare invariant ISO 2859-1 pe planurile generate (Re = Ac + 1)
+        PlanAQL planA = politicaSelectieAQL.determinaPlan(Calificativ.A, 100);
+        assertEquals(planA.getNumarAcceptare() + 1, planA.getNumarRespingere());
+
+        PlanAQL planB = politicaSelectieAQL.determinaPlan(Calificativ.B, 100);
+        assertEquals(planB.getNumarAcceptare() + 1, planB.getNumarRespingere());
+        assertTrue(planB.getDimensiuneEsantion() >= planA.getDimensiuneEsantion());
+
+        PlanAQL planD = politicaSelectieAQL.determinaPlan(Calificativ.D, 50);
+        assertEquals(50, planD.getDimensiuneEsantion(), "Pentru furnizor critic (Calificativ D) esantionul este 100%");
+        assertEquals(0, planD.getNumarAcceptare());
+        assertEquals(1, planD.getNumarRespingere());
+    }
+
+    @Test
+    @DisplayName("PoliticaAutorizarePlata: Four-Eyes Principle, stare factura si prag CFO")
+    void testPoliticaAutorizarePlata_FourEyesSiPragCFO() {
+        UUID creatorId = UUID.randomUUID();
+        UUID aprobatorId = UUID.randomUUID();
+
+        // 1. Four-Eyes Principle
+        assertTrue(politicaAutorizarePlata.respectaFourEyesPrinciple(creatorId, aprobatorId));
+        assertFalse(politicaAutorizarePlata.respectaFourEyesPrinciple(creatorId, creatorId));
+
+        IllegalStateException exSame = assertThrows(IllegalStateException.class, () ->
+            politicaAutorizarePlata.valideazaAutorizare(creatorId, creatorId, Suma.of(5000, "RON"), StareFactura.AprobataLaPlata, false)
+        );
+        assertTrue(exSame.getMessage().contains("Four-Eyes Principle incalcat"));
+
+        // 2. Stare factura ineligibila
+        IllegalStateException exStare = assertThrows(IllegalStateException.class, () ->
+            politicaAutorizarePlata.valideazaAutorizare(creatorId, aprobatorId, Suma.of(5000, "RON"), StareFactura.Inregistrata, false)
+        );
+        assertTrue(exStare.getMessage().contains("Factura nu este eligibila pentru plata"));
+
+        // 3. Prag CFO (> 20,000 RON fara rol CFO)
+        IllegalStateException exCFO = assertThrows(IllegalStateException.class, () ->
+            politicaAutorizarePlata.valideazaAutorizare(creatorId, aprobatorId, Suma.of(25000, "RON"), StareFactura.AprobataLaPlata, false)
+        );
+        assertTrue(exCFO.getMessage().contains("Directorului Financiar (CFO)"));
+
+        // 4. Autorizare cu succes (suma mare cu CFO)
+        assertDoesNotThrow(() ->
+            politicaAutorizarePlata.valideazaAutorizare(creatorId, aprobatorId, Suma.of(25000, "RON"), StareFactura.AprobataLaPlata, true)
+        );
+
+        // 5. Autorizare cu succes (suma mica sub prag)
+        assertDoesNotThrow(() ->
+            politicaAutorizarePlata.valideazaAutorizare(creatorId, aprobatorId, Suma.of(15000, "RON"), StareFactura.AprobataLaPlata, false)
+        );
     }
 }

@@ -5,16 +5,19 @@ import org.springframework.context.annotation.Configuration;
 import ro.uaic.feaa.sdbis.supplychain.calitate.domain.AlocareInspectorService;
 import ro.uaic.feaa.sdbis.supplychain.calitate.domain.CalculScorecardService;
 import ro.uaic.feaa.sdbis.supplychain.calitate.domain.computation.ICalculScorecardService;
+import ro.uaic.feaa.sdbis.supplychain.calitate.domain.policy.PoliticaSelectieAQL;
 import ro.uaic.feaa.sdbis.supplychain.calitate.domain.validation.CalitateValidationService;
 import ro.uaic.feaa.sdbis.supplychain.calitate.domain.validation.ICalitateValidationService;
 import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.EstimareLeadTimeService;
 import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.computation.ComandaComputationService;
 import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.computation.IComandaComputationService;
+import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.policy.PoliticaAprobareComanda;
 import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.validation.ComandaValidationService;
 import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.validation.IComandaValidationService;
 import ro.uaic.feaa.sdbis.supplychain.facturi.domain.ReconciliereService;
 import ro.uaic.feaa.sdbis.supplychain.facturi.domain.computation.IReconciliereComputationService;
 import ro.uaic.feaa.sdbis.supplychain.facturi.domain.computation.ReconciliereComputationService;
+import ro.uaic.feaa.sdbis.supplychain.facturi.domain.policy.PoliticaAutorizarePlata;
 import ro.uaic.feaa.sdbis.supplychain.facturi.domain.validation.FacturaValidationService;
 import ro.uaic.feaa.sdbis.supplychain.facturi.domain.validation.IFacturaValidationService;
 
@@ -72,5 +75,22 @@ public class DomainServicesConfig {
     @Bean
     public IReconciliereComputationService reconciliereComputationService() {
         return new ReconciliereComputationService();
+    }
+
+    // --- Sprint 2 Business Policies (Other Business Rules) ---
+
+    @Bean
+    public PoliticaAprobareComanda politicaAprobareComanda() {
+        return new PoliticaAprobareComanda();
+    }
+
+    @Bean
+    public PoliticaSelectieAQL politicaSelectieAQL() {
+        return new PoliticaSelectieAQL();
+    }
+
+    @Bean
+    public PoliticaAutorizarePlata politicaAutorizarePlata() {
+        return new PoliticaAutorizarePlata();
     }
 }

@@ -1,6 +1,7 @@
 package ro.uaic.feaa.sdbis.supplychain.facturi.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import ro.uaic.feaa.sdbis.supplychain.facturi.domain.event.PlataExecutataEvent;
 
 import java.io.Serializable;
@@ -16,20 +17,25 @@ import java.util.UUID;
 @Table(name = "facturi_ordine_plata")
 public class OrdinPlata implements Serializable {
 
+    @NotNull
     @Id
     private UUID idOrdin;
 
+    @NotNull
     @Column(nullable = false)
     private UUID facturaId;
 
+    @NotNull
     @Embedded
     private Suma suma;
 
+    @NotNull
     @Column(nullable = false)
     private UUID creatDe;
 
     private UUID aprobatDe;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private StareOrdinPlata stareOrdin;

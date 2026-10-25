@@ -1,6 +1,11 @@
 package ro.uaic.feaa.sdbis.supplychain.calitate.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import ro.uaic.feaa.sdbis.supplychain.calitate.domain.event.FurnizorBlocatEvent;
 import ro.uaic.feaa.sdbis.supplychain.calitate.domain.event.FurnizorSuspendatEvent;
 import ro.uaic.feaa.sdbis.supplychain.shared.IdFurnizor;
@@ -14,12 +19,17 @@ import java.util.*;
 @Table(name = "calitate_furnizori")
 public class Furnizor implements Serializable {
 
+    @NotNull
     @EmbeddedId
     private IdFurnizor id;
 
+    @NotBlank
+    @Size(min = 2, max = 20)
     @Column(nullable = false, unique = true)
     private String codFiscal;
 
+    @NotBlank
+    @Size(min = 2, max = 150)
     @Column(nullable = false)
     private String denumire;
 
@@ -30,10 +40,12 @@ public class Furnizor implements Serializable {
     @CollectionTable(name = "calitate_furnizori_emailuri", joinColumns = @JoinColumn(name = "furnizor_id"))
     private Set<Email> emailuri = new HashSet<>();
 
+    @NotNull
     @Embedded
     @AttributeOverride(name = "valoare", column = @Column(name = "iban_valoare"))
     private Iban iban;
 
+    @NotEmpty
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "calitate_furnizori_categorii", joinColumns = @JoinColumn(name = "furnizor_id"))
     private Set<String> categoriiMateriale = new HashSet<>();
@@ -41,6 +53,7 @@ public class Furnizor implements Serializable {
     @Embedded
     private ConditiiContractuale conditii;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private StareFurnizor stareFurnizor;
@@ -49,6 +62,7 @@ public class Furnizor implements Serializable {
     @JoinColumn(name = "furnizor_id")
     private List<ScorecardLunar> scorecarduri = new ArrayList<>();
 
+    @Min(0)
     private int inspectiiNeconformeConsecutive = 0;
 
     protected Furnizor() {}
@@ -152,6 +166,7 @@ public class Furnizor implements Serializable {
     }
 
     public IdFurnizor getIdFurnizor() { return id; }
+    public IdFurnizor getId() { return id; }
     public String getCodFiscal() { return codFiscal; }
     public String getDenumire() { return denumire; }
     public Adresa getAdresa() { return adresa; }

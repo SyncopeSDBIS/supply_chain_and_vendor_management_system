@@ -4,6 +4,9 @@ import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Embedded;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import ro.uaic.feaa.sdbis.supplychain.shared.CodMaterial;
 import ro.uaic.feaa.sdbis.supplychain.shared.IdLot;
 
@@ -14,15 +17,21 @@ import java.util.Objects;
 @Embeddable
 public class LinieNIR implements Serializable {
 
+    @NotNull
     @Embedded
     @AttributeOverride(name = "value", column = @Column(name = "lot_id"))
     private IdLot idLot;
 
+    @NotNull
     @Embedded
     @AttributeOverride(name = "cod", column = @Column(name = "material_cod"))
     private CodMaterial material;
 
+    @NotNull
+    @DecimalMin(value = "0.00", message = "Cantitatea receptionata nu poate fi negativa")
     private BigDecimal cantitateReceptionata;
+
+    @NotBlank
     private String unitateMasura;
 
     protected LinieNIR() {}

@@ -1,6 +1,9 @@
 package ro.uaic.feaa.sdbis.supplychain.comenzi.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import ro.uaic.feaa.sdbis.supplychain.shared.CodMaterial;
 import ro.uaic.feaa.sdbis.supplychain.shared.IdLot;
 import java.io.Serializable;
@@ -15,21 +18,27 @@ import java.util.Objects;
 @Table(name = "comenzi_loturi")
 public class Lot implements Serializable {
 
+    @NotNull
     @EmbeddedId
     private IdLot idLot;
 
+    @NotBlank
+    @Size(min = 1, max = 50)
     @Column(nullable = false)
     private String codLot;
 
+    @NotNull
     @Embedded
     @AttributeOverride(name = "cod", column = @Column(name = "material_cod"))
     private CodMaterial material;
 
+    @NotNull
     @Embedded
     @AttributeOverride(name = "valoare", column = @Column(name = "cantitate_valoare"))
     @AttributeOverride(name = "unitateMasura", column = @Column(name = "cantitate_um"))
     private Cantitate cantitate;
 
+    @NotNull
     @Embedded
     @AttributeOverride(name = "valoare", column = @Column(name = "cantitate_primita_valoare"))
     @AttributeOverride(name = "unitateMasura", column = @Column(name = "cantitate_primita_um"))
@@ -38,6 +47,7 @@ public class Lot implements Serializable {
     private LocalDate dataProductie;
     private LocalDate dataExpirare;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private StareLot stareLot;

@@ -2,6 +2,7 @@ package ro.uaic.feaa.sdbis.supplychain.comenzi.domain;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.event.ComandaAnulataEvent;
 import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.event.ComandaReceptionataEvent;
@@ -58,6 +59,7 @@ public class ComandaAprovizionare implements Serializable {
     @Column(nullable = false)
     private StareComanda stareComanda;
 
+    @NotEmpty
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "comenzi_linii", joinColumns = @JoinColumn(name = "comanda_id"))
     private List<LinieComanda> linii = new ArrayList<>();
@@ -246,6 +248,16 @@ public class ComandaAprovizionare implements Serializable {
             }
         }
         return true;
+    }
+
+    public BigDecimal calculeazaTotal() {
+        BigDecimal total = BigDecimal.ZERO;
+        if (linii != null) {
+            for (LinieComanda l : linii) {
+                total = total.add(l.valoareLinie());
+            }
+        }
+        return total;
     }
 
     public MetriciLivrareVO extrageMetrici() {

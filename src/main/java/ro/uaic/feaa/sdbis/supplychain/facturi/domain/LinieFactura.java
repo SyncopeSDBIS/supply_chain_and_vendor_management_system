@@ -4,6 +4,10 @@ import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Embedded;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import ro.uaic.feaa.sdbis.supplychain.shared.CodMaterial;
 
 import java.io.Serializable;
@@ -13,18 +17,27 @@ import java.util.Objects;
 @Embeddable
 public class LinieFactura implements Serializable {
 
+    @NotNull
     @Embedded
     @AttributeOverride(name = "cod", column = @Column(name = "material_cod"))
     private CodMaterial material;
 
+    @NotNull
+    @DecimalMin(value = "0.01", message = "Cantitatea pe linie factura trebuie sa fie pozitiva")
     private BigDecimal cantitate;
+
+    @NotBlank
     private String unitateMasura;
 
+    @NotNull
     @Embedded
     @AttributeOverride(name = "valoare", column = @Column(name = "pret_valoare"))
     @AttributeOverride(name = "moneda", column = @Column(name = "pret_moneda"))
     private Suma pretUnitar;
 
+    @NotNull
+    @DecimalMin(value = "0.00")
+    @DecimalMax(value = "1.00")
     private BigDecimal cotaTVA; // ex 0.19 pentru 19%
 
     protected LinieFactura() {}

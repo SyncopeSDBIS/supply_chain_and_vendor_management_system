@@ -1,6 +1,9 @@
 package ro.uaic.feaa.sdbis.supplychain.facturi.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import ro.uaic.feaa.sdbis.supplychain.shared.CodMaterial;
 import ro.uaic.feaa.sdbis.supplychain.shared.IdComanda;
 
@@ -13,25 +16,32 @@ import java.util.*;
 @Table(name = "facturi_nir")
 public class NIR implements Serializable {
 
+    @NotNull
     @Id
     private UUID idNIR;
 
+    @NotBlank
     @Column(nullable = false, unique = true)
     private String numarNIR;
 
+    @NotNull
     @Embedded
     @AttributeOverride(name = "value", column = @Column(name = "comanda_id"))
     private IdComanda comandaId;
 
+    @NotNull
     @Column(nullable = false, unique = true)
     private UUID eventSursaId; // Constrangere UNIQUE pentru garantia idempotentei
 
+    @NotNull
     private LocalDate dataReceptie;
 
+    @NotEmpty
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "facturi_nir_linii", joinColumns = @JoinColumn(name = "nir_id"))
     private List<LinieNIR> linii = new ArrayList<>();
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private StareNIR stareNIR;

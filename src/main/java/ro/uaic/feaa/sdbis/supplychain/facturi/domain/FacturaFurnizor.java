@@ -1,6 +1,9 @@
 package ro.uaic.feaa.sdbis.supplychain.facturi.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import ro.uaic.feaa.sdbis.supplychain.shared.IdComanda;
 import ro.uaic.feaa.sdbis.supplychain.shared.IdFurnizor;
 
@@ -18,41 +21,52 @@ import java.util.*;
 @Table(name = "facturi_furnizori")
 public class FacturaFurnizor implements Serializable {
 
+    @NotNull
     @Id
     private UUID idFactura;
 
+    @NotBlank
     @Column(nullable = false)
     private String serie;
 
+    @NotBlank
     @Column(nullable = false)
     private String numar;
 
+    @NotNull
     @Column(nullable = false)
     private LocalDate dataEmitere;
 
+    @NotNull
     @Column(nullable = false)
     private LocalDate dataScadenta;
 
+    @NotNull
     @Embedded
     @AttributeOverride(name = "value", column = @Column(name = "comanda_id"))
     private IdComanda comandaId;
 
+    @NotNull
     @Embedded
     @AttributeOverride(name = "value", column = @Column(name = "furnizor_id"))
     private IdFurnizor furnizorId;
 
+    @NotEmpty
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "facturi_linii", joinColumns = @JoinColumn(name = "factura_id"))
     private List<LinieFactura> linii = new ArrayList<>();
 
+    @NotNull
     @Embedded
     private ValoareFactura valoare;
 
+    @NotNull
     @Embedded
     @AttributeOverride(name = "valoare", column = @Column(name = "suma_platita_valoare"))
     @AttributeOverride(name = "moneda", column = @Column(name = "suma_platita_moneda"))
     private Suma sumaPlatita;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private StareFactura stareFactura;
