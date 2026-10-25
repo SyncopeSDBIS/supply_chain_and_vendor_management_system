@@ -1,0 +1,57 @@
+openapi: 3.0.3
+info:
+  title: Supply Chain and Vendor Management System (Procure-to-Pay)
+  version: 1.0.0
+  description: API REST cu Content Negotiation (JSON/XML) pentru sistemul P2P conform OOAD si MSD.
+servers:
+  - url: http://localhost:8080/api
+    description: Server local de dezvoltare
+paths:
+  /comenzi:
+    post:
+      summary: Creare Comanda Aprovizionare (UC1)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+          application/xml:
+            schema:
+              type: object
+      responses:
+        '201':
+          description: Comanda creata
+        '422':
+          description: Furnizor neeligibil
+    get:
+      summary: Dashboard Livrari OTIF (UC10)
+      responses:
+        '200':
+          description: Lista dashboard
+  /furnizori:
+    post:
+      summary: Inregistrare Furnizor (Q1)
+      responses:
+        '201':
+          description: Furnizor candidat inregistrat
+  /inspectii/{id}/verdict:
+    post:
+      summary: Inregistrare Verdict Inspectie AQL (Q7a)
+      responses:
+        '200':
+          description: Verdict inregistrat si procesat
+  /facturi:
+    post:
+      summary: Inregistrare Factura Furnizor (I1)
+      responses:
+        '201':
+          description: Factura inregistrata
+  /facturi/{id}/reconciliere:
+    post:
+      summary: Reconciliere Three-Way Match (I3)
+      responses:
+        '200':
+          description: Reconciliere executata cu succes
+        '409':
+          description: Lipsa NIR pentru reconciliere
