@@ -17,7 +17,7 @@ import java.util.*;
 
 @Service
 @Transactional
-public class CalitateApplicationService {
+public class CalitateApplicationService implements ICalitateWorkflowService {
 
     private final FurnizorRepo furnizorRepo;
     private final InspectorRepo inspectorRepo;

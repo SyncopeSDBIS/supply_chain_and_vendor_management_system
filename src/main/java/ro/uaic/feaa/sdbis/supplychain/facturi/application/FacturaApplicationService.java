@@ -13,7 +13,7 @@ import java.util.UUID;
 
 @Service
 @Transactional
-public class FacturaApplicationService {
+public class FacturaApplicationService implements IFacturaWorkflowService {
 
     private final FacturaRepo facturaRepo;
     private final NIRRepo nirRepo;
@@ -193,4 +193,14 @@ public class FacturaApplicationService {
         furnizoriBlocatiRepo.adauga(furnizorId);
         jurnalAudit.inregistreazaAcces("BLOCARE_PLATI_FURNIZOR", "Furnizor: " + furnizorId);
     }
+
+    @Override
+    public void inregistreazaPlataFactura(UUID facturaId, Suma suma) {
+        FacturaFurnizor f = facturaRepo.findById(facturaId)
+            .orElseThrow(() -> new NoSuchElementException("Factura nu a fost gasita: " + facturaId));
+        f.inregistreazaPlata(suma);
+        facturaRepo.save(f);
+        jurnalAudit.inregistreazaAcces("INREGISTREAZA_PLATA_FACTURA", "Factura: " + facturaId + " suma: " + suma);
+    }
 }
+

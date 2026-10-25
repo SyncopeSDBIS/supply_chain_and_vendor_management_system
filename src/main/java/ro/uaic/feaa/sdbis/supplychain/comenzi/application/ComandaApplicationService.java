@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional
-public class ComandaApplicationService {
+public class ComandaApplicationService implements IComandaWorkflowService {
 
     private final ComandaRepo comandaRepo;
     private final LotRepo lotRepo;
@@ -171,6 +171,11 @@ public class ComandaApplicationService {
 
     public PerformantaLivrariDTO obtinePerformanta(IdFurnizor furnizorId, Perioada luna) {
         return new PerformantaLivrariDTO(furnizorId.getValue(), BigDecimal.valueOf(95.0), BigDecimal.valueOf(99.0));
+    }
+
+    @Override
+    public ComandaAprovizionare obtineComanda(IdComanda id) {
+        return gasesteComanda(id);
     }
 
     private ComandaAprovizionare gasesteComanda(IdComanda id) {
