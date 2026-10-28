@@ -3,6 +3,7 @@ package ro.uaic.feaa.sdbis.supplychain.facturi.domain;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import ro.uaic.feaa.sdbis.supplychain.facturi.domain.event.PlataExecutataEvent;
+import ro.uaic.feaa.sdbis.supplychain.shared.annotation.AggregateRoot;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -13,6 +14,7 @@ import java.util.UUID;
  * Aggregate Root pentru Ordinul de Plata (Figura 21 si 4.4).
  * Constructorul este exclusiv package-private (~): poate fi instantiat doar de FacturaFurnizor.creeazaOrdinPlata().
  */
+@AggregateRoot
 @Entity
 @Table(name = "facturi_ordine_plata")
 public class OrdinPlata implements Serializable {
@@ -94,4 +96,21 @@ public class OrdinPlata implements Serializable {
     public UUID getCreatDe() { return creatDe; }
     public UUID getAprobatDe() { return aprobatDe; }
     public StareOrdinPlata getStareOrdin() { return stareOrdin; }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof OrdinPlata that)) return false;
+        return Objects.equals(idOrdin, that.idOrdin);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(idOrdin);
+    }
+
+    @Override
+    public String toString() {
+        return "OrdinPlata[id=" + idOrdin + ", factura=" + facturaId + ", suma=" + suma + ", stare=" + stareOrdin + "]";
+    }
 }

@@ -1,5 +1,7 @@
 package ro.uaic.feaa.sdbis.supplychain.facturi.domain;
 
+import ro.uaic.feaa.sdbis.supplychain.shared.annotation.DomainService;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,6 +11,7 @@ import java.util.Objects;
  * Domain Service pentru reconcilierea in 3 cai (Three-Way Match: Factura vs. Comanda vs. NIR).
  * Pure Domain: fara Spring.
  */
+@DomainService
 public class ReconciliereService {
 
     public RezultatReconciliere reconciliaza(FacturaFurnizor f, NIR nir, ComandaSummaryVO comanda, Toleranta t) {

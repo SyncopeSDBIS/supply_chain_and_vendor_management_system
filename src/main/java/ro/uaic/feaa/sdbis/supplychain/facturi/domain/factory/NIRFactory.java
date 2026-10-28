@@ -3,6 +3,7 @@ package ro.uaic.feaa.sdbis.supplychain.facturi.domain.factory;
 import ro.uaic.feaa.sdbis.supplychain.facturi.domain.LinieNIR;
 import ro.uaic.feaa.sdbis.supplychain.facturi.domain.NIR;
 import ro.uaic.feaa.sdbis.supplychain.shared.IdComanda;
+import ro.uaic.feaa.sdbis.supplychain.shared.annotation.DomainFactory;
 import ro.uaic.feaa.sdbis.supplychain.shared.exception.DomainValidationException;
 
 import java.time.LocalDate;
@@ -13,6 +14,7 @@ import java.util.UUID;
  * Aggregate Factory pentru NIR (Nota de Intrare-Receptie) (Sprint 2 - ADR-003).
  * Garanteaza crearea conforma si idempotenta a receptiei de marfa.
  */
+@DomainFactory
 public class NIRFactory {
 
     public static NIR creeaza(String numarNIR,

@@ -11,8 +11,11 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
+import ro.uaic.feaa.sdbis.supplychain.shared.annotation.ApplicationService;
+
 @Service
 @Transactional
+@ApplicationService
 public class FacturaApplicationService implements IFacturaWorkflowService {
 
     private final FacturaRepo facturaRepo;
@@ -137,11 +140,27 @@ public class FacturaApplicationService implements IFacturaWorkflowService {
         return ordin.getIdOrdin();
     }
 
+    public void contestaFactura(ContestaFacturaCommand cmd) {
+        contestaFactura(cmd.facturaId(), cmd.motiv());
+    }
+
+    public void contabilizeazaNIR(ContabilizeazaNIRCommand cmd) {
+        contabilizeazaNIR(cmd.nirId());
+    }
+
+    public void storneazaNIR(StorneazaNIRCommand cmd) {
+        storneazaNIR(cmd.nirId(), cmd.motiv());
+    }
+
     public void aprobaOrdin(UUID ordinId, UUID aprobatorId) {
         OrdinPlata ordin = ordinRepo.findById(ordinId)
             .orElseThrow(() -> new NoSuchElementException("Ordinul nu a fost gasit: " + ordinId));
         ordin.aproba(aprobatorId);
         ordinRepo.save(ordin);
+    }
+
+    public void aprobaOrdin(AprobaOrdinCommand cmd) {
+        aprobaOrdin(cmd.ordinId(), cmd.aprobatorId());
     }
 
     public void transmiteOrdin(TransmiteOrdinCommand cmd) {
@@ -155,6 +174,16 @@ public class FacturaApplicationService implements IFacturaWorkflowService {
             ordin.anuleaza();
             ordinRepo.save(ordin);
             throw new IllegalStateException("Furnizorul este blocat. Ordinul a fost anulat!");
+        }
+
+        // Daca ordinul are suma <= 10.000 EUR si este in starea Creat, Ofiterul Financiar il autorizeaza automat
+        Suma prag10k = Suma.of(10000.0, ordin.getSuma().getMoneda().getCurrencyCode());
+        if (ordin.getStareOrdin() == StareOrdinPlata.Creat && !ordin.getSuma().esteMaiMareDecat(prag10k)) {
+            UUID ofiterId = cmd.ofiterId() != null ? cmd.ofiterId() : UUID.nameUUIDFromBytes(("OFITER_FINANCIAR_" + ordin.getIdOrdin()).getBytes());
+            if (ofiterId.equals(ordin.getCreatDe())) {
+                ofiterId = UUID.randomUUID();
+            }
+            ordin.aproba(ofiterId);
         }
 
         ordin.transmiteLaBanca();
@@ -175,7 +204,27 @@ public class FacturaApplicationService implements IFacturaWorkflowService {
         facturaRepo.save(f);
 
         outboxRepo.saveEvent(event);
+        outboxRepo.saveEvent(new ro.uaic.feaa.sdbis.supplychain.facturi.api.event.PlataExecutataPublicEvent(
+            UUID.randomUUID(),
+            event.occurredOn(),
+            event.ordinId(),
+            ordin.getFacturaId(),
+            event.suma().getValoare(),
+            event.suma().getMoneda().getCurrencyCode()
+        ));
         jurnalAudit.inregistreazaAcces("EXECUTIE_PLATA", "Ordin: " + ordinId + " executat cu succes");
+    }
+
+    public void inregistreazaExecutiePlata(InregistreazaExecutiePlataCommand cmd) {
+        inregistreazaExecutiePlata(cmd.ordinId());
+    }
+
+    public void respingeDeBanca(RespingereBancaCommand cmd) {
+        OrdinPlata ordin = ordinRepo.findById(cmd.ordinId())
+            .orElseThrow(() -> new NoSuchElementException("Ordinul nu a fost gasit: " + cmd.ordinId()));
+        ordin.respingeDeBanca(cmd.motiv());
+        ordinRepo.save(ordin);
+        jurnalAudit.inregistreazaAcces("RESPINGERE_BANCA", "Ordin: " + cmd.ordinId() + " motiv: " + cmd.motiv());
     }
 
     public void blocheazaFacturiComandaAnulata(IdComanda comandaId) {

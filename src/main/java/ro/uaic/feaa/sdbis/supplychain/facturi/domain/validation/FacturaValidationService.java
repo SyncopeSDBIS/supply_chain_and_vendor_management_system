@@ -5,6 +5,7 @@ import ro.uaic.feaa.sdbis.supplychain.facturi.domain.FacturaFurnizor;
 import ro.uaic.feaa.sdbis.supplychain.facturi.domain.LinieSumar;
 import ro.uaic.feaa.sdbis.supplychain.facturi.domain.NIR;
 import ro.uaic.feaa.sdbis.supplychain.facturi.domain.StareFactura;
+import ro.uaic.feaa.sdbis.supplychain.shared.annotation.DomainValidationService;
 import ro.uaic.feaa.sdbis.supplychain.shared.exception.DomainValidationException;
 
 import java.math.BigDecimal;
@@ -15,6 +16,7 @@ import java.util.Objects;
  * Implementare Domain Validation Service pentru Facturi si 3-Way Matching (Sprint 2 - ADR-003).
  * Respecta izolarea pura de domeniu si separarea de context Bounded Context (ADR-011).
  */
+@DomainValidationService
 public class FacturaValidationService implements IFacturaValidationService {
 
     @Override

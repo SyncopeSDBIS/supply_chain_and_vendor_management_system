@@ -9,11 +9,13 @@ import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import ro.uaic.feaa.sdbis.supplychain.shared.CodMaterial;
+import ro.uaic.feaa.sdbis.supplychain.shared.annotation.ValueObject;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Objects;
 
+@ValueObject
 @Embeddable
 public class LinieFactura implements Serializable {
 
@@ -67,4 +69,21 @@ public class LinieFactura implements Serializable {
     public String getUnitateMasura() { return unitateMasura; }
     public Suma getPretUnitar() { return pretUnitar; }
     public BigDecimal getCotaTVA() { return cotaTVA; }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof LinieFactura that)) return false;
+        return Objects.equals(material, that.material);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(material);
+    }
+
+    @Override
+    public String toString() {
+        return "LinieFactura[material=" + material + ", cantitate=" + cantitate + " " + unitateMasura + ", pret=" + pretUnitar + "]";
+    }
 }

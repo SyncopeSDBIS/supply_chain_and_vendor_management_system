@@ -2,6 +2,7 @@ package ro.uaic.feaa.sdbis.supplychain.facturi.domain.computation;
 
 import ro.uaic.feaa.sdbis.supplychain.facturi.domain.FacturaFurnizor;
 import ro.uaic.feaa.sdbis.supplychain.facturi.domain.StareFactura;
+import ro.uaic.feaa.sdbis.supplychain.shared.annotation.DomainComputationService;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -12,6 +13,7 @@ import java.util.Objects;
  * Implementare a Serviciului de Calcul Financiar si Reconciliere Facturi (Sprint 2 - ADR-003).
  * Respecta izolarea pura de domeniu (ADR-011).
  */
+@DomainComputationService
 public class ReconciliereComputationService implements IReconciliereComputationService {
 
     @Override

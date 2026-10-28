@@ -2,8 +2,8 @@ package ro.uaic.feaa.sdbis.supplychain.facturi.infrastructure;
 
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
-import ro.uaic.feaa.sdbis.supplychain.comenzi.application.ComandaApplicationService;
-import ro.uaic.feaa.sdbis.supplychain.comenzi.application.dto.ComandaSummaryDTO;
+import ro.uaic.feaa.sdbis.supplychain.comenzi.api.IComenziModuleApi;
+import ro.uaic.feaa.sdbis.supplychain.comenzi.api.dto.ComandaSummaryDTO;
 import ro.uaic.feaa.sdbis.supplychain.facturi.domain.ComandaSummaryVO;
 import ro.uaic.feaa.sdbis.supplychain.facturi.domain.IComenziAdapter;
 import ro.uaic.feaa.sdbis.supplychain.facturi.domain.LinieSumar;
@@ -15,23 +15,25 @@ import java.util.stream.Collectors;
 
 /**
  * Anti-Corruption Layer (ACL) Adapter (Figura 13 si 21).
- * Traduce Published Language ComandaSummaryDTO in Value Object-ul domeniului ComandaSummaryVO.
+ * Consuma contractul public IComenziModuleApi si traduce in ComandaSummaryVO conform regulilor Modular Monolith.
  */
 @Component
 public class ComenziAdapterRest implements IComenziAdapter {
 
-    private final ComandaApplicationService comandaAppService;
+    private final IComenziModuleApi comenziApi;
 
-    public ComenziAdapterRest(@Lazy ComandaApplicationService comandaAppService) {
-        this.comandaAppService = comandaAppService;
+    public ComenziAdapterRest(@Lazy IComenziModuleApi comenziApi) {
+        this.comenziApi = comenziApi;
     }
 
     @Override
     public ComandaSummaryVO obtineDateComanda(IdComanda id) {
-        ComandaSummaryDTO dto = comandaAppService.obtineSumarComanda(id);
-        List<LinieSumar> linii = dto.getLinii().stream()
-            .map(l -> new LinieSumar(CodMaterial.of(l.getMaterial()), l.getCantitateComandata(), l.getPretUnitar()))
+        ComandaSummaryDTO dto = comenziApi.obtineDetaliiComanda(id.getValue())
+                .orElseThrow(() -> new IllegalArgumentException("Comanda nu a fost gasita: " + id));
+
+        List<LinieSumar> linii = dto.linii().stream()
+            .map(l -> new LinieSumar(CodMaterial.of(l.material()), l.cantitate(), l.pretUnitar()))
             .collect(Collectors.toList());
-        return new ComandaSummaryVO(IdComanda.of(dto.getComandaId()), linii);
+        return new ComandaSummaryVO(IdComanda.of(dto.idComanda()), linii);
     }
 }

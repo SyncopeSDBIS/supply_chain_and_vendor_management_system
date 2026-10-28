@@ -3,6 +3,7 @@ package ro.uaic.feaa.sdbis.supplychain.facturi.application.query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ro.uaic.feaa.sdbis.supplychain.facturi.domain.*;
+import ro.uaic.feaa.sdbis.supplychain.shared.annotation.QueryService;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -11,6 +12,7 @@ import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
+@QueryService
 public class FacturaQueryService {
 
     private final FacturaRepo facturaRepo;

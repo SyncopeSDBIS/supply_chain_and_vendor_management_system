@@ -4,12 +4,15 @@ import ro.uaic.feaa.sdbis.supplychain.facturi.domain.ComandaSummaryVO;
 import ro.uaic.feaa.sdbis.supplychain.facturi.domain.FacturaFurnizor;
 import ro.uaic.feaa.sdbis.supplychain.facturi.domain.NIR;
 
+import ro.uaic.feaa.sdbis.supplychain.shared.annotation.DomainValidationService;
+
 import java.math.BigDecimal;
 
 /**
  * Contract pentru Serviciul de Validare a Domeniului Facturare & Reconciliere (ADR-003).
  * Respecta izolarea stricta a Bounded Context-ului facturi (ADR-011).
  */
+@DomainValidationService
 public interface IFacturaValidationService {
 
     /**

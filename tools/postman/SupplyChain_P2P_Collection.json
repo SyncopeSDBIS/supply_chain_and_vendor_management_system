@@ -1,0 +1,302 @@
+{
+  "info": {
+    "name": "Supply Chain & Vendor Management System (Procure-to-Pay)",
+    "_postman_id": "f85e490b-8531-4ec1-9128-4e365cb9da12",
+    "description": "Postman API Collection for Procure-to-Pay (P2P) System aligned with Project_OOAD.docx across Comenzi, Calitate, Facturi, Payments (Stripe) and Webhooks.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Comenzi Aprovizionare (UC1 - UC8)",
+      "item": [
+        {
+          "name": "CU1: Plasare Comanda Aprovizionare",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-User-Role", "value": "REFERENT_APROVIZIONARE" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"furnizorId\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"gestionarId\": \"3fa85f64-5717-4562-b3fc-2c963f66afa7\",\n  \"dataLivrareEstimata\": \"2026-11-15\",\n  \"depozitDestinatie\": \"DEP-CENTRAL-01\",\n  \"linii\": [\n    {\n      \"material\": \"TABLA-01\",\n      \"cantitate\": 50.0,\n      \"unitateMasura\": \"TO\",\n      \"pret\": 120.0,\n      \"moneda\": \"EUR\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/comenzi",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "comenzi"]
+            }
+          }
+        },
+        {
+          "name": "UC2: Confirmare Comanda de catre Furnizor",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-User-Role", "value": "FURNIZOR" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dataConfirmata\": \"2026-11-12\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/comenzi/{{comandaId}}/confirmare",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "comenzi", "{{comandaId}}", "confirmare"]
+            }
+          }
+        },
+        {
+          "name": "UC4: Anulare Comanda in Cascada",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-User-Role", "value": "MANAGER_ACHIZITII" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"motiv\": \"Modificare necesar productie trimestrul IV\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/comenzi/{{comandaId}}/anulare",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "comenzi", "{{comandaId}}", "anulare"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Gestiune Furnizori & Calitate (Q1 - Q8)",
+      "item": [
+        {
+          "name": "Q1: Inregistrare Furnizor Nou (Candidat)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-User-Role", "value": "MANAGER_CALITATE" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"codFiscal\": \"RO12345678\",\n  \"denumire\": \"ArcelorMittal Distribution SRL\",\n  \"adresa\": {\n    \"strada\": \"Bd. Metalurgiei 45\",\n    \"oras\": \"Galati\",\n    \"codPostal\": \"800100\",\n    \"tara\": \"RO\"\n  },\n  \"emailuri\": [\"contact@arcelor.ro\"],\n  \"iban\": \"RO49AAAA1B31007593840000\",\n  \"categorii\": [\"TABLA\", \"PROFILE\"],\n  \"termenPlataZile\": 30,\n  \"moneda\": \"EUR\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/furnizori",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "furnizori"]
+            }
+          }
+        },
+        {
+          "name": "Q2: Aprobare Furnizor",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-User-Role", "value": "DIRECTOR_CALITATE" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/furnizori/{{furnizorId}}/aprobare",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "furnizori", "{{furnizorId}}", "aprobare"]
+            }
+          }
+        },
+        {
+          "name": "CU2: Inregistrare Verdict Inspectie AQL",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-User-Role", "value": "INSPECTOR_CALITATE" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"defecteGasite\": 2,\n  \"observatii\": \"Inspectie conform ISO 2859-1 nivel II AQL 2.5\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/inspectii/{{inspectieId}}/verdict",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "inspectii", "{{inspectieId}}", "verdict"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Facturi, NIR & 3-Way Matching (I1 - I4)",
+      "item": [
+        {
+          "name": "I1: Inregistrare Factura Furnizor (JSON)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" },
+              { "key": "X-User-Role", "value": "CONTABIL" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"serie\": \"FACT\",\n  \"numar\": \"1001\",\n  \"comandaId\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"furnizorId\": \"3fa85f64-5717-4562-b3fc-2c963f66afa8\",\n  \"dataEmitere\": \"2026-10-25\",\n  \"dataScadenta\": \"2026-11-25\",\n  \"moneda\": \"EUR\",\n  \"linii\": [\n    {\n      \"material\": \"TABLA-01\",\n      \"cantitate\": 50.0,\n      \"unitateMasura\": \"TO\",\n      \"pret\": 120.0,\n      \"moneda\": \"EUR\",\n      \"cotaTva\": 0.19\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/facturi",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "facturi"]
+            }
+          }
+        },
+        {
+          "name": "I1 (XML): Inregistrare Factura (Content-Negotiation XML)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/xml" },
+              { "key": "Accept", "value": "application/xml" },
+              { "key": "X-User-Role", "value": "CONTABIL" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<factura>\n  <serie>FACT</serie>\n  <numar>1002</numar>\n  <comandaId>3fa85f64-5717-4562-b3fc-2c963f66afa6</comandaId>\n  <furnizorId>3fa85f64-5717-4562-b3fc-2c963f66afa8</furnizorId>\n  <dataEmitere>2026-10-25</dataEmitere>\n  <dataScadenta>2026-11-25</dataScadenta>\n  <moneda>EUR</moneda>\n  <linii>\n    <linie>\n      <material>TABLA-01</material>\n      <cantitate>50.0</cantitate>\n      <unitateMasura>TO</unitateMasura>\n      <pret>120.0</pret>\n      <moneda>EUR</moneda>\n      <cotaTva>0.19</cotaTva>\n    </linie>\n  </linii>\n</factura>"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/facturi",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "facturi"]
+            }
+          }
+        },
+        {
+          "name": "CU3: Reconciliere 3-Way Match (Factura vs Comanda vs NIR)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-User-Role", "value": "CONTABIL" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/facturi/{{facturaId}}/reconciliere",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "facturi", "{{facturaId}}", "reconciliere"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Plati, Ordin de Plata & Stripe Webhooks (I5 - I7)",
+      "item": [
+        {
+          "name": "I5: Creare Ordin de Plata",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-User-Role", "value": "OFITER_FINANCIAR" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"suma\": 5000.0,\n  \"moneda\": \"EUR\",\n  \"ibanDestinatar\": \"RO49AAAA1B31007593840000\",\n  \"beneficiar\": \"ArcelorMittal Distribution SRL\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/facturi/{{facturaId}}/ordin-plata",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "facturi", "{{facturaId}}", "ordin-plata"]
+            }
+          }
+        },
+        {
+          "name": "I6: Transmitere Ordin la Banca (Stripe Adapter)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-User-Role", "value": "DIRECTOR_FINANCIAR" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/ordine-plata/{{ordinId}}/transmite-banca",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ordine-plata", "{{ordinId}}", "transmite-banca"]
+            }
+          }
+        },
+        {
+          "name": "I7: Webhook Stripe Succeeded (Confirmare Executie Plata)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Stripe-Signature", "value": "t=1700000000,v1=mock_signature" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"evt_test_payment_succeeded\",\n  \"type\": \"payment_intent.succeeded\",\n  \"data\": {\n    \"object\": {\n      \"id\": \"pi_test_123456789\",\n      \"status\": \"succeeded\",\n      \"metadata\": {\n        \"idOrdin\": \"{{ordinId}}\",\n        \"facturaId\": \"{{facturaId}}\",\n        \"ibanDestinatar\": \"RO49AAAA1B31007593840000\"\n      }\n    }\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/ordine-plata/webhook-banca",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ordine-plata", "webhook-banca"]
+            }
+          }
+        },
+        {
+          "name": "I7a: Webhook Stripe Failed (Respingere Plata de catre Banca)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Stripe-Signature", "value": "t=1700000000,v1=mock_signature" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"evt_test_payment_failed\",\n  \"type\": \"payment_intent.payment_failed\",\n  \"data\": {\n    \"object\": {\n      \"id\": \"pi_test_failed_999\",\n      \"status\": \"failed\",\n      \"last_payment_error\": {\n        \"message\": \"Fonduri insuficiente in contul platitorului\"\n      },\n      \"metadata\": {\n        \"idOrdin\": \"{{ordinId}}\",\n        \"facturaId\": \"{{facturaId}}\"\n      }\n    }\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/ordine-plata/webhook-banca",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ordine-plata", "webhook-banca"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Actuator & Healthcheck",
+      "item": [
+        {
+          "name": "Spring Boot Health",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/actuator/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["actuator", "health"]
+            }
+          }
+        },
+        {
+          "name": "OpenAPI Documentation (Swagger JSON)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/v3/api-docs",
+              "host": ["{{baseUrl}}"],
+              "path": ["v3", "api-docs"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "comandaId", "value": "3fa85f64-5717-4562-b3fc-2c963f66afa6" },
+    { "key": "furnizorId", "value": "3fa85f64-5717-4562-b3fc-2c963f66afa8" },
+    { "key": "facturaId", "value": "3fa85f64-5717-4562-b3fc-2c963f66afa9" },
+    { "key": "ordinId", "value": "3fa85f64-5717-4562-b3fc-2c963f66afb0" },
+    { "key": "inspectieId", "value": "3fa85f64-5717-4562-b3fc-2c963f66afb1" }
+  ]
+}
