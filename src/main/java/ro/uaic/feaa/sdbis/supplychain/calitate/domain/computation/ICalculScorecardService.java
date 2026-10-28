@@ -5,6 +5,7 @@ import ro.uaic.feaa.sdbis.supplychain.calitate.domain.InspectieCalitate;
 import ro.uaic.feaa.sdbis.supplychain.calitate.domain.PerformantaLivrariVO;
 import ro.uaic.feaa.sdbis.supplychain.calitate.domain.ScorecardLunar;
 import ro.uaic.feaa.sdbis.supplychain.shared.Perioada;
+import ro.uaic.feaa.sdbis.supplychain.shared.annotation.DomainComputationService;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.List;
 /**
  * Contract pentru Serviciul de Calcul Calitate si Scorecard Furnizori (Sprint 2 - ADR-003).
  */
+@DomainComputationService
 public interface ICalculScorecardService {
 
     /**

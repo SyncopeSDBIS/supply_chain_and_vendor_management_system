@@ -1,10 +1,13 @@
 package ro.uaic.feaa.sdbis.supplychain.calitate.domain;
 
+import ro.uaic.feaa.sdbis.supplychain.shared.annotation.DomainService;
+
 import java.util.Objects;
 
 /**
  * Domain Service pentru validarea si alocarea inspectorului de calitate conform disponibilitatii si certificarii (Figura 20).
  */
+@DomainService
 public class AlocareInspectorService {
 
     public void aloca(InspectieCalitate inspectie, InspectorCalitate inspector) {

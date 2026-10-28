@@ -4,11 +4,13 @@ import ro.uaic.feaa.sdbis.supplychain.calitate.domain.Furnizor;
 import ro.uaic.feaa.sdbis.supplychain.calitate.domain.InspectieCalitate;
 import ro.uaic.feaa.sdbis.supplychain.calitate.domain.PlanAQL;
 import ro.uaic.feaa.sdbis.supplychain.shared.Perioada;
+import ro.uaic.feaa.sdbis.supplychain.shared.annotation.DomainValidationService;
 
 /**
  * Contract pentru Serviciul de Validare a Domeniului Calitate & Furnizori (ADR-003).
  * Trateaza reguli de business pentru inspectii AQL, conformitate furnizori si alocari inspectori.
  */
+@DomainValidationService
 public interface ICalitateValidationService {
 
     /**

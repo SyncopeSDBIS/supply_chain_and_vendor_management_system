@@ -4,6 +4,7 @@ import ro.uaic.feaa.sdbis.supplychain.calitate.domain.Furnizor;
 import ro.uaic.feaa.sdbis.supplychain.calitate.domain.InspectieCalitate;
 import ro.uaic.feaa.sdbis.supplychain.calitate.domain.PlanAQL;
 import ro.uaic.feaa.sdbis.supplychain.shared.Perioada;
+import ro.uaic.feaa.sdbis.supplychain.shared.annotation.DomainValidationService;
 import ro.uaic.feaa.sdbis.supplychain.shared.exception.DomainValidationException;
 
 import java.util.Objects;
@@ -12,6 +13,7 @@ import java.util.Objects;
  * Implementare Domain Validation Service pentru Calitate (Sprint 2 - ADR-003).
  * Respecta izolarea pura de domeniu (ADR-011).
  */
+@DomainValidationService
 public class CalitateValidationService implements ICalitateValidationService {
 
     @Override

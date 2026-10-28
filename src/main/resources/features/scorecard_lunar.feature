@@ -1,16 +1,16 @@
-# language: ro
-Functionalitate: Calcul Calificativ Lunar si Degradare / Reabilitare Furnizor
-  Ca Manager de Calitate
-  Vreau evaluarea lunara automata a performantei furnizorilor
+Feature: Monthly Supplier Performance Scorecard (Q3)
+  As a Quality Manager
+  I want automated monthly supplier scorecard evaluation
+  So that supplier qualification levels reflect actual performance
 
-  Scenariul: Degradare automata in Conditionat la calificativ C
-    Date fiind indicatorii lunari:
-      | OTIF  | Rata Respingere | Conformitate Pret | Scor Ponderat | Calificativ |
-      | 70%   | 10%             | 90%               | 74.0          | C           |
-    Cand sistemul aplica scorecardul lunar pe un furnizor "Aprobat"
-    Atunci starea furnizorului devine "Conditionat"
+  Scenario: Automated downgrade to Conditionat on grade C
+    Given the monthly performance indicators:
+      | OTIF | Rejection Rate | Price Compliance | Weighted Score | Grade |
+      | 70%  | 10%            | 90%              | 74.0           | C     |
+    When the system evaluates monthly scorecard for an "Aprobat" supplier
+    Then the supplier status becomes "Conditionat"
 
-  Scenariul: Reabilitare dupa 3 luni consecutive cu B sau A
-    Date fiind un furnizor in starea "Conditionat"
-    Cand furnizorul obtine calificativul B in lunile 1, 2 si 3
-    Atunci starea furnizorului revine automat la "Aprobat"
+  Scenario: Rehabilitation after 3 consecutive months with grade B or A
+    Given a supplier in status "Conditionat"
+    When the supplier achieves grade B in consecutive months 1, 2, and 3
+    Then the supplier status automatically returns to "Aprobat"

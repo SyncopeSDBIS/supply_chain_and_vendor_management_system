@@ -2,6 +2,7 @@ package ro.uaic.feaa.sdbis.supplychain.calitate.domain.factory;
 
 import ro.uaic.feaa.sdbis.supplychain.calitate.domain.*;
 import ro.uaic.feaa.sdbis.supplychain.shared.IdFurnizor;
+import ro.uaic.feaa.sdbis.supplychain.shared.annotation.DomainFactory;
 import ro.uaic.feaa.sdbis.supplychain.shared.exception.DomainValidationException;
 
 import java.util.Objects;
@@ -11,6 +12,7 @@ import java.util.Set;
  * Aggregate Factory pentru agregatul Furnizor (Sprint 2 - ADR-003).
  * Garanteaza initializarea consistenta a agregatului in starea initiala Candidat.
  */
+@DomainFactory
 public class FurnizorFactory {
 
     public static Furnizor creeaza(String codFiscal,

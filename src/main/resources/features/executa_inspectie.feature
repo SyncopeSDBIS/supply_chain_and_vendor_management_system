@@ -1,22 +1,21 @@
-# language: ro
-Functionalitate: Executie Inspectie Calitate pe Plan AQL (CU2)
-  Ca Inspector de Calitate
-  Vreau sa inspectez un esantion conform standardului ISO 2859-1
-  Pentru a garanta conformitatea loturilor receptionate
+Feature: Quality Inspection and Acceptance Sampling (CU2)
+  As a Quality Inspector
+  I want to inspect lot samples according to ISO 2859-1 AQL
+  So that only conforming goods enter operational inventory
 
-  Scenariul: Verdict conform pentru defecte sub numarul de acceptare
-    Date fiind urmatoarele:
-      | Dimensiune Esantion | Numar Acceptare | Numar Respingere | Defecte Gasite |
-      | 80                  | 3               | 4                | 2              |
-    Cand inspectorul inregistreaza verdictul
-    Atunci inspectia este marcata "Conforma"
-    Si lotul este eliberat in stocul operational
+  Scenario: Conforming verdict when defects are within acceptance limit
+    Given the following AQL inspection parameters:
+      | Sample Size | Acceptance Number | Rejection Number | Defects Found |
+      | 80          | 3                 | 4                | 2             |
+    When the inspector records the inspection verdict
+    Then the inspection is marked as "Conforma"
+    And the lot is released into operational stock
 
-  Scenariul: Verdict neconform si deschidere automata NCR
-    Date fiind urmatoarele:
-      | Dimensiune Esantion | Numar Acceptare | Numar Respingere | Defecte Gasite |
-      | 80                  | 3               | 4                | 5              |
-    Cand inspectorul inregistreaza verdictul
-    Atunci inspectia este marcata "Neconforma"
-    Si se deschide automat un Raport de Neconformitate (NCR) in starea "Deschis"
-    Si lotul este plasat in starea "Respins"
+  Scenario: Nonconforming verdict generates automated NCR
+    Given the following AQL inspection parameters:
+      | Sample Size | Acceptance Number | Rejection Number | Defects Found |
+      | 80          | 3                 | 4                | 5             |
+    When the inspector records the inspection verdict
+    Then the inspection is marked as "Neconforma"
+    And a nonconformance report NCR is automatically opened
+    And the lot is placed in state "Respins"
