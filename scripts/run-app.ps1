@@ -11,8 +11,24 @@ param(
     [string]$Profile = ""
 )
 
-$env:JAVA_HOME = "C:\Users\bmugu\.jdks\ms-21.0.9"
-$env:Path = "$env:JAVA_HOME\bin;$env:Path"
+# Detectare automata si portabila a JAVA_HOME (fara cai hardcodate pe un singur utilizator)
+if (-not $env:JAVA_HOME -or -not (Test-Path $env:JAVA_HOME)) {
+    $candidateJdks = @(
+        "$env:USERPROFILE\.jdks\ms-21.0.9",
+        "C:\Program Files\Java\jdk-21",
+        "C:\Program Files\Eclipse Adoptium\jdk-21*"
+    )
+    foreach ($cand in $candidateJdks) {
+        $resolved = Resolve-Path $cand -ErrorAction SilentlyContinue | Select-Object -First 1
+        if ($resolved -and (Test-Path $resolved.Path)) {
+            $env:JAVA_HOME = $resolved.Path
+            break
+        }
+    }
+}
+if ($env:JAVA_HOME) {
+    $env:Path = "$env:JAVA_HOME\bin;$env:Path"
+}
 
 if ([string]::IsNullOrWhiteSpace($Profile)) {
     Write-Host "`n========================================================" -ForegroundColor Cyan

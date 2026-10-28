@@ -34,3 +34,8 @@ build/
 ### OS files ###
 .DS_Store
 Thumbs.db
+
+### Local Machine Scripts ###
+mvn.bat
+*.bat.local
+
