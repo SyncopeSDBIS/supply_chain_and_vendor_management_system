@@ -2,6 +2,8 @@ package ro.uaic.feaa.sdbis.supplychain.comenzi.domain.computation;
 
 import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.ComandaAprovizionare;
 
+import ro.uaic.feaa.sdbis.supplychain.shared.annotation.DomainComputationService;
+
 import java.math.BigDecimal;
 
 /**
@@ -9,6 +11,7 @@ import java.math.BigDecimal;
  * Trateaza Entity Field Computations (totaluri, TVA, procent livrare)
  * si Entity View Computations (ComandaSummaryView).
  */
+@DomainComputationService
 public interface IComandaComputationService {
 
     /**

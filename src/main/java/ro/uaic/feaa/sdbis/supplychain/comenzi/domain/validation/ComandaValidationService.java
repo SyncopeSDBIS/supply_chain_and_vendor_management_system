@@ -3,6 +3,7 @@ package ro.uaic.feaa.sdbis.supplychain.comenzi.domain.validation;
 import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.ComandaAprovizionare;
 import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.LinieComanda;
 import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.StareComanda;
+import ro.uaic.feaa.sdbis.supplychain.shared.annotation.DomainValidationService;
 import ro.uaic.feaa.sdbis.supplychain.shared.exception.DomainValidationException;
 
 import java.math.BigDecimal;
@@ -12,6 +13,7 @@ import java.util.Objects;
  * Implementare Domain Validation Service pentru Comenzi (Sprint 2 - ADR-003).
  * Respecta izolarea pura de domeniu (ADR-011).
  */
+@DomainValidationService
 public class ComandaValidationService implements IComandaValidationService {
 
     @Override

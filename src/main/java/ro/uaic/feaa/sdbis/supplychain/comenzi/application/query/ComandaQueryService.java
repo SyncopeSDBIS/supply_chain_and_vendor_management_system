@@ -6,6 +6,7 @@ import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.*;
 import ro.uaic.feaa.sdbis.supplychain.shared.IdComanda;
 import ro.uaic.feaa.sdbis.supplychain.shared.IdFurnizor;
 import ro.uaic.feaa.sdbis.supplychain.shared.Perioada;
+import ro.uaic.feaa.sdbis.supplychain.shared.annotation.QueryService;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -15,6 +16,7 @@ import java.util.*;
 
 @Service
 @Transactional(readOnly = true)
+@QueryService
 public class ComandaQueryService {
 
     private final ComandaRepo comandaRepo;

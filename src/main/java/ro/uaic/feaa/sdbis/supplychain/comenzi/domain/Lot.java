@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import ro.uaic.feaa.sdbis.supplychain.shared.CodMaterial;
 import ro.uaic.feaa.sdbis.supplychain.shared.IdLot;
+import ro.uaic.feaa.sdbis.supplychain.shared.annotation.DomainEntity;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Objects;
@@ -14,6 +15,7 @@ import java.util.Objects;
  * Entitate componenta a agregatului ComandaAprovizionare.
  * Metodele de mutatie sunt exclusiv package-private (~) conform Tabelelor 2.1 din Project_OOAD.docx.
  */
+@DomainEntity
 @Entity
 @Table(name = "comenzi_loturi")
 public class Lot implements Serializable {
@@ -145,5 +147,22 @@ public class Lot implements Serializable {
 
     public StareLot getStareLot() {
         return stareLot;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Lot lot)) return false;
+        return Objects.equals(idLot, lot.idLot);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(idLot);
+    }
+
+    @Override
+    public String toString() {
+        return "Lot[id=" + idLot + ", cod=" + codLot + ", stare=" + stareLot + ", material=" + material + "]";
     }
 }

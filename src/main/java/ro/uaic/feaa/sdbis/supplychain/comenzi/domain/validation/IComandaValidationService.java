@@ -4,12 +4,15 @@ import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.ComandaAprovizionare;
 import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.LinieComanda;
 import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.StareComanda;
 
+import ro.uaic.feaa.sdbis.supplychain.shared.annotation.DomainValidationService;
+
 import java.math.BigDecimal;
 
 /**
  * Contract pentru Serviciul de Validare a Domeniului Comenzi (ADR-003).
  * Trateaza validari complexe, cross-entity si cross-aggregate (Furnizor - Comanda).
  */
+@DomainValidationService
 public interface IComandaValidationService {
 
     /**

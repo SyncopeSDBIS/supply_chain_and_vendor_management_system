@@ -2,6 +2,7 @@ package ro.uaic.feaa.sdbis.supplychain.comenzi.domain.computation;
 
 import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.ComandaAprovizionare;
 import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.LinieComanda;
+import ro.uaic.feaa.sdbis.supplychain.shared.annotation.DomainComputationService;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -11,6 +12,7 @@ import java.util.Objects;
  * Implementare a Serviciului de Calcul al Domeniului Comenzi (Sprint 2 - ADR-003).
  * Respecta izolarea pura de domeniu (ADR-011).
  */
+@DomainComputationService
 public class ComandaComputationService implements IComandaComputationService {
 
     @Override

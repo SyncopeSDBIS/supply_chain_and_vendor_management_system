@@ -10,6 +10,7 @@ import ro.uaic.feaa.sdbis.supplychain.shared.CodMaterial;
 import ro.uaic.feaa.sdbis.supplychain.shared.IdComanda;
 import ro.uaic.feaa.sdbis.supplychain.shared.IdFurnizor;
 import ro.uaic.feaa.sdbis.supplychain.shared.IdLot;
+import ro.uaic.feaa.sdbis.supplychain.shared.annotation.AggregateRoot;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -20,6 +21,7 @@ import java.util.*;
  * Aggregate Root pentru Bounded Context-ul Procurement Order Management.
  * Garanteaza invarianții din Tabelul 2.1 (Lifecycle Guard, Lot Quantity Boundary, Cascading Cancellation).
  */
+@AggregateRoot
 @Entity
 @Table(name = "comenzi_aprovizionare")
 public class ComandaAprovizionare implements Serializable {
@@ -161,7 +163,8 @@ public class ComandaAprovizionare implements Serializable {
             this.id,
             lotId,
             lot.getMaterial(),
-            primit,
+            primit.getValoare(),
+            primit.getUnitateMasura(),
             acoperita
         );
     }
@@ -315,4 +318,21 @@ public class ComandaAprovizionare implements Serializable {
     public List<Lot> getLoturi() { return Collections.unmodifiableList(loturi); }
     public List<Expediere> getExpedieri() { return Collections.unmodifiableList(expedieri); }
     public EstimareLivrare getEstimare() { return estimare; }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ComandaAprovizionare that)) return false;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
+    @Override
+    public String toString() {
+        return "ComandaAprovizionare[id=" + id + ", nr=" + numarComanda + ", stare=" + stareComanda + "]";
+    }
 }

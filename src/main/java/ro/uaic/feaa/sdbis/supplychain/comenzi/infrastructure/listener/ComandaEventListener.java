@@ -4,15 +4,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-import ro.uaic.feaa.sdbis.supplychain.calitate.domain.Verdict;
-import ro.uaic.feaa.sdbis.supplychain.calitate.domain.event.VerdictInspectieEvent;
+import ro.uaic.feaa.sdbis.supplychain.calitate.api.event.VerdictInspectiePublicEvent;
 import ro.uaic.feaa.sdbis.supplychain.comenzi.application.ComandaApplicationService;
 import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.RezultatCalitateLot;
 import ro.uaic.feaa.sdbis.supplychain.shared.InboxRepo;
 
 /**
  * Event Listener asincron pentru Bounded Context Comenzi (Figura 1 Context Map).
- * Actioneaza ca Anti-Corruption Layer (ACL) primind VerdictInspectieEvent din Calitate
+ * Actioneaza ca Anti-Corruption Layer (ACL) primind VerdictInspectiePublicEvent din Calitate
  * si aplicand tranzitia de stare asupra lotului (Eliberat in stoc / Respins).
  */
 @Component
@@ -30,14 +29,14 @@ public class ComandaEventListener {
     }
 
     @EventListener
-    public void onVerdictInspectie(VerdictInspectieEvent event) {
+    public void onVerdictInspectie(VerdictInspectiePublicEvent event) {
         if (inboxRepo.existaEveniment(CONSUMER_ID, event.eventId())) {
             log.info("[ComandaEventListener] Event {} already processed, skipping (Idempotent Inbox).", event.eventId());
             return;
         }
 
         try {
-            RezultatCalitateLot rezultat = (event.verdict() == Verdict.Conforma)
+            RezultatCalitateLot rezultat = event.conforma()
                 ? RezultatCalitateLot.Conform
                 : RezultatCalitateLot.Neconform;
 
