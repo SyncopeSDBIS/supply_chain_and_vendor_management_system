@@ -1,6 +1,7 @@
 package ro.uaic.feaa.sdbis.supplychain.calitate.domain;
 
 import jakarta.persistence.Embeddable;
+import ro.uaic.feaa.sdbis.supplychain.shared.annotation.ValueObject;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -10,6 +11,7 @@ import java.util.Objects;
  * Value Object pentru scorul lunar ponderat conform cerintelor OOAD:
  * 40% OTIF + 40% Calitate (100 - rata respingere) + 20% Pret.
  */
+@ValueObject
 @Embeddable
 public final class Scor implements Serializable {
     private BigDecimal valoare;

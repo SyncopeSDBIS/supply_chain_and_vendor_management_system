@@ -10,11 +10,13 @@ import ro.uaic.feaa.sdbis.supplychain.calitate.domain.event.FurnizorBlocatEvent;
 import ro.uaic.feaa.sdbis.supplychain.calitate.domain.event.FurnizorSuspendatEvent;
 import ro.uaic.feaa.sdbis.supplychain.shared.IdFurnizor;
 import ro.uaic.feaa.sdbis.supplychain.shared.Perioada;
+import ro.uaic.feaa.sdbis.supplychain.shared.annotation.AggregateRoot;
 
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.*;
 
+@AggregateRoot
 @Entity
 @Table(name = "calitate_furnizori")
 public class Furnizor implements Serializable {
@@ -177,4 +179,21 @@ public class Furnizor implements Serializable {
     public StareFurnizor getStareFurnizor() { return stareFurnizor; }
     public List<ScorecardLunar> getScorecarduri() { return Collections.unmodifiableList(scorecarduri); }
     public int getInspectiiNeconformeConsecutive() { return inspectiiNeconformeConsecutive; }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Furnizor that)) return false;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
+    @Override
+    public String toString() {
+        return "Furnizor[id=" + id + ", denumire=" + denumire + ", cui=" + codFiscal + ", stare=" + stareFurnizor + "]";
+    }
 }

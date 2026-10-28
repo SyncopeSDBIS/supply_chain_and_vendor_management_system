@@ -10,6 +10,7 @@ import ro.uaic.feaa.sdbis.supplychain.calitate.domain.event.InspectieProgramataE
 import ro.uaic.feaa.sdbis.supplychain.calitate.domain.event.NCREscaladatEvent;
 import ro.uaic.feaa.sdbis.supplychain.calitate.domain.event.VerdictInspectieEvent;
 import ro.uaic.feaa.sdbis.supplychain.shared.*;
+import ro.uaic.feaa.sdbis.supplychain.shared.annotation.ApplicationService;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -17,6 +18,7 @@ import java.util.*;
 
 @Service
 @Transactional
+@ApplicationService
 public class CalitateApplicationService implements ICalitateWorkflowService {
 
     private final FurnizorRepo furnizorRepo;
@@ -82,10 +84,16 @@ public class CalitateApplicationService implements ICalitateWorkflowService {
             case "SUSPENDA" -> {
                 f.suspenda(motiv);
                 outboxRepo.saveEvent(new FurnizorSuspendatEvent(UUID.randomUUID(), Instant.now(), id, motiv));
+                outboxRepo.saveEvent(new ro.uaic.feaa.sdbis.supplychain.calitate.api.event.FurnizorSuspendatPublicEvent(
+                    UUID.randomUUID(), Instant.now(), id, motiv
+                ));
             }
             case "BLOCHEA" -> {
                 FurnizorBlocatEvent evt = f.blocheaza(motiv);
                 outboxRepo.saveEvent(evt);
+                outboxRepo.saveEvent(new ro.uaic.feaa.sdbis.supplychain.calitate.api.event.FurnizorBlocatPublicEvent(
+                    UUID.randomUUID(), evt.occurredOn(), id.getValue(), motiv
+                ));
             }
             default -> throw new IllegalArgumentException("Decizie calificare necunoscuta: " + decizie);
         }
@@ -163,8 +171,20 @@ public class CalitateApplicationService implements ICalitateWorkflowService {
 
         if (suspEvent != null) {
             outboxRepo.saveEvent(suspEvent);
+            outboxRepo.saveEvent(new ro.uaic.feaa.sdbis.supplychain.calitate.api.event.FurnizorSuspendatPublicEvent(
+                UUID.randomUUID(), suspEvent.occurredOn(), suspEvent.furnizorId(), suspEvent.motiv()
+            ));
         }
         outboxRepo.saveEvent(event);
+        outboxRepo.saveEvent(new ro.uaic.feaa.sdbis.supplychain.calitate.api.event.VerdictInspectiePublicEvent(
+            UUID.randomUUID(),
+            event.occurredOn(),
+            ins.getIdInspectie(),
+            event.lotId(),
+            event.comandaId(),
+            ins.getVerdict().name(),
+            ins.getVerdict() == Verdict.Conforma
+        ));
         jurnalAudit.inregistreazaAcces("INREGISTRARE_VERDICT", "Inspectie: " + cmd.inspectieId() + " -> " + ins.getVerdict());
     }
 

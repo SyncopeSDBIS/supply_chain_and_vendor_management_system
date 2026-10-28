@@ -3,6 +3,7 @@ package ro.uaic.feaa.sdbis.supplychain.calitate.application.query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ro.uaic.feaa.sdbis.supplychain.calitate.domain.*;
+import ro.uaic.feaa.sdbis.supplychain.shared.annotation.QueryService;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -11,6 +12,7 @@ import java.util.UUID;
 
 @Service
 @Transactional(readOnly = true)
+@QueryService
 public class CalitateQueryService {
 
     private final FurnizorRepo furnizorRepo;

@@ -7,6 +7,7 @@ import ro.uaic.feaa.sdbis.supplychain.shared.IdComanda;
 import ro.uaic.feaa.sdbis.supplychain.shared.IdFurnizor;
 import ro.uaic.feaa.sdbis.supplychain.shared.IdLot;
 import ro.uaic.feaa.sdbis.supplychain.shared.Perioada;
+import ro.uaic.feaa.sdbis.supplychain.shared.annotation.DomainFactory;
 import ro.uaic.feaa.sdbis.supplychain.shared.exception.DomainValidationException;
 
 import java.util.Objects;
@@ -16,6 +17,7 @@ import java.util.UUID;
  * Aggregate Factory pentru InspectieCalitate (Sprint 2 - ADR-003).
  * Garanteaza initializarea consistenta a agregatului in starea initiala Programata.
  */
+@DomainFactory
 public class InspectieCalitateFactory {
 
     public static InspectieCalitate programeaza(IdLot lotId,

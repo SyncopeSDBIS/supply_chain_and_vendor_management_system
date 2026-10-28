@@ -2,10 +2,12 @@ package ro.uaic.feaa.sdbis.supplychain.calitate.domain;
 
 import ro.uaic.feaa.sdbis.supplychain.shared.IdFurnizor;
 import ro.uaic.feaa.sdbis.supplychain.shared.Perioada;
+import ro.uaic.feaa.sdbis.supplychain.shared.annotation.ValueObject;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Objects;
 
+@ValueObject
 public record PerformantaLivrariVO(
     IdFurnizor furnizorId,
     Perioada luna,

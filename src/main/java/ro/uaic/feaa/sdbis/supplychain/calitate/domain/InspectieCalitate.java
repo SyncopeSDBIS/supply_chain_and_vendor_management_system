@@ -9,6 +9,7 @@ import ro.uaic.feaa.sdbis.supplychain.shared.IdComanda;
 import ro.uaic.feaa.sdbis.supplychain.shared.IdFurnizor;
 import ro.uaic.feaa.sdbis.supplychain.shared.IdLot;
 import ro.uaic.feaa.sdbis.supplychain.shared.Perioada;
+import ro.uaic.feaa.sdbis.supplychain.shared.annotation.AggregateRoot;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -18,6 +19,7 @@ import java.util.UUID;
 /**
  * Aggregate Root pentru inspectia de calitate AQL (Figura 20 si 23).
  */
+@AggregateRoot
 @Entity
 @Table(name = "calitate_inspectii")
 public class InspectieCalitate implements Serializable {
@@ -139,4 +141,21 @@ public class InspectieCalitate implements Serializable {
     public UUID getInspectorId() { return inspectorId; }
     public StareInspectie getStareInspectie() { return stareInspectie; }
     public Verdict getVerdict() { return verdict; }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof InspectieCalitate that)) return false;
+        return Objects.equals(idInspectie, that.idInspectie);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(idInspectie);
+    }
+
+    @Override
+    public String toString() {
+        return "InspectieCalitate[id=" + idInspectie + ", lot=" + lotId + ", stare=" + stareInspectie + ", verdict=" + verdict + "]";
+    }
 }

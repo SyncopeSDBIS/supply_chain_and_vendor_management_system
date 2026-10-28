@@ -3,6 +3,7 @@ package ro.uaic.feaa.sdbis.supplychain.calitate.domain;
 import ro.uaic.feaa.sdbis.supplychain.calitate.domain.computation.CalitateDashboardView;
 import ro.uaic.feaa.sdbis.supplychain.calitate.domain.computation.ICalculScorecardService;
 import ro.uaic.feaa.sdbis.supplychain.shared.Perioada;
+import ro.uaic.feaa.sdbis.supplychain.shared.annotation.DomainComputationService;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -12,6 +13,7 @@ import java.util.List;
  * Domain Service pentru calculul scorecardului lunar si indicatorilor de calitate (Figura 20).
  * Pure Domain: fara adnotari de Spring (ADR-011).
  */
+@DomainComputationService
 public class CalculScorecardService implements ICalculScorecardService {
 
     @Override

@@ -7,6 +7,8 @@ import ro.uaic.feaa.sdbis.supplychain.calitate.application.command.Inregistreaza
 import ro.uaic.feaa.sdbis.supplychain.calitate.domain.*;
 import ro.uaic.feaa.sdbis.supplychain.shared.*;
 
+import ro.uaic.feaa.sdbis.supplychain.shared.annotation.WorkflowService;
+
 import java.time.LocalDate;
 import java.util.Set;
 import java.util.UUID;
@@ -14,6 +16,7 @@ import java.util.UUID;
 /**
  * Contract pentru Serviciul de Workflow Operațional Calitate & Inspectii (Sprint 2 - ADR-003).
  */
+@WorkflowService
 public interface ICalitateWorkflowService {
 
     IdFurnizor inregistreazaFurnizor(String codFiscal, String denumire, Adresa adresa,
