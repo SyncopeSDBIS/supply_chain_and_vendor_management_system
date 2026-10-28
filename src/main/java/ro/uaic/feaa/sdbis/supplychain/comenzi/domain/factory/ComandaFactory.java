@@ -4,6 +4,7 @@ import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.ComandaAprovizionare;
 import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.LinieComanda;
 import ro.uaic.feaa.sdbis.supplychain.shared.IdComanda;
 import ro.uaic.feaa.sdbis.supplychain.shared.IdFurnizor;
+import ro.uaic.feaa.sdbis.supplychain.shared.annotation.DomainFactory;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -14,6 +15,7 @@ import java.util.UUID;
  * Aggregate Factory conform Sprint 2 (ADR-003).
  * Garanteaza initializarea consistenta a agregatului ComandaAprovizionare.
  */
+@DomainFactory
 public class ComandaFactory {
 
     public static ComandaAprovizionare creeaza(String numarComanda,

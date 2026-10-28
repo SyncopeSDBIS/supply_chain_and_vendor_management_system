@@ -9,11 +9,13 @@ import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.ComandaAprovizionare;
 import ro.uaic.feaa.sdbis.supplychain.shared.IdComanda;
 import ro.uaic.feaa.sdbis.supplychain.shared.IdFurnizor;
 import ro.uaic.feaa.sdbis.supplychain.shared.Perioada;
+import ro.uaic.feaa.sdbis.supplychain.shared.annotation.WorkflowService;
 
 /**
  * Contract pentru Serviciul de Workflow Operațional Comenzi (Sprint 2 - ADR-003).
  * Orchestraza fluxurile de business si tranzactiile comenzilor de aprovizionare.
  */
+@WorkflowService
 public interface IComandaWorkflowService {
 
     IdComanda creeazaComanda(CreeazaComandaCommand cmd);

@@ -12,6 +12,8 @@ import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.event.ComandaReceptionataEv
 import ro.uaic.feaa.sdbis.supplychain.shared.*;
 
 import java.math.BigDecimal;
+import ro.uaic.feaa.sdbis.supplychain.shared.annotation.ApplicationService;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
@@ -19,6 +21,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional
+@ApplicationService
 public class ComandaApplicationService implements IComandaWorkflowService {
 
     private final ComandaRepo comandaRepo;
@@ -65,6 +68,9 @@ public class ComandaApplicationService implements IComandaWorkflowService {
 
         comanda.trimiteLaFurnizor();
         comandaRepo.add(comanda);
+        outboxRepo.saveEvent(new ro.uaic.feaa.sdbis.supplychain.comenzi.api.event.ComandaCreataPublicEvent(
+            UUID.randomUUID(), java.time.Instant.now(), id.getValue(), cmd.furnizorId().getValue()
+        ));
 
         jurnalAudit.inregistreazaAcces("CREEAZA_COMANDA", "Comanda: " + cmd.numar());
         return id;
@@ -112,6 +118,10 @@ public class ComandaApplicationService implements IComandaWorkflowService {
         ComandaReceptionataEvent event = comanda.inregistreazaReceptie(cmd.lotId(), cmd.primit());
         comandaRepo.save(comanda);
         outboxRepo.saveEvent(event);
+        outboxRepo.saveEvent(new ro.uaic.feaa.sdbis.supplychain.comenzi.api.event.ComandaReceptionataPublicEvent(
+            UUID.randomUUID(), event.occurredOn(), event.comandaId(), event.lotId(), event.material(),
+            event.cantitatePrimita(), event.unitateMasura(), event.receptieTotala()
+        ));
         jurnalAudit.inregistreazaAcces("RECEPTIE_MARFA", "Comanda: " + comanda.getNumarComanda() + " Lot: " + cmd.lotId().getValue());
     }
 
@@ -120,6 +130,9 @@ public class ComandaApplicationService implements IComandaWorkflowService {
         ComandaAnulataEvent event = comanda.anuleazaComanda();
         comandaRepo.save(comanda);
         outboxRepo.saveEvent(event);
+        outboxRepo.saveEvent(new ro.uaic.feaa.sdbis.supplychain.comenzi.api.event.ComandaAnulataPublicEvent(
+            UUID.randomUUID(), event.occurredOn(), event.comandaId().getValue(), "Anulare comanda"
+        ));
         jurnalAudit.inregistreazaAcces("ANULEAZA_COMANDA", "Comanda: " + comanda.getNumarComanda());
     }
 

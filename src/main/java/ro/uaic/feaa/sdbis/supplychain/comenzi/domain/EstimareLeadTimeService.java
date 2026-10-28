@@ -1,5 +1,7 @@
 package ro.uaic.feaa.sdbis.supplychain.comenzi.domain;
 
+import ro.uaic.feaa.sdbis.supplychain.shared.annotation.DomainComputationService;
+
 import java.time.LocalDate;
 import java.util.Objects;
 
@@ -7,6 +9,7 @@ import java.util.Objects;
  * Domain Service pentru calculul datei de livrare folosind Strategy Pattern (MedieMobila, NetezireExponentiala, Percentila90).
  * Pure Domain: fara adnotari de Spring!
  */
+@DomainComputationService
 public class EstimareLeadTimeService {
 
     private IMetodaEstimareLeadTime strategie;

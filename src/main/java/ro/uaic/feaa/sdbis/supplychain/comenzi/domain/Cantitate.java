@@ -1,10 +1,12 @@
 package ro.uaic.feaa.sdbis.supplychain.comenzi.domain;
 
 import jakarta.persistence.Embeddable;
+import ro.uaic.feaa.sdbis.supplychain.shared.annotation.ValueObject;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Objects;
 
+@ValueObject
 @Embeddable
 public final class Cantitate implements Serializable {
     private BigDecimal valoare;

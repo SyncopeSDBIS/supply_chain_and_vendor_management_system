@@ -2,10 +2,12 @@ package ro.uaic.feaa.sdbis.supplychain.comenzi.domain;
 
 import ro.uaic.feaa.sdbis.supplychain.shared.CodMaterial;
 import ro.uaic.feaa.sdbis.supplychain.shared.IdFurnizor;
+import ro.uaic.feaa.sdbis.supplychain.shared.annotation.ValueObject;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Objects;
 
+@ValueObject
 public record MetriciLivrareVO(
     IdFurnizor furnizorId,
     CodMaterial material,

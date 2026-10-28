@@ -33,7 +33,16 @@ public class ComandaCtrlRestTest {
     @DisplayName("POST /api/comenzi - Content Negotiation JSON returns 201 Created for approved supplier")
     void testCreateOrderJsonSuccess() throws Exception {
         IdFurnizor furnizorId = IdFurnizor.random();
-        Furnizor f = new Furnizor(furnizorId, "RO" + System.currentTimeMillis(), "Furnizor Test SRL", null, null, null, null, null);
+        Furnizor f = new Furnizor(
+            furnizorId,
+            "RO" + System.currentTimeMillis(),
+            "Furnizor Test SRL",
+            null,
+            null,
+            new ro.uaic.feaa.sdbis.supplychain.calitate.domain.Iban("RO98BTRL0000000000000001"),
+            java.util.Set.of("TABLA-01"),
+            null
+        );
         f.aproba();
         furnizorRepo.add(f);
 
@@ -70,7 +79,16 @@ public class ComandaCtrlRestTest {
     @DisplayName("POST /api/comenzi - Ineligible supplier returns 422 Unprocessable Entity (Figura 25)")
     void testCreateOrderIneligibleSupplier() throws Exception {
         IdFurnizor furnizorId = IdFurnizor.random();
-        Furnizor f = new Furnizor(furnizorId, "RO" + System.currentTimeMillis(), "Furnizor Candidat SRL", null, null, null, null, null);
+        Furnizor f = new Furnizor(
+            furnizorId,
+            "RO" + System.currentTimeMillis(),
+            "Furnizor Candidat SRL",
+            null,
+            null,
+            new ro.uaic.feaa.sdbis.supplychain.calitate.domain.Iban("RO98BTRL0000000000000002"),
+            java.util.Set.of("TABLA-01"),
+            null
+        );
         // Stare Candidat -> Neeligibil
         furnizorRepo.add(f);
 

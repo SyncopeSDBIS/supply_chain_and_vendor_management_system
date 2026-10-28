@@ -1,6 +1,7 @@
 package ro.uaic.feaa.sdbis.supplychain.comenzi.domain.policy;
 
 import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.ComandaAprovizionare;
+import ro.uaic.feaa.sdbis.supplychain.shared.annotation.DomainPolicy;
 
 import java.math.BigDecimal;
 import java.util.Objects;
@@ -12,6 +13,7 @@ import java.util.Objects;
  * - 10,000 - 50,000 RON: Manager Departament
  * - Peste 50,000 RON: Director General / Consiliu
  */
+@DomainPolicy
 public class PoliticaAprobareComanda {
 
     public static final BigDecimal PRAG_MANAGER = BigDecimal.valueOf(10000.00);
