@@ -4,12 +4,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-import ro.uaic.feaa.sdbis.supplychain.calitate.domain.event.FurnizorBlocatEvent;
-import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.event.ComandaAnulataEvent;
-import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.event.ComandaReceptionataEvent;
+import ro.uaic.feaa.sdbis.supplychain.calitate.api.event.FurnizorBlocatPublicEvent;
+import ro.uaic.feaa.sdbis.supplychain.comenzi.api.event.ComandaAnulataPublicEvent;
+import ro.uaic.feaa.sdbis.supplychain.comenzi.api.event.ComandaReceptionataPublicEvent;
 import ro.uaic.feaa.sdbis.supplychain.facturi.application.FacturaApplicationService;
 import ro.uaic.feaa.sdbis.supplychain.facturi.application.command.GenereazaNIRCommand;
 import ro.uaic.feaa.sdbis.supplychain.facturi.domain.LinieNIR;
+import ro.uaic.feaa.sdbis.supplychain.shared.IdComanda;
+import ro.uaic.feaa.sdbis.supplychain.shared.IdFurnizor;
 import ro.uaic.feaa.sdbis.supplychain.shared.InboxRepo;
 
 import java.time.LocalDate;
@@ -17,9 +19,9 @@ import java.util.Collections;
 
 /**
  * Event Listener asincron pentru Bounded Context Facturi si Plati (Figura 1 Context Map).
- * - La ComandaReceptionataEvent -> genereaza NIR cu garantie de idempotenta (ADR-009).
- * - La ComandaAnulataEvent -> anuleaza / blocheaza facturile comenzii.
- * - La FurnizorBlocatEvent -> blocheaza platile catre furnizor.
+ * - La ComandaReceptionataPublicEvent -> genereaza NIR cu garantie de idempotenta (ADR-009).
+ * - La ComandaAnulataPublicEvent -> anuleaza / blocheaza facturile comenzii.
+ * - La FurnizorBlocatPublicEvent -> blocheaza platile catre furnizor.
  */
 @Component
 public class FacturaEventListener {
@@ -36,7 +38,7 @@ public class FacturaEventListener {
     }
 
     @EventListener
-    public void onComandaReceptionata(ComandaReceptionataEvent event) {
+    public void onComandaReceptionata(ComandaReceptionataPublicEvent event) {
         if (inboxRepo.existaEveniment(CONSUMER_ID, event.eventId())) {
             log.info("[FacturaEventListener] Event {} already processed, skipping (Idempotent Inbox).", event.eventId());
             return;
@@ -47,7 +49,7 @@ public class FacturaEventListener {
                 + "-" + event.lotId().getValue().toString().substring(0, 4).toUpperCase();
 
             LinieNIR linie = new LinieNIR(
-                event.lotId(), event.material(), event.cantitatePrimita().getValoare(), event.cantitatePrimita().getUnitateMasura()
+                event.lotId(), event.material(), event.cantitatePrimita(), event.unitateMasura()
             );
             GenereazaNIRCommand cmd = new GenereazaNIRCommand(
                 numarNIR,
@@ -66,28 +68,28 @@ public class FacturaEventListener {
     }
 
     @EventListener
-    public void onComandaAnulata(ComandaAnulataEvent event) {
+    public void onComandaAnulata(ComandaAnulataPublicEvent event) {
         if (inboxRepo.existaEveniment(CONSUMER_ID, event.eventId())) return;
 
         try {
-            facturaAppService.blocheazaFacturiComandaAnulata(event.comandaId());
+            facturaAppService.blocheazaFacturiComandaAnulata(IdComanda.of(event.comandaId()));
             inboxRepo.marcheazaProcesat(CONSUMER_ID, event.eventId());
-            log.info("[FacturaEventListener] Cancelled invoices for cancelled order {}", event.comandaId().getValue());
+            log.info("[FacturaEventListener] Cancelled invoices for cancelled order {}", event.comandaId());
         } catch (Exception ex) {
-            log.error("[FacturaEventListener] Error cancelling invoices for order {}: {}", event.comandaId().getValue(), ex.getMessage(), ex);
+            log.error("[FacturaEventListener] Error cancelling invoices for order {}: {}", event.comandaId(), ex.getMessage(), ex);
         }
     }
 
     @EventListener
-    public void onFurnizorBlocat(FurnizorBlocatEvent event) {
+    public void onFurnizorBlocat(FurnizorBlocatPublicEvent event) {
         if (inboxRepo.existaEveniment(CONSUMER_ID, event.eventId())) return;
 
         try {
-            facturaAppService.blocheazaPlatiFurnizor(event.furnizorId());
+            facturaAppService.blocheazaPlatiFurnizor(IdFurnizor.of(event.furnizorId()));
             inboxRepo.marcheazaProcesat(CONSUMER_ID, event.eventId());
-            log.info("[FacturaEventListener] Blocked payments for blocked supplier {}", event.furnizorId().getValue());
+            log.info("[FacturaEventListener] Blocked payments for blocked supplier {}", event.furnizorId());
         } catch (Exception ex) {
-            log.error("[FacturaEventListener] Error blocking payments for supplier {}: {}", event.furnizorId().getValue(), ex.getMessage(), ex);
+            log.error("[FacturaEventListener] Error blocking payments for supplier {}: {}", event.furnizorId(), ex.getMessage(), ex);
         }
     }
 }

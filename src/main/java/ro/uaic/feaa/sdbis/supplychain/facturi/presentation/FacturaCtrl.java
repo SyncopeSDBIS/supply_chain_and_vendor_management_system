@@ -4,10 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ro.uaic.feaa.sdbis.supplychain.facturi.application.FacturaApplicationService;
-import ro.uaic.feaa.sdbis.supplychain.facturi.application.command.CreeazaOrdinPlataCommand;
-import ro.uaic.feaa.sdbis.supplychain.facturi.application.command.InregistreazaFacturaCommand;
-import ro.uaic.feaa.sdbis.supplychain.facturi.application.command.ReconciliereCommand;
-import ro.uaic.feaa.sdbis.supplychain.facturi.application.command.TransmiteOrdinCommand;
+import ro.uaic.feaa.sdbis.supplychain.facturi.application.command.*;
 import ro.uaic.feaa.sdbis.supplychain.facturi.application.query.FacturaQueryService;
 import ro.uaic.feaa.sdbis.supplychain.facturi.domain.LinieFactura;
 import ro.uaic.feaa.sdbis.supplychain.facturi.domain.Suma;
@@ -152,11 +149,61 @@ public class FacturaCtrl {
         }
     }
 
-    @PostMapping("/ordine-plata/webhook-banca")
-    public ResponseEntity<?> webhookBanca(@RequestParam UUID ordinId) {
+    @PostMapping(value = {"/ordine-plata/webhook-banca", "/plati/webhook-banca"})
+    public ResponseEntity<?> webhookBanca(@RequestParam(required = false) UUID ordinId,
+                                          @RequestParam(required = false, defaultValue = "payment_intent.succeeded") String eventType,
+                                          @RequestParam(required = false) String status,
+                                          @RequestParam(required = false) String motiv,
+                                          @RequestBody(required = false) Map<String, Object> payload) {
         try {
-            appService.inregistreazaExecutiePlata(ordinId);
-            return ResponseEntity.ok().build();
+            UUID targetOrdinId = ordinId;
+            String type = eventType;
+            String reason = motiv != null ? motiv : "Tranzactie respinsa de banca / Stripe";
+
+            if (payload != null) {
+                if (payload.containsKey("type")) {
+                    type = (String) payload.get("type");
+                }
+                if (payload.containsKey("data") && payload.get("data") instanceof Map<?, ?> dataMap) {
+                    if (dataMap.containsKey("object") && dataMap.get("object") instanceof Map<?, ?> objMap) {
+                        if (objMap.containsKey("metadata") && objMap.get("metadata") instanceof Map<?, ?> metaMap) {
+                            if (metaMap.containsKey("idOrdin")) {
+                                targetOrdinId = UUID.fromString(metaMap.get("idOrdin").toString());
+                            }
+                        }
+                    }
+                }
+                if (targetOrdinId == null && payload.containsKey("ordinId")) {
+                    targetOrdinId = UUID.fromString(payload.get("ordinId").toString());
+                }
+                if (payload.containsKey("motiv")) {
+                    reason = payload.get("motiv").toString();
+                }
+            }
+
+            if (targetOrdinId == null) {
+                return ResponseEntity.badRequest().body("Lipseste ordinId din parametrii sau payload-ul webhook-ului");
+            }
+
+            boolean isFailed = "payment_intent.payment_failed".equalsIgnoreCase(type)
+                    || "failed".equalsIgnoreCase(status)
+                    || "FAILED".equalsIgnoreCase(type)
+                    || "RESPINS".equalsIgnoreCase(status);
+
+            if (isFailed) {
+                appService.respingeDeBanca(new RespingereBancaCommand(targetOrdinId, reason));
+                Map<String, Object> resp = new HashMap<>();
+                resp.put("ordinId", targetOrdinId);
+                resp.put("status", "RespinsDeBanca");
+                resp.put("motiv", reason);
+                return ResponseEntity.ok(resp);
+            } else {
+                appService.inregistreazaExecutiePlata(new InregistreazaExecutiePlataCommand(targetOrdinId));
+                Map<String, Object> resp = new HashMap<>();
+                resp.put("ordinId", targetOrdinId);
+                resp.put("status", "Executat");
+                return ResponseEntity.ok(resp);
+            }
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

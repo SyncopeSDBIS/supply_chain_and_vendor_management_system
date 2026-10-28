@@ -1,10 +1,12 @@
 package ro.uaic.feaa.sdbis.supplychain.facturi.domain;
 
 import ro.uaic.feaa.sdbis.supplychain.shared.CodMaterial;
+import ro.uaic.feaa.sdbis.supplychain.shared.annotation.ValueObject;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Objects;
 
+@ValueObject
 public record LinieSumar(
     CodMaterial material,
     BigDecimal cantitateComandata,

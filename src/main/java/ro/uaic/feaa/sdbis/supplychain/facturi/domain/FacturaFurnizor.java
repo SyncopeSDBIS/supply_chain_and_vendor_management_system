@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import ro.uaic.feaa.sdbis.supplychain.shared.IdComanda;
 import ro.uaic.feaa.sdbis.supplychain.shared.IdFurnizor;
+import ro.uaic.feaa.sdbis.supplychain.shared.annotation.AggregateRoot;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -17,6 +18,7 @@ import java.util.*;
  * Invariant strict: Creeaza OrdinPlata DOAR daca este AprobataLaPlata sau PartialPlatita,
  * iar suma ordinului <= restDePlata.
  */
+@AggregateRoot
 @Entity
 @Table(name = "facturi_furnizori")
 public class FacturaFurnizor implements Serializable {
@@ -161,4 +163,21 @@ public class FacturaFurnizor implements Serializable {
     public ValoareFactura getValoare() { return valoare; }
     public Suma getSumaPlatita() { return sumaPlatita; }
     public StareFactura getStareFactura() { return stareFactura; }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof FacturaFurnizor that)) return false;
+        return Objects.equals(idFactura, that.idFactura);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(idFactura);
+    }
+
+    @Override
+    public String toString() {
+        return "FacturaFurnizor[id=" + idFactura + ", serie=" + serie + ", nr=" + numar + ", stare=" + stareFactura + "]";
+    }
 }

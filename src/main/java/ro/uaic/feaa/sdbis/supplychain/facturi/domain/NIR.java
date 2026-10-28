@@ -6,12 +6,14 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import ro.uaic.feaa.sdbis.supplychain.shared.CodMaterial;
 import ro.uaic.feaa.sdbis.supplychain.shared.IdComanda;
+import ro.uaic.feaa.sdbis.supplychain.shared.annotation.AggregateRoot;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.*;
 
+@AggregateRoot
 @Entity
 @Table(name = "facturi_nir")
 public class NIR implements Serializable {
@@ -98,4 +100,21 @@ public class NIR implements Serializable {
     public LocalDate getDataReceptie() { return dataReceptie; }
     public List<LinieNIR> getLinii() { return Collections.unmodifiableList(linii); }
     public StareNIR getStareNIR() { return stareNIR; }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof NIR nir)) return false;
+        return Objects.equals(idNIR, nir.idNIR);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(idNIR);
+    }
+
+    @Override
+    public String toString() {
+        return "NIR[id=" + idNIR + ", nr=" + numarNIR + ", stare=" + stareNIR + ", dataReceptie=" + dataReceptie + "]";
+    }
 }

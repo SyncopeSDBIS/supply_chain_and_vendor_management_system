@@ -2,6 +2,7 @@ package ro.uaic.feaa.sdbis.supplychain.facturi.domain.policy;
 
 import ro.uaic.feaa.sdbis.supplychain.facturi.domain.StareFactura;
 import ro.uaic.feaa.sdbis.supplychain.facturi.domain.Suma;
+import ro.uaic.feaa.sdbis.supplychain.shared.annotation.DomainPolicy;
 
 import java.math.BigDecimal;
 import java.util.Objects;
@@ -13,6 +14,7 @@ import java.util.UUID;
  * 2. Conditie stare factura: Factura trebuie sa fie AprobataLaPlata sau PartialPlatita.
  * 3. Prag autorizare CFO: Platile ce depasesc 20,000 RON necesita aprobarea Directorului Financiar (CFO).
  */
+@DomainPolicy
 public class PoliticaAutorizarePlata {
 
     public static final BigDecimal PRAG_CFO = BigDecimal.valueOf(20000.00);

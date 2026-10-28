@@ -56,4 +56,26 @@ public class FacturaCtrlRestTest {
         mockMvc.perform(get("/api/facturi/scadente"))
             .andExpect(status().isOk());
     }
+
+    @Test
+    @DisplayName("POST /api/ordine-plata/webhook-banca - payment_intent.succeeded callback (I7)")
+    void testWebhookBancaSucces() throws Exception {
+        UUID ordinId = UUID.randomUUID();
+        // Cand ordinId nu exista, va returna badRequest, confirmand ca endpoint-ul e apelabil si ajunge in service
+        mockMvc.perform(post("/api/ordine-plata/webhook-banca")
+                .param("ordinId", ordinId.toString())
+                .param("eventType", "payment_intent.succeeded"))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("POST /api/plati/webhook-banca - payment_intent.payment_failed callback (I7a)")
+    void testWebhookBancaEsec() throws Exception {
+        UUID ordinId = UUID.randomUUID();
+        mockMvc.perform(post("/api/plati/webhook-banca")
+                .param("ordinId", ordinId.toString())
+                .param("eventType", "payment_intent.payment_failed")
+                .param("motiv", "Fonduri insuficiente"))
+            .andExpect(status().isBadRequest());
+    }
 }

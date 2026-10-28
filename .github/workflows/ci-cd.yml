@@ -104,10 +104,10 @@ jobs:
           if-no-files-found: warn
 
   # ============================================================================
-  # JOB 4: INTEGRATION & REST TESTS
+  # JOB 4: INTEGRATION, REST, BDD & SLA BENCHMARK TESTS
   # ============================================================================
   integration-tests:
-    name: 4. Integration, Scheduler & REST Tests
+    name: 4. Integration, REST, BDD & SLA Benchmark Tests
     needs: [archunit, unit-tests]
     runs-on: ubuntu-latest
     steps:
@@ -124,8 +124,8 @@ jobs:
       - name: Make Maven Wrapper Executable
         run: chmod +x mvnw
 
-      - name: Execute Integration & REST Tests
-        run: ./mvnw test -B -Dtest="ro.uaic.feaa.sdbis.supplychain.integration.**.*Test,ro.uaic.feaa.sdbis.supplychain.rest.**.*Test"
+      - name: Execute Integration, REST, BDD & SLA Tests
+        run: ./mvnw test -B -Dtest="ro.uaic.feaa.sdbis.supplychain.integration.**.*Test,ro.uaic.feaa.sdbis.supplychain.rest.**.*Test,ro.uaic.feaa.sdbis.supplychain.bdd.**.*Test,ro.uaic.feaa.sdbis.supplychain.performance.**.*Test"
 
   # ============================================================================
   # JOB 5: QUALITY GATE & PACKAGE ARTIFACT (DevSecOps)
@@ -157,3 +157,20 @@ jobs:
           name: supply-chain-system-artifact
           path: target/*.jar
           if-no-files-found: error
+
+  # ============================================================================
+  # JOB 6: DOCKER IMAGE BUILD
+  # ============================================================================
+  docker-build:
+    name: 6. Docker Image Verification
+    needs: [quality-and-package]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker Image
+        run: docker build -t supplychain-p2p:latest .

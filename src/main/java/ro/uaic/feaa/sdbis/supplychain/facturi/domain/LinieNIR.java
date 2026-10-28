@@ -9,11 +9,13 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import ro.uaic.feaa.sdbis.supplychain.shared.CodMaterial;
 import ro.uaic.feaa.sdbis.supplychain.shared.IdLot;
+import ro.uaic.feaa.sdbis.supplychain.shared.annotation.ValueObject;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Objects;
 
+@ValueObject
 @Embeddable
 public class LinieNIR implements Serializable {
 
@@ -47,4 +49,21 @@ public class LinieNIR implements Serializable {
     public CodMaterial getMaterial() { return material; }
     public BigDecimal getCantitateReceptionata() { return cantitateReceptionata; }
     public String getUnitateMasura() { return unitateMasura; }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof LinieNIR that)) return false;
+        return Objects.equals(idLot, that.idLot) && Objects.equals(material, that.material);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(idLot, material);
+    }
+
+    @Override
+    public String toString() {
+        return "LinieNIR[lot=" + idLot + ", material=" + material + ", cantitate=" + cantitateReceptionata + " " + unitateMasura + "]";
+    }
 }

@@ -1,12 +1,14 @@
 package ro.uaic.feaa.sdbis.supplychain.facturi.domain;
 
 import jakarta.persistence.Embeddable;
+import ro.uaic.feaa.sdbis.supplychain.shared.annotation.ValueObject;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Currency;
 import java.util.Objects;
 
+@ValueObject
 @Embeddable
 public final class Suma implements Serializable {
     private BigDecimal valoare;

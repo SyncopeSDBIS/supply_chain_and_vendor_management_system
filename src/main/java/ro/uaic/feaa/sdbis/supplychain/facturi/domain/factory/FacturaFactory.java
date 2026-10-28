@@ -4,6 +4,7 @@ import ro.uaic.feaa.sdbis.supplychain.facturi.domain.FacturaFurnizor;
 import ro.uaic.feaa.sdbis.supplychain.facturi.domain.LinieFactura;
 import ro.uaic.feaa.sdbis.supplychain.shared.IdComanda;
 import ro.uaic.feaa.sdbis.supplychain.shared.IdFurnizor;
+import ro.uaic.feaa.sdbis.supplychain.shared.annotation.DomainFactory;
 import ro.uaic.feaa.sdbis.supplychain.shared.exception.DomainValidationException;
 
 import java.time.LocalDate;
@@ -16,6 +17,7 @@ import java.util.UUID;
  * Garanteaza initializarea consistenta a facturii in starea initiala Inregistrata
  * si calculul invariant al valorilor de linie.
  */
+@DomainFactory
 public class FacturaFactory {
 
     public static FacturaFurnizor creeaza(String serie,

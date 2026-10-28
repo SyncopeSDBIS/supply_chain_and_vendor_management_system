@@ -1,6 +1,7 @@
 package ro.uaic.feaa.sdbis.supplychain.facturi.domain.computation;
 
 import ro.uaic.feaa.sdbis.supplychain.facturi.domain.FacturaFurnizor;
+import ro.uaic.feaa.sdbis.supplychain.shared.annotation.DomainComputationService;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.List;
 /**
  * Contract pentru Serviciul de Calcul Financiar si Reconciliere (Sprint 2 - ADR-003).
  */
+@DomainComputationService
 public interface IReconciliereComputationService {
 
     /**

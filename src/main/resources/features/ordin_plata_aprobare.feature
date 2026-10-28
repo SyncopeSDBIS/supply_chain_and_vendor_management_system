@@ -1,15 +1,17 @@
-# language: ro
-Functionalitate: Creare si Aprobare Ordin de Plata (Principiul celor 4 Ochi)
-  Ca Ofiter Financiar
-  Vreau ca platile de valori mari sa necesite o a doua aprobare
+Feature: Payment Order Approval Workflow (I5, I6)
+  As a Financial Officer
+  I want high-value payment orders to require four-eyes approval
+  So that financial risk and unapproved transactions are prevented
 
-  Scenariul: Ordin de plata sub pragul de 10.000 EUR
-    Cand se creeaza un ordin de plata de 5.000 EUR
-    Atunci ordinul este salvat in starea "Creat"
-    Si poate fi transmis direct la banca
+  Scenario: Payment order below threshold of 10000 EUR
+    When a payment order of 5000 EUR is created
+    Then the payment order is saved with status "Creat"
+    And can be transmitted directly to the bank
 
-  Scenariul: Ordin de plata peste pragul de 10.000 EUR
-    Cand se creeaza un ordin de plata de 25.000 EUR de catre Utilizator-A
-    Atunci ordinul intra in starea "InAprobare"
-    Si nu poate fi aprobat de Utilizator-A
-    Dar poate fi aprobat de Utilizator-B (Second Approver)
+  Scenario: Payment order above threshold of 10000 EUR requires four eyes
+    When a payment order of 25000 EUR is created by User-A
+    Then the payment order enters status "InAprobare"
+    And cannot be approved by User-A
+    When User-B approves the payment order
+    Then the payment order transitions to status "Aprobat"
+    And can now be transmitted to the bank
