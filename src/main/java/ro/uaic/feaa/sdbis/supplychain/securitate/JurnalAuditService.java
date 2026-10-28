@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ro.uaic.feaa.sdbis.supplychain.shared.AuditLogEntry;
 import ro.uaic.feaa.sdbis.supplychain.shared.IJurnalAudit;
+import ro.uaic.feaa.sdbis.supplychain.shared.annotation.UtilityService;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -16,6 +17,7 @@ import java.util.UUID;
  * si trasabilitatea schimbarilor operationale (Sprint 2 - ADR-003).
  */
 @Service
+@UtilityService
 public class JurnalAuditService implements IJurnalAudit {
 
     @PersistenceContext

@@ -3,6 +3,7 @@ package ro.uaic.feaa.sdbis.supplychain.notificari;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import ro.uaic.feaa.sdbis.supplychain.shared.annotation.UtilityService;
 
 import java.time.LocalDate;
 import java.util.UUID;
@@ -11,6 +12,7 @@ import java.util.UUID;
  * Dispatcher Notificari si Alerte (Generic Subdomain - Context Map Figura 1).
  */
 @Service
+@UtilityService
 public class NotificariDispatcherService {
 
     private static final Logger log = LoggerFactory.getLogger(NotificariDispatcherService.class);

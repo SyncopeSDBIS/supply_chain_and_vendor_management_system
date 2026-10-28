@@ -1,9 +1,11 @@
 package ro.uaic.feaa.sdbis.supplychain.shared;
 
 import jakarta.persistence.Embeddable;
+import ro.uaic.feaa.sdbis.supplychain.shared.annotation.ValueObject;
 import java.io.Serializable;
 import java.util.Objects;
 
+@ValueObject
 @Embeddable
 public final class CodMaterial implements Serializable {
     private String cod;

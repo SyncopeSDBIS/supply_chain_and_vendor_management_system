@@ -1,10 +1,12 @@
 package ro.uaic.feaa.sdbis.supplychain.shared;
 
 import jakarta.persistence.Embeddable;
+import ro.uaic.feaa.sdbis.supplychain.shared.annotation.ValueObject;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Objects;
 
+@ValueObject
 @Embeddable
 public final class Perioada implements Serializable {
     private LocalDate dataInceput;

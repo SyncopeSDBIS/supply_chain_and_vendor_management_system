@@ -2,15 +2,16 @@ package ro.uaic.feaa.sdbis.supplychain.notificari;
 
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-import ro.uaic.feaa.sdbis.supplychain.calitate.domain.event.CertificareInspectorExpiraEvent;
-import ro.uaic.feaa.sdbis.supplychain.calitate.domain.event.FurnizorSuspendatEvent;
-import ro.uaic.feaa.sdbis.supplychain.calitate.domain.event.NCREscaladatEvent;
-import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.event.ComandaNeconfirmataEvent;
-import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.event.EstimareDepasesteCerereaEvent;
-import ro.uaic.feaa.sdbis.supplychain.facturi.domain.event.ScadentaApropiataEvent;
+import ro.uaic.feaa.sdbis.supplychain.calitate.api.event.CertificareInspectorExpiraPublicEvent;
+import ro.uaic.feaa.sdbis.supplychain.calitate.api.event.FurnizorSuspendatPublicEvent;
+import ro.uaic.feaa.sdbis.supplychain.calitate.api.event.NCREscaladatPublicEvent;
+import ro.uaic.feaa.sdbis.supplychain.comenzi.api.event.ComandaNeconfirmataPublicEvent;
+import ro.uaic.feaa.sdbis.supplychain.comenzi.api.event.EstimareDepasesteCerereaPublicEvent;
+import ro.uaic.feaa.sdbis.supplychain.facturi.api.event.ScadentaApropiataPublicEvent;
 
 /**
  * Event Listener pentru Bounded Context Generic: Notificari si Alerte (Figura 1 Context Map).
+ * Consuma evenimentele publice din pachetele api.event ale fiecarui bounded context.
  */
 @Component
 public class NotificariEventListener {
@@ -22,32 +23,32 @@ public class NotificariEventListener {
     }
 
     @EventListener
-    public void onComandaNeconfirmata(ComandaNeconfirmataEvent event) {
+    public void onComandaNeconfirmata(ComandaNeconfirmataPublicEvent event) {
         dispatcher.trimiteAlertaNeconfirmareComanda(event.comandaId().getValue());
     }
 
     @EventListener
-    public void onEstimareDepasesteCererea(EstimareDepasesteCerereaEvent event) {
+    public void onEstimareDepasesteCererea(EstimareDepasesteCerereaPublicEvent event) {
         dispatcher.trimiteAlertaLeadTimeDepasit(event.comandaId().getValue());
     }
 
     @EventListener
-    public void onNCREscaladat(NCREscaladatEvent event) {
+    public void onNCREscaladat(NCREscaladatPublicEvent event) {
         dispatcher.trimiteAlertaNCREscaladat(event.ncrId(), event.furnizorId().getValue());
     }
 
     @EventListener
-    public void onScadentaApropiata(ScadentaApropiataEvent event) {
+    public void onScadentaApropiata(ScadentaApropiataPublicEvent event) {
         dispatcher.trimiteAlertaScadentaApropiata(event.facturaId());
     }
 
     @EventListener
-    public void onFurnizorSuspendat(FurnizorSuspendatEvent event) {
+    public void onFurnizorSuspendat(FurnizorSuspendatPublicEvent event) {
         dispatcher.trimiteAlertaFurnizorSuspendat(event.furnizorId().getValue(), event.motiv());
     }
 
     @EventListener
-    public void onCertificareInspectorExpira(CertificareInspectorExpiraEvent event) {
+    public void onCertificareInspectorExpira(CertificareInspectorExpiraPublicEvent event) {
         dispatcher.trimiteAlertaCertificareInspectorExpira(event.inspectorId(), event.denumireCertificare(), event.dataExpirare());
     }
 }
