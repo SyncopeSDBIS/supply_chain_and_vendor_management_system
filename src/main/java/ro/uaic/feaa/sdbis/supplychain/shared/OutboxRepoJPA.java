@@ -1,12 +1,12 @@
 package ro.uaic.feaa.sdbis.supplychain.shared;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import java.io.*;
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 
@@ -17,26 +17,25 @@ public class OutboxRepoJPA extends AbstractRepositoryJPA<OutboxEventEntity, UUID
 
     public OutboxRepoJPA(@Autowired(required = false) ObjectMapper objectMapper) {
         super(OutboxEventEntity.class);
-        this.objectMapper = objectMapper != null ? objectMapper : new ObjectMapper();
+        if (objectMapper != null) {
+            this.objectMapper = objectMapper;
+        } else {
+            this.objectMapper = new ObjectMapper();
+            this.objectMapper.registerModule(new JavaTimeModule());
+        }
     }
 
     @Override
     public void saveEvent(DomainEvent e) {
         String payload;
-        try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
-             ObjectOutputStream oos = new ObjectOutputStream(baos)) {
-            oos.writeObject(e);
-            payload = "B64:" + Base64.getEncoder().encodeToString(baos.toByteArray());
+        try {
+            payload = objectMapper.writeValueAsString(e);
         } catch (Exception ex) {
-            try {
-                payload = objectMapper.writeValueAsString(e);
-            } catch (Exception ignored) {
-                payload = e.toString();
-            }
+            payload = "{\"error\":\"SerializationFailed\",\"message\":\"" + ex.getMessage() + "\"}";
         }
 
         OutboxEventEntity entity = new OutboxEventEntity(
-            e.eventId(), e.occurredOn(), e.getClass().getName(), payload
+            e.eventId(), e.occurredOn() != null ? e.occurredOn() : Instant.now(), e.getClass().getName(), payload
         );
         em.persist(entity);
         em.flush();
@@ -52,26 +51,14 @@ public class OutboxRepoJPA extends AbstractRepositoryJPA<OutboxEventEntity, UUID
         List<DomainEvent> events = new ArrayList<>();
         for (OutboxEventEntity entity : list) {
             DomainEvent de = null;
-            if (entity.getPayload() != null && entity.getPayload().startsWith("B64:")) {
+            if (entity.getPayload() != null && !entity.getPayload().isBlank()) {
                 try {
-                    byte[] data = Base64.getDecoder().decode(entity.getPayload().substring(4));
-                    try (ByteArrayInputStream bais = new ByteArrayInputStream(data);
-                         ObjectInputStream ois = new ObjectInputStream(bais)) {
-                        Object obj = ois.readObject();
+                    Class<?> clazz = Class.forName(entity.getEventType());
+                    if (DomainEvent.class.isAssignableFrom(clazz)) {
+                        Object obj = objectMapper.readValue(entity.getPayload(), clazz);
                         if (obj instanceof DomainEvent d) {
                             de = d;
                         }
-                    }
-                } catch (Exception ignored) {
-                }
-            }
-
-            if (de == null) {
-                try {
-                    Class<?> clazz = Class.forName(entity.getEventType());
-                    Object obj = objectMapper.readValue(entity.getPayload(), clazz);
-                    if (obj instanceof DomainEvent d) {
-                        de = d;
                     }
                 } catch (Exception ignored) {
                 }

@@ -14,15 +14,15 @@ import java.util.Objects;
 public final class ActiuneCorectiva implements Serializable {
 
     @NotBlank
-    @Column(name = "actiune_descriere")
+    @Column(name = "descriere_actiune")
     private String descriere;
 
     @NotBlank
-    @Column(name = "actiune_responsabil")
+    @Column(name = "responsabil", length = 100)
     private String responsabil;
 
     @NotNull
-    @Column(name = "actiune_termen")
+    @Column(name = "termen")
     private LocalDate termen;
 
     protected ActiuneCorectiva() {}

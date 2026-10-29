@@ -1,11 +1,8 @@
 package ro.uaic.feaa.sdbis.supplychain.calitate.domain;
 
-import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Embeddable;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Transient;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import ro.uaic.feaa.sdbis.supplychain.shared.CodMaterial;
@@ -27,12 +24,10 @@ public class ConditiiContractuale implements Serializable {
     private int termenPlataZile;
 
     @NotNull
-    @Column(name = "moneda")
+    @Column(name = "moneda", length = 3)
     private Currency moneda;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "calitate_furnizori_preturi", joinColumns = @JoinColumn(name = "furnizor_id"))
-    @Column(name = "pret_negociat")
+    @Transient
     private Map<CodMaterial, BigDecimal> preturiNegociate = new HashMap<>();
 
     protected ConditiiContractuale() {}

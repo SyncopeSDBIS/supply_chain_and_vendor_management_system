@@ -17,19 +17,19 @@ public class LinieComanda implements Serializable {
 
     @NotNull
     @Embedded
-    @AttributeOverride(name = "cod", column = @Column(name = "material_cod"))
+    @AttributeOverride(name = "cod", column = @Column(name = "cod_material", nullable = false))
     private CodMaterial material;
 
     @NotNull
     @Embedded
-    @AttributeOverride(name = "valoare", column = @Column(name = "cantitate_valoare"))
-    @AttributeOverride(name = "unitateMasura", column = @Column(name = "cantitate_um"))
+    @AttributeOverride(name = "valoare", column = @Column(name = "cantitate", nullable = false))
+    @AttributeOverride(name = "unitateMasura", column = @Column(name = "unitate_masura", nullable = false))
     private Cantitate cantitate;
 
     @NotNull
     @Embedded
-    @AttributeOverride(name = "valoare", column = @Column(name = "pret_valoare"))
-    @AttributeOverride(name = "moneda", column = @Column(name = "pret_moneda"))
+    @AttributeOverride(name = "valoare", column = @Column(name = "pret_unitar", nullable = false))
+    @AttributeOverride(name = "moneda", column = @Column(name = "moneda", nullable = false))
     private PretUnitar pretUnitar;
 
     protected LinieComanda() {}

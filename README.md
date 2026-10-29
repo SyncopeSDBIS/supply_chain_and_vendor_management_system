@@ -73,10 +73,26 @@ The sub-domain `facturi` communicates with banking systems through the `IBancaPl
 1. **Auto-Approval ($\le 10.000\text{ EUR}$):** Transmitted directly to Stripe `PaymentIntent`.
 2. **Four-Eyes Principle ($> 10.000\text{ EUR}$):** Requires approval by an independent finance officer (`OrdinPlata.aproba(UUID)`).
 3. **Supplier Sanction Check (`BR-IP-08`):** Payments to `Blocat` or sanctioned suppliers are instantly rejected before Stripe invocation.
-4. **Stripe Webhook Endpoints:**
-   - `POST /api/ordine-plata/webhook-banca` (and `/api/plati/webhook-banca`)
-   - Handles `payment_intent.succeeded` -> records execution (`I7`, `I7b`), transitions invoice to `Platita` or `PartialPlatita`.
-   - Handles `payment_intent.payment_failed` -> records bank rejection (`I7a`), keeps invoice open for reconciliation.
+4. **Cryptographic Stripe Webhook Verification (ADR-010):**
+   - Endpoints: POST /api/ordine-plata/webhook-banca and POST /api/plati/webhook-banca
+   - **Signature Verification:** Enforces mandatory Stripe-Signature header verification using com.stripe.net.Webhook.constructEvent(payload, sigHeader, secret, 300).
+   - **Replay Attack Protection:** Enforces 300-second timestamp tolerance.
+   - **Audit Trail:** Every successful or rejected webhook call is persisted in shared_audit_log.
+   - **Idempotency:** Repeated callbacks for already executed payment orders are safely handled without re-triggering transitions.
+   - Handles payment_intent.succeeded -> records execution (I7, I7b), transitions invoice to Platita or PartialPlatita.
+   - Handles payment_intent.payment_failed -> records bank rejection (I7a), keeps invoice open for reconciliation.
+
+---
+
+## 📬 5. Enterprise RabbitMQ Messaging & DLQ Strategy (ADR-004)
+
+- **Topic Exchange:** supplychain.events.exchange
+- **Dead-Letter Exchange (DLX):** supplychain.events.dlx
+- **Dead-Letter Queue (DLQ):** supplychain.events.dlq (routing dlq.#)
+- **Bounded Context Queues:**
+  - comenzi.events.queue (routing comenzi.#, DLX enabled)
+  - calitate.events.queue (routing calitate.#, DLX enabled)
+  - acturi.events.queue (routing acturi.#, DLX enabled)
 
 ---
 
@@ -113,7 +129,7 @@ docker-compose up --build -d
 
 ## 🧪 6. Testing & Quality Verification
 
-Run the entire suite of 72 automated tests (Unit, Integration, BDD, Performance, ArchUnit):
+Run the entire suite of 96 automated tests (Unit, Integration, BDD, Performance, ArchUnit):
 
 ```powershell
 .\mvn.bat test

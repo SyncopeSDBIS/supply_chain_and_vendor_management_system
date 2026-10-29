@@ -119,5 +119,25 @@ public class ComandaCtrlRestTest {
             .andExpect(status().isUnprocessableEntity())
             .andExpect(jsonPath("$.error").exists());
     }
+
+    @Test
+    @DisplayName("POST /api/comenzi - Invalid request body with missing fields returns 400 Bad Request (Jakarta Validation)")
+    void testCreateOrderInvalidInputReturns400BadRequest() throws Exception {
+        String invalidJson = """
+            {
+              "numarComanda": "",
+              "depozit": "",
+              "linii": []
+            }
+            """;
+
+        mockMvc.perform(post("/api/comenzi")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(invalidJson))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.error").value("Validation Failed"))
+            .andExpect(jsonPath("$.fieldErrors").exists());
+    }
 }
 

@@ -10,7 +10,8 @@ CREATE TABLE calitate_furnizori (
     termen_plata_zile INT,
     moneda VARCHAR(3),
     stare_furnizor VARCHAR(50) NOT NULL,
-    inspectii_neconforme_consecutive INT NOT NULL DEFAULT 0
+    inspectii_neconforme_consecutive INT NOT NULL DEFAULT 0,
+    version BIGINT NOT NULL DEFAULT 0
 );
 
 CREATE TABLE calitate_furnizori_emailuri (
@@ -43,7 +44,8 @@ CREATE TABLE calitate_scorecards (
 CREATE TABLE calitate_inspectori (
     id UUID PRIMARY KEY,
     first_name VARCHAR(100) NOT NULL,
-    last_name VARCHAR(100) NOT NULL
+    last_name VARCHAR(100) NOT NULL,
+    version BIGINT NOT NULL DEFAULT 0
 );
 
 CREATE TABLE calitate_inspectori_certificari (
@@ -72,7 +74,8 @@ CREATE TABLE calitate_inspectii (
     nivel_aql NUMERIC(5, 2),
     dimensiune_esantion INT,
     numar_acceptare INT,
-    numar_respingere INT
+    numar_respingere INT,
+    version BIGINT NOT NULL DEFAULT 0
 );
 
 CREATE TABLE calitate_ncr (
@@ -84,5 +87,6 @@ CREATE TABLE calitate_ncr (
     descriere_actiune TEXT,
     responsabil VARCHAR(100),
     termen DATE,
-    stare_ncr VARCHAR(50) NOT NULL
+    stare_ncr VARCHAR(50) NOT NULL,
+    version BIGINT NOT NULL DEFAULT 0
 );

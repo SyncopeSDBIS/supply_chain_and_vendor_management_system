@@ -19,30 +19,30 @@ public class ScorecardLunar implements Serializable {
 
     @NotNull
     @Id
-    @Column(nullable = false)
+    @Column(name = "id", nullable = false)
     private UUID id;
 
     @NotNull
     @Embedded
-    @AttributeOverride(name = "dataInceput", column = @Column(name = "luna_inceput", nullable = false))
-    @AttributeOverride(name = "dataFinalizare", column = @Column(name = "luna_sfarsit", nullable = false))
+    @AttributeOverride(name = "dataInceput", column = @Column(name = "data_inceput", nullable = false))
+    @AttributeOverride(name = "dataFinalizare", column = @Column(name = "data_finalizare", nullable = false))
     private Perioada luna;
 
     @NotNull
-    @Column(nullable = false)
+    @Column(name = "otif", nullable = false, precision = 5, scale = 2)
     private BigDecimal otif;
 
     @NotNull
-    @Column(nullable = false)
+    @Column(name = "rata_respingere", nullable = false, precision = 5, scale = 2)
     private BigDecimal rataRespingere;
 
     @NotNull
-    @Column(nullable = false)
+    @Column(name = "conformitate_pret", nullable = false, precision = 5, scale = 2)
     private BigDecimal conformitatePret;
 
     @NotNull
     @Embedded
-    @AttributeOverride(name = "valoare", column = @Column(name = "scor_valoare", nullable = false))
+    @AttributeOverride(name = "valoare", column = @Column(name = "scor", nullable = false, precision = 5, scale = 2))
     private Scor scor;
 
     protected ScorecardLunar() {}
@@ -78,12 +78,12 @@ public class ScorecardLunar implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof ScorecardLunar that)) return false;
-        return Objects.equals(id, that.id);
+        return getId() != null && Objects.equals(getId(), that.getId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return getClass().hashCode();
     }
 
     @Override

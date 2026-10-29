@@ -61,12 +61,16 @@ public class ComandaAprovizionare implements Serializable {
     @Column(nullable = false)
     private StareComanda stareComanda;
 
+    @Version
+    @Column(name = "version")
+    private Long version = 0L;
+
     @NotEmpty
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "comenzi_linii", joinColumns = @JoinColumn(name = "comanda_id"))
     private List<LinieComanda> linii = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JoinColumn(name = "comanda_id")
     private List<Lot> loturi = new ArrayList<>();
 
@@ -319,11 +323,13 @@ public class ComandaAprovizionare implements Serializable {
     public List<Expediere> getExpedieri() { return Collections.unmodifiableList(expedieri); }
     public EstimareLivrare getEstimare() { return estimare; }
 
+    public Long getVersion() { return version; }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof ComandaAprovizionare that)) return false;
-        return Objects.equals(id, that.id);
+        return Objects.equals(getId(), that.getId());
     }
 
     @Override

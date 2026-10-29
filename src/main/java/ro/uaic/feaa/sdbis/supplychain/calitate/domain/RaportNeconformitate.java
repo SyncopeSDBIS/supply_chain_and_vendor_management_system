@@ -19,7 +19,7 @@ public class RaportNeconformitate implements Serializable {
 
     @NotNull
     @Id
-    @Column(nullable = false)
+    @Column(name = "id_ncr", nullable = false)
     private UUID idNCR;
 
     @NotNull
@@ -40,12 +40,19 @@ public class RaportNeconformitate implements Serializable {
     private String cauzaRadacina;
 
     @Embedded
+    @AttributeOverride(name = "descriere", column = @Column(name = "descriere_actiune"))
+    @AttributeOverride(name = "responsabil", column = @Column(name = "responsabil", length = 100))
+    @AttributeOverride(name = "termen", column = @Column(name = "termen"))
     private ActiuneCorectiva actiuneCorectiva;
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "stare_ncr", nullable = false, length = 50)
     private StareNCR stareNCR;
+
+    @Version
+    @Column(name = "version", nullable = false)
+    private Long version = 0L;
 
     protected RaportNeconformitate() {}
 
@@ -87,17 +94,18 @@ public class RaportNeconformitate implements Serializable {
     public String getCauzaRadacina() { return cauzaRadacina; }
     public ActiuneCorectiva getActiuneCorectiva() { return actiuneCorectiva; }
     public StareNCR getStareNCR() { return stareNCR; }
+    public Long getVersion() { return version; }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof RaportNeconformitate that)) return false;
-        return Objects.equals(idNCR, that.idNCR);
+        return getIdNCR() != null && Objects.equals(getIdNCR(), that.getIdNCR());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(idNCR);
+        return getClass().hashCode();
     }
 
     @Override

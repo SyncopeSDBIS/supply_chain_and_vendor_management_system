@@ -26,45 +26,58 @@ public class InspectieCalitate implements Serializable {
 
     @NotNull
     @Id
+    @Column(name = "id_inspectie", nullable = false)
     private UUID idInspectie;
 
     @NotNull
     @Embedded
-    @AttributeOverride(name = "value", column = @Column(name = "lot_id"))
+    @AttributeOverride(name = "value", column = @Column(name = "lot_id", nullable = false))
     private IdLot lotId;
 
     @NotNull
     @Embedded
-    @AttributeOverride(name = "value", column = @Column(name = "comanda_id"))
+    @AttributeOverride(name = "value", column = @Column(name = "comanda_id", nullable = false))
     private IdComanda comandaId;
 
     @NotNull
     @Embedded
-    @AttributeOverride(name = "value", column = @Column(name = "furnizor_id"))
+    @AttributeOverride(name = "value", column = @Column(name = "furnizor_id", nullable = false))
     private IdFurnizor furnizorId;
 
     @NotNull
     @Embedded
-    @AttributeOverride(name = "cod", column = @Column(name = "material_cod"))
+    @AttributeOverride(name = "cod", column = @Column(name = "cod_material", nullable = false, length = 50))
     private CodMaterial material;
 
     @NotNull
     @Embedded
+    @AttributeOverride(name = "nivelAQL", column = @Column(name = "nivel_aql", precision = 5, scale = 2))
+    @AttributeOverride(name = "dimensiuneEsantion", column = @Column(name = "dimensiune_esantion"))
+    @AttributeOverride(name = "numarAcceptare", column = @Column(name = "numar_acceptare"))
+    @AttributeOverride(name = "numarRespingere", column = @Column(name = "numar_respingere"))
     private PlanAQL plan;
 
     @NotNull
     @Embedded
+    @AttributeOverride(name = "dataInceput", column = @Column(name = "data_inceput", nullable = false))
+    @AttributeOverride(name = "dataFinalizare", column = @Column(name = "data_finalizare", nullable = false))
     private Perioada perioadaPlanificata;
 
+    @Column(name = "inspector_id")
     private UUID inspectorId;
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "stare_inspectie", nullable = false, length = 50)
     private StareInspectie stareInspectie;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "verdict", length = 50)
     private Verdict verdict;
+
+    @Version
+    @Column(name = "version", nullable = false)
+    private Long version = 0L;
 
     protected InspectieCalitate() {}
 
@@ -141,17 +154,18 @@ public class InspectieCalitate implements Serializable {
     public UUID getInspectorId() { return inspectorId; }
     public StareInspectie getStareInspectie() { return stareInspectie; }
     public Verdict getVerdict() { return verdict; }
+    public Long getVersion() { return version; }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof InspectieCalitate that)) return false;
-        return Objects.equals(idInspectie, that.idInspectie);
+        return getIdInspectie() != null && Objects.equals(getIdInspectie(), that.getIdInspectie());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(idInspectie);
+        return getClass().hashCode();
     }
 
     @Override

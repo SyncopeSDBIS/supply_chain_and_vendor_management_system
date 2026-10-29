@@ -44,6 +44,15 @@ public class CalitateCtrlRestTest {
     }
 
     @Test
+    @DisplayName("POST /api/furnizori - validare esueaza cand codul fiscal lipseste")
+    void testInregistreazaFurnizorValidareEsueaza() throws Exception {
+        mockMvc.perform(post("/api/furnizori")
+                .param("codFiscal", "")
+                .param("denumire", "Furnizor Fara CIF"))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
     @DisplayName("GET /api/furnizori/rapoarte/monitorizare - monitorizare furnizori (Q9)")
     void testMonitorizareFurnizori() throws Exception {
         mockMvc.perform(get("/api/furnizori/rapoarte/monitorizare"))

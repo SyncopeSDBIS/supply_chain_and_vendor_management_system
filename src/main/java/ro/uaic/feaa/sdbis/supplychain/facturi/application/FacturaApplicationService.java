@@ -195,6 +195,10 @@ public class FacturaApplicationService implements IFacturaWorkflowService {
     public void inregistreazaExecutiePlata(UUID ordinId) {
         OrdinPlata ordin = ordinRepo.findById(ordinId)
             .orElseThrow(() -> new NoSuchElementException("Ordinul nu a fost gasit: " + ordinId));
+        if (ordin.getStareOrdin() == StareOrdinPlata.Executat) {
+            jurnalAudit.inregistreazaAcces("EXECUTIE_PLATA_DUPLICAT", "Ordin: " + ordinId + " deja executat. Apel duplicat ignorat (idempotenta).");
+            return;
+        }
         PlataExecutataEvent event = ordin.inregistreazaExecutie();
         ordinRepo.save(ordin);
 
@@ -222,6 +226,10 @@ public class FacturaApplicationService implements IFacturaWorkflowService {
     public void respingeDeBanca(RespingereBancaCommand cmd) {
         OrdinPlata ordin = ordinRepo.findById(cmd.ordinId())
             .orElseThrow(() -> new NoSuchElementException("Ordinul nu a fost gasit: " + cmd.ordinId()));
+        if (ordin.getStareOrdin() == StareOrdinPlata.RespinsDeBanca) {
+            jurnalAudit.inregistreazaAcces("RESPINGERE_BANCA_DUPLICAT", "Ordin: " + cmd.ordinId() + " deja respins. Apel duplicat ignorat.");
+            return;
+        }
         ordin.respingeDeBanca(cmd.motiv());
         ordinRepo.save(ordin);
         jurnalAudit.inregistreazaAcces("RESPINGERE_BANCA", "Ordin: " + cmd.ordinId() + " motiv: " + cmd.motiv());

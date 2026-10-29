@@ -9,7 +9,8 @@ CREATE TABLE comenzi_aprovizionare (
     depozit VARCHAR(255) NOT NULL,
     stare_comanda VARCHAR(50) NOT NULL,
     estimare_data DATE,
-    estimare_metoda VARCHAR(100)
+    estimare_metoda VARCHAR(100),
+    version BIGINT NOT NULL DEFAULT 0
 );
 
 CREATE TABLE comenzi_linii (

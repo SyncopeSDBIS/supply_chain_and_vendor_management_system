@@ -20,33 +20,39 @@ public class NIR implements Serializable {
 
     @NotNull
     @Id
+    @Column(name = "id_nir", nullable = false)
     private UUID idNIR;
 
     @NotBlank
-    @Column(nullable = false, unique = true)
+    @Column(name = "numar_nir", nullable = false, unique = true, length = 100)
     private String numarNIR;
 
     @NotNull
     @Embedded
-    @AttributeOverride(name = "value", column = @Column(name = "comanda_id"))
+    @AttributeOverride(name = "value", column = @Column(name = "comanda_id", nullable = false))
     private IdComanda comandaId;
 
     @NotNull
-    @Column(nullable = false, unique = true)
+    @Column(name = "event_sursa_id", nullable = false, unique = true)
     private UUID eventSursaId; // Constrangere UNIQUE pentru garantia idempotentei
 
     @NotNull
+    @Column(name = "data_receptie", nullable = false)
     private LocalDate dataReceptie;
 
     @NotEmpty
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "facturi_nir_linii", joinColumns = @JoinColumn(name = "nir_id"))
     private List<LinieNIR> linii = new ArrayList<>();
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "stare_nir", nullable = false, length = 50)
     private StareNIR stareNIR;
+
+    @Version
+    @Column(name = "version", nullable = false)
+    private Long version = 0L;
 
     protected NIR() {}
 
@@ -100,17 +106,18 @@ public class NIR implements Serializable {
     public LocalDate getDataReceptie() { return dataReceptie; }
     public List<LinieNIR> getLinii() { return Collections.unmodifiableList(linii); }
     public StareNIR getStareNIR() { return stareNIR; }
+    public Long getVersion() { return version; }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof NIR nir)) return false;
-        return Objects.equals(idNIR, nir.idNIR);
+        return getIdNIR() != null && Objects.equals(getIdNIR(), nir.getIdNIR());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(idNIR);
+        return getClass().hashCode();
     }
 
     @Override

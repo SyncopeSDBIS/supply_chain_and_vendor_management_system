@@ -1,28 +1,33 @@
 package ro.uaic.feaa.sdbis.supplychain.facturi.infrastructure;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import ro.uaic.feaa.sdbis.supplychain.facturi.domain.FurnizoriBlocatiRepo;
-import ro.uaic.feaa.sdbis.supplychain.shared.AbstractRepositoryJPA;
 import ro.uaic.feaa.sdbis.supplychain.shared.IdFurnizor;
-import java.util.HashSet;
-import java.util.Set;
 
 @Repository
-public class FurnizoriBlocatiRepoJPA extends AbstractRepositoryJPA<Object, Long> implements FurnizoriBlocatiRepo {
+public class FurnizoriBlocatiRepoJPA implements FurnizoriBlocatiRepo {
 
-    private final Set<IdFurnizor> blocati = new HashSet<>();
-
-    public FurnizoriBlocatiRepoJPA() {
-        super(Object.class);
-    }
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Override
+    @Transactional
     public void adauga(IdFurnizor id) {
-        blocati.add(id);
+        if (id == null || id.getValue() == null) return;
+        FurnizorBlocatFactura existing = entityManager.find(FurnizorBlocatFactura.class, id.getValue());
+        if (existing == null) {
+            entityManager.persist(new FurnizorBlocatFactura(id.getValue()));
+            entityManager.flush();
+        }
     }
 
     @Override
+    @Transactional(readOnly = true)
     public boolean esteBlocat(IdFurnizor id) {
-        return blocati.contains(id);
+        if (id == null || id.getValue() == null) return false;
+        return entityManager.find(FurnizorBlocatFactura.class, id.getValue()) != null;
     }
 }

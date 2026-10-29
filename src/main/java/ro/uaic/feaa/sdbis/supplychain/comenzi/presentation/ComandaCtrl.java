@@ -1,7 +1,9 @@
 package ro.uaic.feaa.sdbis.supplychain.comenzi.presentation;
 
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ro.uaic.feaa.sdbis.supplychain.comenzi.application.ComandaApplicationService;
 import ro.uaic.feaa.sdbis.supplychain.comenzi.application.command.*;
@@ -21,6 +23,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
+@Validated
 @RequestMapping("/api/comenzi")
 public class ComandaCtrl {
 
@@ -33,7 +36,7 @@ public class ComandaCtrl {
     }
 
     @PostMapping(consumes = {"application/json", "application/xml"}, produces = {"application/json", "application/xml"})
-    public ResponseEntity<?> creeazaComanda(@RequestBody CreeazaComandaRequest req) {
+    public ResponseEntity<?> creeazaComanda(@Valid @RequestBody CreeazaComandaRequest req) {
         try {
             List<LinieComanda> linii = req.getLinii().stream()
                 .map(l -> new LinieComanda(

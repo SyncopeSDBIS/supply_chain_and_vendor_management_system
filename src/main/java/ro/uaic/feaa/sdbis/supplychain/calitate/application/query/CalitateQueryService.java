@@ -3,12 +3,16 @@ package ro.uaic.feaa.sdbis.supplychain.calitate.application.query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ro.uaic.feaa.sdbis.supplychain.calitate.domain.*;
+import ro.uaic.feaa.sdbis.supplychain.shared.IdFurnizor;
 import ro.uaic.feaa.sdbis.supplychain.shared.annotation.QueryService;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -25,6 +29,10 @@ public class CalitateQueryService {
 
     public List<MonitorizareFurnizoriView> obtineMonitorizareFurnizori() {
         List<Furnizor> furnizori = furnizorRepo.findAll();
+        List<RaportNeconformitate> allNcrs = ncrRepo.findAll();
+        Map<IdFurnizor, List<RaportNeconformitate>> ncrsByFurnizor =
+            allNcrs.stream().collect(Collectors.groupingBy(RaportNeconformitate::getFurnizorId));
+
         List<MonitorizareFurnizoriView> views = new ArrayList<>();
 
         for (Furnizor f : furnizori) {
@@ -43,13 +51,12 @@ public class CalitateQueryService {
 
             int ncrDeschise = 0;
             int ncrEscaladate = 0;
-            for (RaportNeconformitate ncr : ncrRepo.findAll()) {
-                if (ncr.getFurnizorId().equals(f.getIdFurnizor())) {
-                    if (ncr.getStareNCR() == StareNCR.Deschis || ncr.getStareNCR() == StareNCR.InAnalizaCauzei) {
-                        ncrDeschise++;
-                    } else if (ncr.getStareNCR() == StareNCR.Escaladat) {
-                        ncrEscaladate++;
-                    }
+            List<RaportNeconformitate> furnizorNcrs = ncrsByFurnizor.getOrDefault(f.getIdFurnizor(), Collections.emptyList());
+            for (RaportNeconformitate ncr : furnizorNcrs) {
+                if (ncr.getStareNCR() == StareNCR.Deschis || ncr.getStareNCR() == StareNCR.InAnalizaCauzei) {
+                    ncrDeschise++;
+                } else if (ncr.getStareNCR() == StareNCR.Escaladat) {
+                    ncrEscaladate++;
                 }
             }
 

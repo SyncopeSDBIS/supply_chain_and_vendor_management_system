@@ -11,7 +11,8 @@ CREATE TABLE facturi_furnizori (
     valoare_totala NUMERIC(18, 4) NOT NULL,
     suma_platita NUMERIC(18, 4) NOT NULL DEFAULT 0,
     moneda VARCHAR(3) NOT NULL,
-    stare_factura VARCHAR(50) NOT NULL
+    stare_factura VARCHAR(50) NOT NULL,
+    version BIGINT NOT NULL DEFAULT 0
 );
 
 CREATE TABLE facturi_linii (
@@ -30,7 +31,8 @@ CREATE TABLE facturi_nir (
     comanda_id UUID NOT NULL,
     event_sursa_id UUID NOT NULL UNIQUE,
     data_receptie DATE NOT NULL,
-    stare_nir VARCHAR(50) NOT NULL
+    stare_nir VARCHAR(50) NOT NULL,
+    version BIGINT NOT NULL DEFAULT 0
 );
 
 CREATE TABLE facturi_nir_linii (
@@ -48,7 +50,8 @@ CREATE TABLE facturi_ordine_plata (
     moneda VARCHAR(3) NOT NULL,
     creat_de UUID NOT NULL,
     aprobat_de UUID,
-    stare_ordin VARCHAR(50) NOT NULL
+    stare_ordin VARCHAR(50) NOT NULL,
+    version BIGINT NOT NULL DEFAULT 0
 );
 
 CREATE TABLE facturi_furnizori_blocati (

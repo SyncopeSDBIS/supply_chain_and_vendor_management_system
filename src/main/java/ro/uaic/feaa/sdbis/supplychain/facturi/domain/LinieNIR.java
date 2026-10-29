@@ -21,19 +21,21 @@ public class LinieNIR implements Serializable {
 
     @NotNull
     @Embedded
-    @AttributeOverride(name = "value", column = @Column(name = "lot_id"))
+    @AttributeOverride(name = "value", column = @Column(name = "lot_id", nullable = false))
     private IdLot idLot;
 
     @NotNull
     @Embedded
-    @AttributeOverride(name = "cod", column = @Column(name = "material_cod"))
+    @AttributeOverride(name = "cod", column = @Column(name = "cod_material", nullable = false, length = 50))
     private CodMaterial material;
 
     @NotNull
     @DecimalMin(value = "0.00", message = "Cantitatea receptionata nu poate fi negativa")
+    @Column(name = "cantitate_receptionata", nullable = false, precision = 18, scale = 4)
     private BigDecimal cantitateReceptionata;
 
     @NotBlank
+    @Column(name = "unitate_masura", nullable = false, length = 20)
     private String unitateMasura;
 
     protected LinieNIR() {}
@@ -54,12 +56,15 @@ public class LinieNIR implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof LinieNIR that)) return false;
-        return Objects.equals(idLot, that.idLot) && Objects.equals(material, that.material);
+        return Objects.equals(idLot, that.idLot) &&
+               Objects.equals(material, that.material) &&
+               Objects.equals(cantitateReceptionata, that.cantitateReceptionata) &&
+               Objects.equals(unitateMasura, that.unitateMasura);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(idLot, material);
+        return Objects.hash(idLot, material, cantitateReceptionata, unitateMasura);
     }
 
     @Override

@@ -25,36 +25,37 @@ public class FacturaFurnizor implements Serializable {
 
     @NotNull
     @Id
+    @Column(name = "id_factura", nullable = false)
     private UUID idFactura;
 
     @NotBlank
-    @Column(nullable = false)
+    @Column(name = "serie", nullable = false, length = 50)
     private String serie;
 
     @NotBlank
-    @Column(nullable = false)
+    @Column(name = "numar", nullable = false, length = 50)
     private String numar;
 
     @NotNull
-    @Column(nullable = false)
+    @Column(name = "data_emitere", nullable = false)
     private LocalDate dataEmitere;
 
     @NotNull
-    @Column(nullable = false)
+    @Column(name = "data_scadenta", nullable = false)
     private LocalDate dataScadenta;
 
     @NotNull
     @Embedded
-    @AttributeOverride(name = "value", column = @Column(name = "comanda_id"))
+    @AttributeOverride(name = "value", column = @Column(name = "comanda_id", nullable = false))
     private IdComanda comandaId;
 
     @NotNull
     @Embedded
-    @AttributeOverride(name = "value", column = @Column(name = "furnizor_id"))
+    @AttributeOverride(name = "value", column = @Column(name = "furnizor_id", nullable = false))
     private IdFurnizor furnizorId;
 
     @NotEmpty
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "facturi_linii", joinColumns = @JoinColumn(name = "factura_id"))
     private List<LinieFactura> linii = new ArrayList<>();
 
@@ -64,14 +65,18 @@ public class FacturaFurnizor implements Serializable {
 
     @NotNull
     @Embedded
-    @AttributeOverride(name = "valoare", column = @Column(name = "suma_platita_valoare"))
-    @AttributeOverride(name = "moneda", column = @Column(name = "suma_platita_moneda"))
+    @AttributeOverride(name = "valoare", column = @Column(name = "suma_platita", nullable = false, precision = 18, scale = 4))
+    @AttributeOverride(name = "moneda", column = @Column(name = "moneda", nullable = false, length = 3))
     private Suma sumaPlatita;
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "stare_factura", nullable = false, length = 50)
     private StareFactura stareFactura;
+
+    @Version
+    @Column(name = "version", nullable = false)
+    private Long version = 0L;
 
     protected FacturaFurnizor() {}
 
@@ -163,17 +168,18 @@ public class FacturaFurnizor implements Serializable {
     public ValoareFactura getValoare() { return valoare; }
     public Suma getSumaPlatita() { return sumaPlatita; }
     public StareFactura getStareFactura() { return stareFactura; }
+    public Long getVersion() { return version; }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof FacturaFurnizor that)) return false;
-        return Objects.equals(idFactura, that.idFactura);
+        return getIdFactura() != null && Objects.equals(getIdFactura(), that.getIdFactura());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(idFactura);
+        return getClass().hashCode();
     }
 
     @Override

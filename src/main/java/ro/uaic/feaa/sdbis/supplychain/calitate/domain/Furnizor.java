@@ -26,46 +26,57 @@ public class Furnizor implements Serializable {
     private IdFurnizor id;
 
     @NotBlank
-    @Size(min = 2, max = 20)
-    @Column(nullable = false, unique = true)
+    @Size(min = 2, max = 50)
+    @Column(name = "cod_fiscal", nullable = false, unique = true, length = 50)
     private String codFiscal;
 
     @NotBlank
-    @Size(min = 2, max = 150)
-    @Column(nullable = false)
+    @Size(min = 2, max = 255)
+    @Column(name = "denumire", nullable = false, length = 255)
     private String denumire;
 
     @Embedded
     private Adresa adresa;
 
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "calitate_furnizori_emailuri", joinColumns = @JoinColumn(name = "furnizor_id"))
+    @AttributeOverride(name = "email", column = @Column(name = "email", nullable = false, length = 255))
     private Set<Email> emailuri = new HashSet<>();
 
     @NotNull
     @Embedded
-    @AttributeOverride(name = "valoare", column = @Column(name = "iban_valoare"))
+    @AttributeOverride(name = "valoare", column = @Column(name = "iban_valoare", length = 50))
     private Iban iban;
 
     @NotEmpty
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "calitate_furnizori_categorii", joinColumns = @JoinColumn(name = "furnizor_id"))
+    @Column(name = "categorie", nullable = false, length = 100)
     private Set<String> categoriiMateriale = new HashSet<>();
 
     @Embedded
     private ConditiiContractuale conditii;
 
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "furnizor_preturi_negociate", joinColumns = @JoinColumn(name = "furnizor_id_val"))
+    private List<PretNegociat> preturiNegociate = new ArrayList<>();
+
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "stare_furnizor", nullable = false, length = 50)
     private StareFurnizor stareFurnizor;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JoinColumn(name = "furnizor_id")
     private List<ScorecardLunar> scorecarduri = new ArrayList<>();
 
     @Min(0)
+    @Column(name = "inspectii_neconforme_consecutive", nullable = false)
     private int inspectiiNeconformeConsecutive = 0;
+
+    @Version
+    @Column(name = "version", nullable = false)
+    private Long version = 0L;
 
     protected Furnizor() {}
 
@@ -80,6 +91,9 @@ public class Furnizor implements Serializable {
         this.iban = iban;
         if (categoriiMateriale != null) this.categoriiMateriale.addAll(categoriiMateriale);
         this.conditii = conditii;
+        if (conditii != null && conditii.getPreturiNegociate() != null) {
+            conditii.getPreturiNegociate().forEach((mat, pret) -> this.preturiNegociate.add(new PretNegociat(mat, pret)));
+        }
         this.stareFurnizor = StareFurnizor.Candidat;
     }
 
@@ -90,7 +104,13 @@ public class Furnizor implements Serializable {
         if (emailuri != null) { this.emailuri.clear(); this.emailuri.addAll(emailuri); }
         if (iban != null) this.iban = iban;
         if (categoriiMateriale != null) { this.categoriiMateriale.clear(); this.categoriiMateriale.addAll(categoriiMateriale); }
-        if (conditii != null) this.conditii = conditii;
+        if (conditii != null) {
+            this.conditii = conditii;
+            this.preturiNegociate.clear();
+            if (conditii.getPreturiNegociate() != null) {
+                conditii.getPreturiNegociate().forEach((mat, pret) -> this.preturiNegociate.add(new PretNegociat(mat, pret)));
+            }
+        }
     }
 
     public void trimiteLaEvaluare() {
@@ -176,20 +196,22 @@ public class Furnizor implements Serializable {
     public Iban getIban() { return iban; }
     public Set<String> getCategoriiMateriale() { return Collections.unmodifiableSet(categoriiMateriale); }
     public ConditiiContractuale getConditii() { return conditii; }
+    public List<PretNegociat> getPreturiNegociate() { return Collections.unmodifiableList(preturiNegociate); }
     public StareFurnizor getStareFurnizor() { return stareFurnizor; }
     public List<ScorecardLunar> getScorecarduri() { return Collections.unmodifiableList(scorecarduri); }
     public int getInspectiiNeconformeConsecutive() { return inspectiiNeconformeConsecutive; }
+    public Long getVersion() { return version; }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Furnizor that)) return false;
-        return Objects.equals(id, that.id);
+        return getId() != null && Objects.equals(getId(), that.getId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return getClass().hashCode();
     }
 
     @Override

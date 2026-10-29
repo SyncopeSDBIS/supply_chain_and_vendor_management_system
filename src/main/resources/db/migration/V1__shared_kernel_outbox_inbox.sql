@@ -7,10 +7,10 @@ CREATE TABLE shared_outbox (
 );
 
 CREATE TABLE shared_inbox (
-    id UUID PRIMARY KEY,
-    received_at TIMESTAMP NOT NULL,
-    event_type VARCHAR(255) NOT NULL,
-    processed BOOLEAN NOT NULL DEFAULT FALSE
+    id VARCHAR(128) PRIMARY KEY,
+    event_id UUID NOT NULL,
+    consumer VARCHAR(255) NOT NULL,
+    processed_at TIMESTAMP NOT NULL
 );
 
 CREATE TABLE shared_audit_log (

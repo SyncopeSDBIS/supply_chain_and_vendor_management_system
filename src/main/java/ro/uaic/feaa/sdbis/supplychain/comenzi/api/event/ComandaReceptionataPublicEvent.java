@@ -1,5 +1,8 @@
 package ro.uaic.feaa.sdbis.supplychain.comenzi.api.event;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import ro.uaic.feaa.sdbis.supplychain.shared.CodMaterial;
 import ro.uaic.feaa.sdbis.supplychain.shared.DomainEvent;
 import ro.uaic.feaa.sdbis.supplychain.shared.IdComanda;
@@ -11,12 +14,12 @@ import java.time.Instant;
 import java.util.UUID;
 
 public record ComandaReceptionataPublicEvent(
-    UUID eventId,
-    Instant occurredOn,
-    IdComanda comandaId,
-    IdLot lotId,
-    CodMaterial material,
-    BigDecimal cantitatePrimita,
-    String unitateMasura,
-    boolean receptieTotala
+        @NotNull UUID eventId,
+        @NotNull Instant occurredOn,
+        @NotNull IdComanda comandaId,
+        @NotNull IdLot lotId,
+        @NotNull CodMaterial material,
+        @NotNull @Positive BigDecimal cantitatePrimita,
+        @NotBlank String unitateMasura,
+        boolean receptieTotala
 ) implements DomainEvent, Serializable {}

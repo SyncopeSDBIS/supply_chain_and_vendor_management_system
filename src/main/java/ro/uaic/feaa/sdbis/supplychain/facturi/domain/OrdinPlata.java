@@ -21,26 +21,34 @@ public class OrdinPlata implements Serializable {
 
     @NotNull
     @Id
+    @Column(name = "id_ordin", nullable = false)
     private UUID idOrdin;
 
     @NotNull
-    @Column(nullable = false)
+    @Column(name = "factura_id", nullable = false)
     private UUID facturaId;
 
     @NotNull
     @Embedded
+    @AttributeOverride(name = "valoare", column = @Column(name = "suma", nullable = false, precision = 18, scale = 4))
+    @AttributeOverride(name = "moneda", column = @Column(name = "moneda", nullable = false, length = 3))
     private Suma suma;
 
     @NotNull
-    @Column(nullable = false)
+    @Column(name = "creat_de", nullable = false)
     private UUID creatDe;
 
+    @Column(name = "aprobat_de")
     private UUID aprobatDe;
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "stare_ordin", nullable = false, length = 50)
     private StareOrdinPlata stareOrdin;
+
+    @Version
+    @Column(name = "version", nullable = false)
+    private Long version = 0L;
 
     protected OrdinPlata() {}
 
@@ -96,17 +104,18 @@ public class OrdinPlata implements Serializable {
     public UUID getCreatDe() { return creatDe; }
     public UUID getAprobatDe() { return aprobatDe; }
     public StareOrdinPlata getStareOrdin() { return stareOrdin; }
+    public Long getVersion() { return version; }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof OrdinPlata that)) return false;
-        return Objects.equals(idOrdin, that.idOrdin);
+        return getIdOrdin() != null && Objects.equals(getIdOrdin(), that.getIdOrdin());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(idOrdin);
+        return getClass().hashCode();
     }
 
     @Override

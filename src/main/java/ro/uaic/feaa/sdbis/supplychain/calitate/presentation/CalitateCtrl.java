@@ -1,7 +1,9 @@
 package ro.uaic.feaa.sdbis.supplychain.calitate.presentation;
 
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ro.uaic.feaa.sdbis.supplychain.calitate.application.CalitateApplicationService;
 import ro.uaic.feaa.sdbis.supplychain.calitate.application.command.AlocaInspectorCommand;
@@ -18,6 +20,7 @@ import java.time.LocalDate;
 import java.util.*;
 
 @RestController
+@Validated
 @RequestMapping("/api")
 public class CalitateCtrl {
 
@@ -29,18 +32,30 @@ public class CalitateCtrl {
         this.queryService = queryService;
     }
 
-    @PostMapping("/furnizori")
-    public ResponseEntity<?> inregistreazaFurnizor(@RequestParam String codFiscal,
-                                                   @RequestParam String denumire,
-                                                   @RequestParam(required = false) String iban,
-                                                   @RequestParam(required = false) String email) {
+    @PostMapping(value = "/furnizori", consumes = org.springframework.http.MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> inregistreazaFurnizorJson(@Valid @RequestBody InregistreazaFurnizorRequest req) {
+        return processInregistreazaFurnizor(req);
+    }
+
+    @PostMapping(value = "/furnizori")
+    public ResponseEntity<?> inregistreazaFurnizorForm(@Valid @ModelAttribute InregistreazaFurnizorRequest req) {
+        return processInregistreazaFurnizor(req);
+    }
+
+    private ResponseEntity<?> processInregistreazaFurnizor(InregistreazaFurnizorRequest req) {
+        if (req.getCodFiscal() == null || req.getDenumire() == null) {
+            return ResponseEntity.badRequest().body("Codul fiscal si denumirea sunt obligatorii");
+        }
+
         try {
-            Iban ibanVo = iban != null ? new Iban(iban) : null;
-            Set<Email> emails = email != null ? Collections.singleton(new Email(email)) : Collections.emptySet();
-            IdFurnizor id = appService.inregistreazaFurnizor(codFiscal, denumire, null, emails, ibanVo, Collections.emptySet(), null);
+            Iban ibanVo = req.getIban() != null && !req.getIban().isBlank() ? new Iban(req.getIban()) : null;
+            Set<Email> emails = req.getEmail() != null && !req.getEmail().isBlank()
+                    ? Collections.singleton(new Email(req.getEmail()))
+                    : Collections.emptySet();
+            IdFurnizor id = appService.inregistreazaFurnizor(req.getCodFiscal(), req.getDenumire(), null, emails, ibanVo, Collections.emptySet(), null);
             Map<String, Object> resp = new HashMap<>();
             resp.put("furnizorId", id.getValue());
-            resp.put("codFiscal", codFiscal);
+            resp.put("codFiscal", req.getCodFiscal());
             resp.put("status", "Candidat");
             return new ResponseEntity<>(resp, HttpStatus.CREATED);
         } catch (Exception e) {
@@ -53,7 +68,7 @@ public class CalitateCtrl {
                                                         @RequestParam(required = false) String denumire,
                                                         @RequestParam(required = false) String iban) {
         try {
-            Iban ibanVo = iban != null ? new Iban(iban) : null;
+            Iban ibanVo = iban != null && !iban.isBlank() ? new Iban(iban) : null;
             appService.actualizeazaProfilFurnizor(IdFurnizor.of(id), denumire, null, null, ibanVo, null, null);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
@@ -73,10 +88,23 @@ public class CalitateCtrl {
         }
     }
 
-    @PostMapping("/inspectori")
-    public ResponseEntity<?> creeazaInspector(@RequestParam String firstName, @RequestParam String lastName) {
+    @PostMapping(value = "/inspectori", consumes = org.springframework.http.MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> creeazaInspectorJson(@Valid @RequestBody CreeazaInspectorRequest req) {
+        return processCreeazaInspector(req);
+    }
+
+    @PostMapping(value = "/inspectori")
+    public ResponseEntity<?> creeazaInspectorForm(@Valid @ModelAttribute CreeazaInspectorRequest req) {
+        return processCreeazaInspector(req);
+    }
+
+    private ResponseEntity<?> processCreeazaInspector(CreeazaInspectorRequest req) {
+        if (req.getFirstName() == null || req.getLastName() == null) {
+            return ResponseEntity.badRequest().body("Prenumele si numele inspectorului sunt obligatorii");
+        }
+
         try {
-            UUID id = appService.creeazaInspector(firstName, lastName);
+            UUID id = appService.creeazaInspector(req.getFirstName(), req.getLastName());
             Map<String, Object> resp = new HashMap<>();
             resp.put("inspectorId", id);
             return new ResponseEntity<>(resp, HttpStatus.CREATED);
@@ -130,9 +158,13 @@ public class CalitateCtrl {
     }
 
     @PostMapping("/inspectii/{id}/verdict")
-    public ResponseEntity<?> inregistreazaVerdict(@PathVariable UUID id, @RequestParam int defecteGasite) {
+    public ResponseEntity<?> inregistreazaVerdict(
+            @PathVariable UUID id,
+            @Valid @RequestBody(required = false) InregistreazaVerdictRequest bodyReq,
+            @Valid @ModelAttribute InregistreazaVerdictRequest formReq) {
+        InregistreazaVerdictRequest req = (bodyReq != null) ? bodyReq : formReq;
         try {
-            appService.inregistreazaVerdict(new InregistreazaVerdictCommand(id, defecteGasite));
+            appService.inregistreazaVerdict(new InregistreazaVerdictCommand(id, req.getDefecteGasite()));
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -160,12 +192,17 @@ public class CalitateCtrl {
     }
 
     @PostMapping("/ncr/{id}/actiune")
-    public ResponseEntity<?> initiazaActiuneNCR(@PathVariable UUID id,
-                                                @RequestParam String descriere,
-                                                @RequestParam String responsabil,
-                                                @RequestParam String termen) {
+    public ResponseEntity<?> initiazaActiuneNCR(
+            @PathVariable UUID id,
+            @Valid @RequestBody(required = false) InitiazaActiuneNCRRequest bodyReq,
+            @Valid @ModelAttribute InitiazaActiuneNCRRequest formReq) {
+        InitiazaActiuneNCRRequest req = (bodyReq != null && bodyReq.getDescriere() != null) ? bodyReq : formReq;
+        if (req.getDescriere() == null || req.getResponsabil() == null || req.getTermen() == null) {
+            return ResponseEntity.badRequest().body("Descrierea, responsabilul si termenul sunt obligatorii");
+        }
+
         try {
-            appService.initiazaActiuneNCR(id, descriere, responsabil, LocalDate.parse(termen));
+            appService.initiazaActiuneNCR(id, req.getDescriere(), req.getResponsabil(), LocalDate.parse(req.getTermen()));
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -203,15 +240,20 @@ public class CalitateCtrl {
     }
 
     @PostMapping("/furnizori/{id}/scorecard-lunar")
-    public ResponseEntity<?> calculeazaScorecard(@PathVariable UUID id,
-                                                @RequestParam int an,
-                                                @RequestParam int luna,
-                                                @RequestParam(defaultValue = "2.0") double rataRespingere) {
+    public ResponseEntity<?> calculeazaScorecard(
+            @PathVariable UUID id,
+            @Valid @RequestBody(required = false) CalculScorecardRequest bodyReq,
+            @Valid @ModelAttribute CalculScorecardRequest formReq) {
+        CalculScorecardRequest req = (bodyReq != null && bodyReq.getAn() > 0) ? bodyReq : formReq;
+        if (req.getAn() <= 0 || req.getLuna() <= 0) {
+            return ResponseEntity.badRequest().body("Anul si luna sunt obligatorii");
+        }
+
         try {
-            LocalDate start = LocalDate.of(an, luna, 1);
+            LocalDate start = LocalDate.of(req.getAn(), req.getLuna(), 1);
             LocalDate end = start.plusMonths(1).minusDays(1);
             appService.calculeazaScorecardLunar(new CalculScorecardCommand(
-                IdFurnizor.of(id), new Perioada(start, end), BigDecimal.valueOf(rataRespingere)
+                IdFurnizor.of(id), new Perioada(start, end), BigDecimal.valueOf(req.getRataRespingere())
             ));
             return ResponseEntity.ok().build();
         } catch (Exception e) {

@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: Supply Chain and Vendor Management System (Procure-to-Pay)
   version: 1.0.0
-  description: API REST cu Content Negotiation (JSON/XML) pentru sistemul P2P conform OOAD si MSD.
+  description: API REST cu Content Negotiation (JSON/XML) si integrare Stripe Sandbox pentru sistemul P2P conform OOAD si MSD.
 servers:
   - url: http://localhost:8080/api
     description: Server local de dezvoltare
@@ -15,43 +15,293 @@ paths:
         content:
           application/json:
             schema:
-              type: object
+              $ref: '#/components/schemas/CreeazaComandaRequest'
           application/xml:
             schema:
-              type: object
+              $ref: '#/components/schemas/CreeazaComandaRequest'
       responses:
         '201':
-          description: Comanda creata
+          description: Comanda creata cu succes
+        '400':
+          description: Eroare de validare a campurilor (Validation Failed)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '422':
-          description: Furnizor neeligibil
+          description: Furnizor neeligibil sau incalcare a invariantilor de domeniu
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
     get:
       summary: Dashboard Livrari OTIF (UC10)
       responses:
         '200':
-          description: Lista dashboard
+          description: Lista dashboard OTIF
   /furnizori:
     post:
-      summary: Inregistrare Furnizor (Q1)
+      summary: Inregistrare Furnizor Candidat (Q1)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InregistreazaFurnizorRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/InregistreazaFurnizorRequest'
       responses:
         '201':
-          description: Furnizor candidat inregistrat
+          description: Furnizor candidat inregistrat cu succes
+        '400':
+          description: Date de intrare invalide sau erori de validare
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /inspectii/{id}/verdict:
     post:
       summary: Inregistrare Verdict Inspectie AQL (Q7a)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - defecteGasite
+              properties:
+                defecteGasite:
+                  type: integer
+                  minimum: 0
       responses:
         '200':
           description: Verdict inregistrat si procesat
+        '400':
+          description: Parametri defecte invalizi
   /facturi:
     post:
       summary: Inregistrare Factura Furnizor (I1)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InregistreazaFacturaRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/InregistreazaFacturaRequest'
       responses:
         '201':
-          description: Factura inregistrata
+          description: Factura inregistrata cu succes
+        '400':
+          description: Date factura invalide sau constrangeri incalcate
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /facturi/{id}/reconciliere:
     post:
       summary: Reconciliere Three-Way Match (I3)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
       responses:
         '200':
           description: Reconciliere executata cu succes
+        '400':
+          description: Factura inexistenta sau cerere invalida
         '409':
-          description: Lipsa NIR pentru reconciliere
+          description: Discrepante de reconciliere sau lipsa NIR
+  /facturi/scadente:
+    get:
+      summary: Obtinere Scadentar Facturi Furnizori (I8)
+      responses:
+        '200':
+          description: Lista facturilor scadente
+  /ordine-plata/webhook-banca:
+    post:
+      summary: Webhook Stripe Callback pentru Confirmare / Respingere Plati (ADR-010)
+      parameters:
+        - name: Stripe-Signature
+          in: header
+          required: true
+          description: Antetul criptografic generat de Stripe pentru verificarea autenticitatii si prevenirea replay attack
+          schema:
+            type: string
+      requestBody:
+        required: true
+        description: Corpul JSON original al evenimentului Stripe
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Webhook verificat si procesat cu succes
+        '400':
+          description: Semnatura Stripe invalida sau antet lipsa
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  schemas:
+    CreeazaComandaRequest:
+      type: object
+      required:
+        - numarComanda
+        - furnizorId
+        - cumparatorId
+        - dataLivrareCeruta
+        - depozit
+        - linii
+      properties:
+        numarComanda:
+          type: string
+          minLength: 3
+          maxLength: 100
+        furnizorId:
+          type: string
+          format: uuid
+        cumparatorId:
+          type: string
+          format: uuid
+        dataComanda:
+          type: string
+          format: date
+        dataLivrareCeruta:
+          type: string
+          format: date
+        depozit:
+          type: string
+          maxLength: 255
+        linii:
+          type: array
+          items:
+            $ref: '#/components/schemas/LinieComandaDTO'
+    InregistreazaFurnizorRequest:
+      type: object
+      required:
+        - codFiscal
+        - denumire
+      properties:
+        codFiscal:
+          type: string
+          minLength: 2
+          maxLength: 30
+        denumire:
+          type: string
+          minLength: 2
+          maxLength: 255
+        iban:
+          type: string
+          pattern: '^[A-Z]{2}[0-9]{2}[A-Z0-9]{4,30}$'
+        email:
+          type: string
+          format: email
+    InregistreazaFacturaRequest:
+      type: object
+      required:
+        - serie
+        - numar
+        - dataEmitere
+        - dataScadenta
+        - comandaId
+        - furnizorId
+        - materialCod
+        - cantitate
+        - unitate
+        - pretUnitar
+      properties:
+        serie:
+          type: string
+          minLength: 1
+          maxLength: 20
+        numar:
+          type: string
+          minLength: 1
+          maxLength: 50
+        dataEmitere:
+          type: string
+          format: date
+        dataScadenta:
+          type: string
+          format: date
+        comandaId:
+          type: string
+          format: uuid
+        furnizorId:
+          type: string
+          format: uuid
+        moneda:
+          type: string
+          enum: [EUR, RON, USD]
+          default: EUR
+        materialCod:
+          type: string
+          minLength: 1
+          maxLength: 50
+        cantitate:
+          type: number
+          minimum: 0.0001
+        unitate:
+          type: string
+        pretUnitar:
+          type: number
+          minimum: 0.0
+    LinieComandaDTO:
+      type: object
+      required:
+        - materialCod
+        - cantitate
+        - unitateMasura
+        - pretUnitar
+        - moneda
+      properties:
+        materialCod:
+          type: string
+          minLength: 1
+          maxLength: 50
+        cantitate:
+          type: number
+          minimum: 0.0001
+        unitateMasura:
+          type: string
+          minLength: 1
+          maxLength: 20
+        pretUnitar:
+          type: number
+          minimum: 0.00
+        moneda:
+          type: string
+          minLength: 3
+          maxLength: 3
+    ErrorResponse:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        status:
+          type: integer
+        error:
+          type: string
+        message:
+          type: string
+        fieldErrors:
+          type: object
+          additionalProperties:
+            type: string

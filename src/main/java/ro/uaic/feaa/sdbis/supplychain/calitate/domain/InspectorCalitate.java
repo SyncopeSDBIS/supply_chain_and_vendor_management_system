@@ -18,20 +18,26 @@ public class InspectorCalitate implements Serializable {
 
     @NotNull
     @Id
-    @Column(nullable = false)
+    @Column(name = "id", nullable = false)
     private UUID idInspector;
 
     @NotNull
     @Embedded
     private FullName fullName;
 
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "calitate_inspectori_certificari", joinColumns = @JoinColumn(name = "inspector_id"))
     private List<Certificare> certificari = new ArrayList<>();
 
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "calitate_inspectori_disponibilitate", joinColumns = @JoinColumn(name = "inspector_id"))
+    @AttributeOverride(name = "dataInceput", column = @Column(name = "data_inceput", nullable = false))
+    @AttributeOverride(name = "dataFinalizare", column = @Column(name = "data_finalizare", nullable = false))
     private List<Perioada> disponibilitate = new ArrayList<>();
+
+    @Version
+    @Column(name = "version", nullable = false)
+    private Long version = 0L;
 
     protected InspectorCalitate() {}
 
@@ -58,17 +64,18 @@ public class InspectorCalitate implements Serializable {
     public FullName getFullName() { return fullName; }
     public List<Certificare> getCertificari() { return Collections.unmodifiableList(certificari); }
     public List<Perioada> getDisponibilitate() { return Collections.unmodifiableList(disponibilitate); }
+    public Long getVersion() { return version; }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof InspectorCalitate that)) return false;
-        return Objects.equals(idInspector, that.idInspector);
+        return getIdInspector() != null && Objects.equals(getIdInspector(), that.getIdInspector());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(idInspector);
+        return getClass().hashCode();
     }
 
     @Override

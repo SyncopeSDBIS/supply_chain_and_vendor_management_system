@@ -21,25 +21,28 @@ public class LinieFactura implements Serializable {
 
     @NotNull
     @Embedded
-    @AttributeOverride(name = "cod", column = @Column(name = "material_cod"))
+    @AttributeOverride(name = "cod", column = @Column(name = "cod_material", nullable = false, length = 50))
     private CodMaterial material;
 
     @NotNull
     @DecimalMin(value = "0.01", message = "Cantitatea pe linie factura trebuie sa fie pozitiva")
+    @Column(name = "cantitate", nullable = false, precision = 18, scale = 4)
     private BigDecimal cantitate;
 
     @NotBlank
+    @Column(name = "unitate_masura", nullable = false, length = 20)
     private String unitateMasura;
 
     @NotNull
     @Embedded
-    @AttributeOverride(name = "valoare", column = @Column(name = "pret_valoare"))
-    @AttributeOverride(name = "moneda", column = @Column(name = "pret_moneda"))
+    @AttributeOverride(name = "valoare", column = @Column(name = "pret_unitar", nullable = false, precision = 18, scale = 4))
+    @AttributeOverride(name = "moneda", column = @Column(name = "moneda", nullable = false, length = 3))
     private Suma pretUnitar;
 
     @NotNull
     @DecimalMin(value = "0.00")
     @DecimalMax(value = "1.00")
+    @Column(name = "cota_tva", nullable = false, precision = 5, scale = 2)
     private BigDecimal cotaTVA; // ex 0.19 pentru 19%
 
     protected LinieFactura() {}
@@ -74,12 +77,15 @@ public class LinieFactura implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof LinieFactura that)) return false;
-        return Objects.equals(material, that.material);
+        return Objects.equals(material, that.material) &&
+               Objects.equals(cantitate, that.cantitate) &&
+               Objects.equals(unitateMasura, that.unitateMasura) &&
+               Objects.equals(pretUnitar, that.pretUnitar);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(material);
+        return Objects.hash(material, cantitate, unitateMasura, pretUnitar);
     }
 
     @Override

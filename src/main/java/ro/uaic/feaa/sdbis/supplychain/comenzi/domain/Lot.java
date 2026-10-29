@@ -25,33 +25,38 @@ public class Lot implements Serializable {
     private IdLot idLot;
 
     @NotBlank
-    @Size(min = 1, max = 50)
-    @Column(nullable = false)
+    @Size(min = 1, max = 100)
+    @Column(name = "cod_lot", nullable = false, length = 100)
     private String codLot;
 
     @NotNull
     @Embedded
-    @AttributeOverride(name = "cod", column = @Column(name = "material_cod"))
+    @AttributeOverride(name = "cod", column = @Column(name = "cod_material", nullable = false, length = 50))
     private CodMaterial material;
 
     @NotNull
     @Embedded
-    @AttributeOverride(name = "valoare", column = @Column(name = "cantitate_valoare"))
-    @AttributeOverride(name = "unitateMasura", column = @Column(name = "cantitate_um"))
+    @AttributeOverride(name = "valoare", column = @Column(name = "cantitate", nullable = false, precision = 18, scale = 4))
+    @AttributeOverride(name = "unitateMasura", column = @Column(name = "unitate_masura", nullable = false, length = 20))
     private Cantitate cantitate;
 
     @NotNull
     @Embedded
-    @AttributeOverride(name = "valoare", column = @Column(name = "cantitate_primita_valoare"))
-    @AttributeOverride(name = "unitateMasura", column = @Column(name = "cantitate_primita_um"))
+    @AttributeOverride(name = "valoare", column = @Column(name = "cantitate_primita", nullable = false, precision = 18, scale = 4))
+    @AttributeOverride(name = "unitateMasura", column = @Column(name = "unitate_masura", insertable = false, updatable = false))
     private Cantitate cantitatePrimita;
 
+    @NotNull
+    @Column(name = "data_productie", nullable = false)
     private LocalDate dataProductie;
+
+    @NotNull
+    @Column(name = "data_expirare", nullable = false)
     private LocalDate dataExpirare;
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "stare_lot", nullable = false, length = 50)
     private StareLot stareLot;
 
     protected Lot() {}
@@ -153,12 +158,12 @@ public class Lot implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Lot lot)) return false;
-        return Objects.equals(idLot, lot.idLot);
+        return getIdLot() != null && Objects.equals(getIdLot(), lot.getIdLot());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(idLot);
+        return getClass().hashCode();
     }
 
     @Override

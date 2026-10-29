@@ -53,8 +53,8 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/supplychain_db
       SPRING_DATASOURCE_USERNAME: supplychain
       SPRING_DATASOURCE_PASSWORD: supplychain_secret
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
-      SPRING_FLYWAY_ENABLED: "false"
+      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+      SPRING_FLYWAY_ENABLED: "true"
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_PORT: 5672
       STRIPE_API_KEY: sk_test_mock_supplychain_key

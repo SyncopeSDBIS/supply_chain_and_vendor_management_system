@@ -1,6 +1,10 @@
 package ro.uaic.feaa.sdbis.supplychain.comenzi.application.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlElement;
@@ -12,22 +16,32 @@ import java.math.BigDecimal;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class LinieComandaDTO implements Serializable {
 
+    @NotBlank(message = "Codul de material este obligatoriu")
+    @Size(min = 1, max = 50, message = "Codul de material trebuie sa aiba intre 1 si 50 caractere")
     @XmlElement
     @JsonProperty("materialCod")
     private String materialCod;
 
+    @NotNull(message = "Cantitatea este obligatorie")
+    @DecimalMin(value = "0.0001", message = "Cantitatea trebuie sa fie strict pozitiva")
     @XmlElement
     @JsonProperty("cantitate")
     private BigDecimal cantitate;
 
+    @NotBlank(message = "Unitatea de masura este obligatorie")
+    @Size(min = 1, max = 20, message = "Unitatea de masura trebuie sa aiba intre 1 si 20 caractere")
     @XmlElement
     @JsonProperty("unitateMasura")
     private String unitateMasura;
 
+    @NotNull(message = "Pretul unitar este obligatoriu")
+    @DecimalMin(value = "0.00", message = "Pretul unitar nu poate fi negativ")
     @XmlElement
     @JsonProperty("pretUnitar")
     private BigDecimal pretUnitar;
 
+    @NotBlank(message = "Moneda este obligatorie")
+    @Size(min = 3, max = 3, message = "Moneda trebuie sa aiba cod ISO din 3 caractere")
     @XmlElement
     @JsonProperty("moneda")
     private String moneda;
