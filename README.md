@@ -206,20 +206,20 @@ This immediately opens the interactive SQL prompt (`supplychain_db=#`). Common u
   \dt
   ```
 * **Inspect Purchase Orders and Lots:**
-  ```sql
-  SELECT id, numar_comanda, stare, total_brut, data_emiterii FROM comenzi_aprovizionare;
-  SELECT id, id_comanda, cod_lot, stare_lot, cantitate FROM comenzi_loturi;
-  ```
+  `sql
+  SELECT id_val, numar_comanda, stare_comanda, data_comanda FROM comenzi_aprovizionare;
+  SELECT id_val, comanda_id, cod_lot, stare_lot, cantitate FROM comenzi_loturi;
+  `
 * **Inspect Suppliers and Quality Scorecards:**
-  ```sql
-  SELECT id, cui, denumire, stare, calificativ_curent FROM calitate_furnizori;
+  `sql
+  SELECT id_val, cod_fiscal, denumire, stare_furnizor FROM calitate_furnizori;
   SELECT * FROM calitate_scorecards;
-  ```
+  `
 * **Inspect Transactional Outbox / Inbox & Audit Trail:**
-  ```sql
-  SELECT id, aggregate_type, event_type, procesat, data_creare FROM shared_outbox;
-  SELECT id, utilizator, actiune, entitate_tip, timestamp_utc FROM shared_audit_log;
-  ```
+  `sql
+  SELECT id, event_type, published, timestamp FROM shared_outbox;
+  SELECT id, actiune, obiect, timestamp FROM shared_audit_log;
+  `
 * **Exit the psql session:**
   ```sql
   \q
