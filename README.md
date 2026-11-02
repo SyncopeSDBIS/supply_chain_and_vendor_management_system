@@ -15,8 +15,8 @@ Strictly aligned 1:1 with academic and enterprise specifications from **Project_
 3. [How to Use and Test the Application](#-3-how-to-use-and-test-the-application)
    - [Interactive Testing via Swagger UI](#31-interactive-testing-via-swagger-ui)
    - [End-to-End Testing via Postman Collection](#32-end-to-end-testing-via-postman-collection)
-   - [Asynchronous Event Monitoring in RabbitMQ Dashboard](#33-asynchronous-event-monitoring-in-rabbitmq-dashboard)
-   - [Direct Database Inspection (PostgreSQL)](#34-direct-database-inspection-postgresql)
+   - [RabbitMQ Management & AMQP Wire Broker (Ports 15672 & 5672)](#33-rabbitmq-management--amqp-wire-broker-ports-15672--5672)
+   - [PostgreSQL Database Access: CLI & GUI (Port 5433)](#34-postgresql-database-access-cli--gui-port-5433)
 4. [Troubleshooting & FAQ](#-4-troubleshooting--faq)
    - [Flyway Error: Migration Checksum Mismatch](#1-flyway-error-migration-checksum-mismatch)
    - [Application in Restarting or Health Starting State](#2-application-in-restarting-or-health-starting-state)
@@ -151,30 +151,90 @@ The repository includes a ready-to-run, comprehensive Postman test suite:
 
 ---
 
-### 3.3. Asynchronous Event Monitoring in RabbitMQ Dashboard
-1. Open [http://localhost:15672](http://localhost:15672) and log in with credentials `guest` / `guest`.
-2. Navigate to the **Queues** tab to monitor background message routing:
-   * `comenzi.events.queue`: Receives order placement, cancellation, and goods receipt events.
-   * `calitate.events.queue`: Receives quality verdicts, supplier suspension, and inspection schedules.
-   * `facturi.events.queue`: Receives 3-Way matching completion and payment execution triggers.
-   * `supplychain.events.dlq`: Dead-Letter Queue capturing unprocessable or poisoned messages.
+### 3.3. RabbitMQ Management & AMQP Wire Broker (Ports 15672 & 5672)
+
+The system exposes both the native **AMQP 0-9-1 wire protocol broker** and the **Management Web UI**:
+
+#### A. Web Management Dashboard (Port 15672)
+1. Open **[http://localhost:15672](http://localhost:15672)** in your browser.
+2. Sign in with default credentials:
+   * **Username**: `guest`
+   * **Password**: `guest`
+3. Navigate to the **Queues** tab to inspect background asynchronous message flow:
+   * `comenzi.events.queue`: Order lifecycle events (placement, cancellation, lot status).
+   * `calitate.events.queue`: Quality inspection schedules, verdicts, and supplier suspension alerts.
+   * `facturi.events.queue`: 3-Way matching completion notifications and payment execution triggers.
+   * `supplychain.events.dlq`: Dead-Letter Queue capturing poisoned or rejected messages.
+4. Navigate to the **Exchanges** tab to inspect the topic exchanges: `supplychain.events.exchange` and `supplychain.events.dlx`.
+
+#### B. Native AMQP Wire Broker (Port 5672)
+The AMQP wire port (`5672`) is used by Spring AMQP and can be accessed by external microservices, background workers, or testing tools:
+* **Connection URI**: `amqp://guest:guest@localhost:5672/`
+* **Host**: `localhost` (or `127.0.0.1`)
+* **AMQP Port**: `5672`
+* **Virtual Host**: `/` (default)
+* **Direct CLI Queue Inspection**:
+  You can also inspect queues and broker status directly from your terminal using Docker:
+  ```bash
+  # List all declared queues and message counts
+  docker exec -it supplychain-rabbitmq rabbitmqctl list_queues name messages consumers
+
+  # List topic exchanges and bindings
+  docker exec -it supplychain-rabbitmq rabbitmqctl list_exchanges
+
+  # Check cluster / node health
+  docker exec -it supplychain-rabbitmq rabbitmqctl status
+  ```
 
 ---
 
-### 3.4. Direct Database Inspection (PostgreSQL)
-Connect your preferred database client (DBeaver, pgAdmin, DataGrip, or IntelliJ Database Tool):
-* **Host**: `localhost`
-* **Port**: `5433`
+### 3.4. PostgreSQL Database Access: CLI & GUI (Port 5433)
+
+You have two simple methods to connect to the PostgreSQL database and inspect the 24 persisted domain and outbox tables:
+
+#### Method A: Direct Terminal CLI via Docker (Fastest, No Client Needed)
+Run the interactive PostgreSQL terminal client directly inside the running container without installing PostgreSQL locally:
+
+```bash
+docker exec -it supplychain-postgres psql -U supplychain -d supplychain_db
+```
+
+This immediately opens the interactive SQL prompt (`supplychain_db=#`). Common useful commands:
+
+* **List all 24 tables created by Flyway migrations:**
+  ```sql
+  \dt
+  ```
+* **Inspect Purchase Orders and Lots:**
+  ```sql
+  SELECT id, numar_comanda, stare, total_brut, data_emiterii FROM comenzi_aprovizionare;
+  SELECT id, id_comanda, cod_lot, stare_lot, cantitate FROM comenzi_loturi;
+  ```
+* **Inspect Suppliers and Quality Scorecards:**
+  ```sql
+  SELECT id, cui, denumire, stare, calificativ_curent FROM calitate_furnizori;
+  SELECT * FROM calitate_scorecards;
+  ```
+* **Inspect Transactional Outbox / Inbox & Audit Trail:**
+  ```sql
+  SELECT id, aggregate_type, event_type, procesat, data_creare FROM shared_outbox;
+  SELECT id, utilizator, actiune, entitate_tip, timestamp_utc FROM shared_audit_log;
+  ```
+* **Exit the psql session:**
+  ```sql
+  \q
+  ```
+
+#### Method B: Graphical SQL Clients (DBeaver, pgAdmin, DataGrip, VS Code)
+If you prefer a graphical user interface, open your SQL client and configure a new **PostgreSQL** connection with:
+
+* **Host / Server**: `localhost` *(or `127.0.0.1`)*
+* **Port**: **`5433`** *(use port 5433 as mapped to your host to avoid colliding with default PostgreSQL 5432)*
 * **Database**: `supplychain_db`
 * **Username**: `supplychain`
 * **Password**: `supplychain_secret`
 
-**Primary Tables to Inspect:**
-* `comenzi_aprovizionare`, `linii_comanda`, `loturi`: Purchase order aggregate structure.
-* `furnizori`, `inspectii_calitate`, `rapoarte_neconformitate`, `scorecarduri_lunare`: Quality and supplier evaluation aggregates.
-* `facturi_furnizori`, `note_intrare_receptie`, `ordine_plata`: Financial accounting and payment aggregates.
-* `outbox_events`, `inbox_events`: Transactional Outbox and Idempotent Consumer tables.
-* `shared_audit_log`: Tamper-evident operational audit trail.
+Click **"Test Connection"** and **"Connect"**. You will find all 24 domain tables located under the `public` schema.
 
 ---
 
