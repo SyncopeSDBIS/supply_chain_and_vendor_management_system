@@ -1,28 +1,74 @@
-# CATALOGUL EXHAUSTIV AL SECVENȚELOR DE COD – SPRINT 2
-## Sistem Integrat de Gestiune a Lanțului de Aprovizionare (Procure-to-Pay / P2P)
+# BLUEPRINT ARHITECTURAL & CATALOGUL DE COD – SPRINT 2
+## Structura Fizică 1:1 a Proiectului (Rich Domain Model – ADR-003)
 
 ---
 
-### METADATE CATALOG
-* **Proiect**: `ro.uaic.feaa.sdbis.supplychain`
-* **Obiectiv**: Indexarea exhaustivă a tuturor secvențelor de cod sursă aparținând **exclusiv Sprintului 2** (ADR-003: Rich Domain Model), grupate riguros pe **Layere de Arhitectură** și **Directoare Fizice** din proiect.
-* **Format Link-uri**: Toate fișierele includ calea fizică relativă și link clickabil local direct (`file:///C:/Users/bmugu/Desktop/app/...`).
+### METADATE BLUEPRINT
+* **Pachet Rădăcină**: `ro.uaic.feaa.sdbis.supplychain`
+* **Scope Exclusiv**: **Sprintul 2** (Nucleul de Domeniu Bogat, Value Objects, Agregate, Fabrici, Servicii de Calcul/Validare/Workflow, Politici, Porturi Repository, Configurații Spring Domain și Teste Unitare DoD).
+* **Navigare Directă**: Fiecare fișier conține calea sa relativă exactă în proiect și un link clickabil local direct (`file:///C:/Users/bmugu/Desktop/app/src/...`) care deschide automat fișierul de cod în editor.
 
 ---
 
-# LAYER 1: DOMAIN CORE LAYER (Nucleul de Domeniu Pur - Reguli de Business & Invarianți)
+# 1. ARBORELE DE NAVIGARE 1:1 AL PROIECTULUI (SPRINT 2 SCOPE)
 
-## 1.1 Shared Kernel (Nucleul Partajat)
+Următorul arbore reflectă **strict și 1:1** ierarhia reală de fișiere și directoare din proiect ce țin exclusiv de Sprintul 2:
 
-### Director: src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation
+```text
+c:/Users/bmugu/Desktop/app
+├── src
+│   ├── main
+│   │   └── java/ro/uaic/feaa/sdbis/supplychain
+│   │       ├── shared
+│   │       │   ├── annotation (16 fișiere)
+│   │       │   ├── exception (1 fișier)
+│   │       │   ├── persistence/converters (5 fișiere)
+│   │       │   └── [Value Objects & Outbox] (17 fișiere)
+│   │       ├── comenzi
+│   │       │   ├── domain
+│   │       │   │   ├── computation (3 fișiere)
+│   │       │   │   ├── event (5 fișiere)
+│   │       │   │   ├── factory (1 fișier)
+│   │       │   │   ├── policy (1 fișier)
+│   │       │   │   ├── validation (2 fișiere)
+│   │       │   │   └── [Agregate & VOs] (21 fișiere)
+│   │       │   └── infrastructure/configuration (1 fișier)
+│   │       ├── calitate
+│   │       │   ├── domain
+│   │       │   │   ├── computation (2 fișiere)
+│   │       │   │   ├── event (7 fișiere)
+│   │       │   │   ├── factory (2 fișiere)
+│   │       │   │   ├── policy (1 fișier)
+│   │       │   │   ├── validation (2 fișiere)
+│   │       │   │   └── [Agregate & VOs] (28 fișiere)
+│   │       │   └── infrastructure/configuration (1 fișier)
+│   │       └── facturi
+│   │           ├── domain
+│   │           │   ├── computation (3 fișiere)
+│   │           │   ├── event (2 fișiere)
+│   │           │   ├── factory (2 fișiere)
+│   │           │   ├── policy (1 fișier)
+│   │           │   ├── validation (2 fișiere)
+│   │           │   └── [Agregate & VOs] (21 fișiere)
+│   │           └── infrastructure/configuration (1 fișier)
+│   └── test
+│       └── java/ro/uaic/feaa/sdbis/supplychain
+│           └── unit (6 fișiere)
+```
 
-> **Rol Director**: Adnotări de arhitectură DDD care marchează rolul fiecărui tip de componentă în conformitate cu ADR-003.
+---
 
-#### 1. [`AggregateRoot.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/AggregateRoot.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/AggregateRoot.java`
-* **Tip Componentă**: `Clasă de Domeniu`
-* **Descriere**: Stereotip DDD pentru o radacina de agregat (Aggregate Root). Punctul unic de acces si control al tranzactiilor si invarianților pentru un cluster de entitati.
-* **Secvență de Cod**:
+# 2. BLUEPRINT DETALIAT PE DIRECTOARE ȘI FIȘIERE (SPECIFICAȚIE DE COD 1:1)
+
+## 📁 Director: `src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation`
+* **Modul de Business**: `Shared Kernel`
+* **Rol în Arhitectură**: Adnotări de arhitectură DDD care definesc rolul semantic și stereotipul fiecărei componente din nucleul de domeniu conform ADR-003.
+
+### 1. 📄 [`AggregateRoot.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/AggregateRoot.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/AggregateRoot.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/AggregateRoot.java)
+* **Rol Arhitectural (Sprint 2)**: `Port de Domeniu / Interfață de Business`
+* **Descriere de Business & Invarianți**: Stereotip DDD pentru o radacina de agregat (Aggregate Root). Punctul unic de acces si control al tranzactiilor si invarianților pentru un cluster de entitati.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.shared.annotation;
 
@@ -44,11 +90,11 @@ public @interface AggregateRoot {
 }
 ```
 
-#### 2. [`ApplicationService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/ApplicationService.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/ApplicationService.java`
-* **Tip Componentă**: `Clasă de Domeniu`
-* **Descriere**: Stereotip DDD pentru un serviciu din Application Layer (Application Service / Use-Case Service). Responsabil de coordonarea fluxurilor de utilizare (Use Cases), managementul tranzacționalității, orchestrarea agregatelor, colaborarea cu repository-urile de domeniu și publicarea
-* **Secvență de Cod**:
+### 2. 📄 [`ApplicationService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/ApplicationService.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/ApplicationService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/ApplicationService.java)
+* **Rol Arhitectural (Sprint 2)**: `Port de Domeniu / Interfață de Business`
+* **Descriere de Business & Invarianți**: Stereotip DDD pentru un serviciu din Application Layer (Application Service / Use-Case Service). Responsabil de coordonarea fluxurilor de utilizare (Use Cases), managementul tranzacționalității,
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.shared.annotation;
 
@@ -73,11 +119,11 @@ public @interface ApplicationService {
 }
 ```
 
-#### 3. [`ComputationService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/ComputationService.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/ComputationService.java`
-* **Tip Componentă**: `Clasă de Domeniu`
-* **Descriere**: Stereotip semantic pentru servicii de calcul (Computation Service conform cerințelor din Sprint 2 / SOA). Marchează contractele și implementările serviciilor de calcul numeric și indicatori de business.
-* **Secvență de Cod**:
+### 3. 📄 [`ComputationService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/ComputationService.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/ComputationService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/ComputationService.java)
+* **Rol Arhitectural (Sprint 2)**: `Port de Domeniu / Interfață de Business`
+* **Descriere de Business & Invarianți**: Stereotip semantic pentru servicii de calcul (Computation Service conform cerințelor din Sprint 2 / SOA). Marchează contractele și implementările serviciilor de calcul numeric și indicatori de business.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.shared.annotation;
 
@@ -99,11 +145,11 @@ public @interface ComputationService {
 }
 ```
 
-#### 4. [`DomainComputationService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/DomainComputationService.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/DomainComputationService.java`
-* **Tip Componentă**: `Clasă de Domeniu`
-* **Descriere**: Stereotip DDD / SOA pentru servicii de calcul în domeniu (Domain Computation Service). Marchează serviciile responsabile de calculul formulelor de business, indicatorilor statistici, scorurilor agregate și derivarea atributelor complexe (ex: Scorecard lunar, estimare lead time, reconciliere).
-* **Secvență de Cod**:
+### 4. 📄 [`DomainComputationService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/DomainComputationService.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/DomainComputationService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/DomainComputationService.java)
+* **Rol Arhitectural (Sprint 2)**: `Port de Domeniu / Interfață de Business`
+* **Descriere de Business & Invarianți**: Stereotip DDD / SOA pentru servicii de calcul în domeniu (Domain Computation Service). Marchează serviciile responsabile de calculul formulelor de business, indicatorilor statistici,
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.shared.annotation;
 
@@ -126,11 +172,11 @@ public @interface DomainComputationService {
 }
 ```
 
-#### 5. [`DomainEntity.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/DomainEntity.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/DomainEntity.java`
-* **Tip Componentă**: `Clasă de Domeniu`
-* **Descriere**: Stereotip DDD pentru o entitate de domeniu (Entity). Un obiect care are identitate de sine statatoare (ID) si ciclu de viata, dar este controlat din cadrul unui Aggregate Root.
-* **Secvență de Cod**:
+### 5. 📄 [`DomainEntity.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/DomainEntity.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/DomainEntity.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/DomainEntity.java)
+* **Rol Arhitectural (Sprint 2)**: `Port de Domeniu / Interfață de Business`
+* **Descriere de Business & Invarianți**: Stereotip DDD pentru o entitate de domeniu (Entity). Un obiect care are identitate de sine statatoare (ID) si ciclu de viata,
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.shared.annotation;
 
@@ -153,11 +199,11 @@ public @interface DomainEntity {
 }
 ```
 
-#### 6. [`DomainFactory.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/DomainFactory.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/DomainFactory.java`
-* **Tip Componentă**: `Clasă de Domeniu`
-* **Descriere**: Stereotip DDD / SOA pentru o fabrică de domeniu (Domain Factory / Entity Service). Responsabil de instanțierea și asamblarea agregatelor complexe sau a entităților asigurând că obiectul creat se află încă de la început într-o stare validă și conformă invarianților.
-* **Secvență de Cod**:
+### 6. 📄 [`DomainFactory.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/DomainFactory.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/DomainFactory.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/DomainFactory.java)
+* **Rol Arhitectural (Sprint 2)**: `Port de Domeniu / Interfață de Business`
+* **Descriere de Business & Invarianți**: Stereotip DDD / SOA pentru o fabrică de domeniu (Domain Factory / Entity Service). Responsabil de instanțierea și asamblarea agregatelor complexe sau a entităților
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.shared.annotation;
 
@@ -180,11 +226,11 @@ public @interface DomainFactory {
 }
 ```
 
-#### 7. [`DomainPolicy.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/DomainPolicy.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/DomainPolicy.java`
-* **Tip Componentă**: `Clasă de Domeniu`
-* **Descriere**: Stereotip DDD pentru o politică de business (Domain Policy / Strategy). Marchează clasele ce implementează reguli decizionale configurabile sau algoritmi de decizie de domeniu conform Strategy Pattern (ex: Politica de Aprobare Comenzi, Politica de Autorizare a Plăților,
-* **Secvență de Cod**:
+### 7. 📄 [`DomainPolicy.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/DomainPolicy.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/DomainPolicy.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/DomainPolicy.java)
+* **Rol Arhitectural (Sprint 2)**: `Port de Domeniu / Interfață de Business`
+* **Descriere de Business & Invarianți**: Stereotip DDD pentru o politică de business (Domain Policy / Strategy). Marchează clasele ce implementează reguli decizionale configurabile sau algoritmi de decizie
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.shared.annotation;
 
@@ -208,11 +254,11 @@ public @interface DomainPolicy {
 }
 ```
 
-#### 8. [`DomainRepository.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/DomainRepository.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/DomainRepository.java`
-* **Tip Componentă**: `Clasă de Domeniu`
-* **Descriere**: Stereotip DDD pentru o interfata de Repository de domeniu (Output Port). Ofera acces de tip colectie la agregatele din domeniu, independent de infrastructura tehnica.
-* **Secvență de Cod**:
+### 8. 📄 [`DomainRepository.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/DomainRepository.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/DomainRepository.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/DomainRepository.java)
+* **Rol Arhitectural (Sprint 2)**: `Port de Domeniu / Interfață de Business`
+* **Descriere de Business & Invarianți**: Stereotip DDD pentru o interfata de Repository de domeniu (Output Port). Ofera acces de tip colectie la agregatele din domeniu, independent de infrastructura tehnica.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.shared.annotation;
 
@@ -234,11 +280,11 @@ public @interface DomainRepository {
 }
 ```
 
-#### 9. [`DomainService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/DomainService.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/DomainService.java`
-* **Tip Componentă**: `Clasă de Domeniu`
-* **Descriere**: Stereotip DDD pentru un serviciu de domeniu (Domain Service / Task Service). Marchează componentele din Domain Layer care încapsulează logică de business pură, reguli operaționale sau algoritmi ce implică multiple agregate și nu aparțin
-* **Secvență de Cod**:
+### 9. 📄 [`DomainService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/DomainService.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/DomainService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/DomainService.java)
+* **Rol Arhitectural (Sprint 2)**: `Port de Domeniu / Interfață de Business`
+* **Descriere de Business & Invarianți**: Stereotip DDD pentru un serviciu de domeniu (Domain Service / Task Service). Marchează componentele din Domain Layer care încapsulează logică de business pură,
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.shared.annotation;
 
@@ -263,11 +309,11 @@ public @interface DomainService {
 }
 ```
 
-#### 10. [`DomainValidationService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/DomainValidationService.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/DomainValidationService.java`
-* **Tip Componentă**: `Clasă de Domeniu`
-* **Descriere**: Stereotip DDD / SOA pentru servicii de validare a logicii de domeniu (Domain Validation Service). Marchează serviciile responsabile de verificarea invarianților complecși de business, a integrității cross-entity și cross-aggregate (ex: 3-Way Matching, verificarea eligibilității la plată).
-* **Secvență de Cod**:
+### 10. 📄 [`DomainValidationService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/DomainValidationService.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/DomainValidationService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/DomainValidationService.java)
+* **Rol Arhitectural (Sprint 2)**: `Port de Domeniu / Interfață de Business`
+* **Descriere de Business & Invarianți**: Stereotip DDD / SOA pentru servicii de validare a logicii de domeniu (Domain Validation Service). Marchează serviciile responsabile de verificarea invarianților complecși de business,
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.shared.annotation;
 
@@ -290,11 +336,11 @@ public @interface DomainValidationService {
 }
 ```
 
-#### 11. [`InfrastructureService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/InfrastructureService.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/InfrastructureService.java`
-* **Tip Componentă**: `Clasă de Domeniu`
-* **Descriere**: Stereotip Clean Architecture pentru servicii din Infrastructure Layer (Infrastructure Service). Marchează componentele tehnice, adaptoarele către sisteme externe (REST, Stripe), procesele de fundal (Schedulers) și mecanismele de mesagerie asincronă (Outbox/Inbox Dispatchers).
-* **Secvență de Cod**:
+### 11. 📄 [`InfrastructureService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/InfrastructureService.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/InfrastructureService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/InfrastructureService.java)
+* **Rol Arhitectural (Sprint 2)**: `Port de Domeniu / Interfață de Business`
+* **Descriere de Business & Invarianți**: Stereotip Clean Architecture pentru servicii din Infrastructure Layer (Infrastructure Service). Marchează componentele tehnice, adaptoarele către sisteme externe (REST, Stripe),
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.shared.annotation;
 
@@ -317,11 +363,11 @@ public @interface InfrastructureService {
 }
 ```
 
-#### 12. [`QueryService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/QueryService.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/QueryService.java`
-* **Tip Componentă**: `Clasă de Domeniu`
-* **Descriere**: Stereotip CQRS pentru servicii dedicate interogărilor și proiecțiilor (Query Service / Entity View Computation). Responsabil de extragerea și asamblarea modelelor de citire optimizate (Read Models, Summary Views, Dashboard Views), fără a modifica starea agregatelor (operațiuni read-only, idempotente).
-* **Secvență de Cod**:
+### 12. 📄 [`QueryService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/QueryService.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/QueryService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/QueryService.java)
+* **Rol Arhitectural (Sprint 2)**: `Port de Domeniu / Interfață de Business`
+* **Descriere de Business & Invarianți**: Stereotip CQRS pentru servicii dedicate interogărilor și proiecțiilor (Query Service / Entity View Computation). Responsabil de extragerea și asamblarea modelelor de citire optimizate (Read Models, Summary Views, Dashboard Views),
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.shared.annotation;
 
@@ -344,11 +390,11 @@ public @interface QueryService {
 }
 ```
 
-#### 13. [`UtilityService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/UtilityService.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/UtilityService.java`
-* **Tip Componentă**: `Clasă de Domeniu`
-* **Descriere**: Stereotip SOA pentru servicii utilitare transversale (Utility Service / Cross-Cutting Service). Marchează componentele responsabile de funcționalități transversale reutilizabile în cadrul soluției: audit operațional imutabil (JurnalAuditService), servicii de notificare (NotificariDispatcherService) etc.
-* **Secvență de Cod**:
+### 13. 📄 [`UtilityService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/UtilityService.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/UtilityService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/UtilityService.java)
+* **Rol Arhitectural (Sprint 2)**: `Port de Domeniu / Interfață de Business`
+* **Descriere de Business & Invarianți**: Stereotip SOA pentru servicii utilitare transversale (Utility Service / Cross-Cutting Service). Marchează componentele responsabile de funcționalități transversale reutilizabile în cadrul soluției:
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.shared.annotation;
 
@@ -371,11 +417,11 @@ public @interface UtilityService {
 }
 ```
 
-#### 14. [`ValidationService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/ValidationService.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/ValidationService.java`
-* **Tip Componentă**: `Clasă de Domeniu`
-* **Descriere**: Stereotip semantic pentru servicii de validare (Validation Service conform cerințelor din Sprint 2 / SOA). Marchează contractele și implementările serviciilor de validare a regulilor de business.
-* **Secvență de Cod**:
+### 14. 📄 [`ValidationService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/ValidationService.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/ValidationService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/ValidationService.java)
+* **Rol Arhitectural (Sprint 2)**: `Port de Domeniu / Interfață de Business`
+* **Descriere de Business & Invarianți**: Stereotip semantic pentru servicii de validare (Validation Service conform cerințelor din Sprint 2 / SOA). Marchează contractele și implementările serviciilor de validare a regulilor de business.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.shared.annotation;
 
@@ -397,11 +443,11 @@ public @interface ValidationService {
 }
 ```
 
-#### 15. [`ValueObject.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/ValueObject.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/ValueObject.java`
-* **Tip Componentă**: `Clasă de Domeniu`
-* **Descriere**: Stereotip DDD pentru un obiect valoare (Value Object). Un obiect imutabil definit exclusiv prin atributele sale structurale, fara o identitate separata (ID).
-* **Secvență de Cod**:
+### 15. 📄 [`ValueObject.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/ValueObject.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/ValueObject.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/ValueObject.java)
+* **Rol Arhitectural (Sprint 2)**: `Port de Domeniu / Interfață de Business`
+* **Descriere de Business & Invarianți**: Stereotip DDD pentru un obiect valoare (Value Object). Un obiect imutabil definit exclusiv prin atributele sale structurale,
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.shared.annotation;
 
@@ -424,11 +470,11 @@ public @interface ValueObject {
 }
 ```
 
-#### 16. [`WorkflowService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/WorkflowService.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/WorkflowService.java`
-* **Tip Componentă**: `Clasă de Domeniu`
-* **Descriere**: Stereotip SOA / Application pentru servicii de workflow operațional (Workflow Service / Orchestration Service). Marchează contractele și implementările fluxurilor operaționale complexe ale aplicației (ex: flux aprovizionare comenzi, workflow recepție și calificare furnizori, workflow reconciliere și plăți).
-* **Secvență de Cod**:
+### 16. 📄 [`WorkflowService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/WorkflowService.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/WorkflowService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/annotation/WorkflowService.java)
+* **Rol Arhitectural (Sprint 2)**: `Port de Domeniu / Interfață de Business`
+* **Descriere de Business & Invarianți**: Stereotip SOA / Application pentru servicii de workflow operațional (Workflow Service / Orchestration Service). Marchează contractele și implementările fluxurilor operaționale complexe ale aplicației
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.shared.annotation;
 
@@ -451,15 +497,185 @@ public @interface WorkflowService {
 }
 ```
 
-### Director: src/main/java/ro/uaic/feaa/sdbis/supplychain/shared
+## 📁 Director: `src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/exception`
+* **Modul de Business**: `Shared Kernel`
+* **Rol în Arhitectură**: Excepții de domeniu aruncate de constructorii Value Objects și de serviciile de validare când sunt încălcați invarianții de business.
 
-> **Rol Director**: Value Objects partajate universal, entități de infrastructură partajată (Outbox/Inbox) și interfețe de audit.
+### 17. 📄 [`DomainValidationException.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/exception/DomainValidationException.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/exception/DomainValidationException.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/exception/DomainValidationException.java)
+* **Rol Arhitectural (Sprint 2)**: `Clasă de Domeniu Pure`
+* **Descriere de Business & Invarianți**: Exceptie pentru incalcarea regulilor de validare a domeniului (ADR-003).
+* **Secvență de Cod (Implementare)**:
+```java
+package ro.uaic.feaa.sdbis.supplychain.shared.exception;
 
-#### 17. [`AbstractRepositoryJPA.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/AbstractRepositoryJPA.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/AbstractRepositoryJPA.java`
-* **Tip Componentă**: `Clasă de Domeniu`
-* **Descriere**: Biblioteca tehnica comuna (Infrastructure) - Figura 10 din Project_OOAD.docx. Contine accesul la EntityManager pentru implementarea operatiilor CRUD de baza.
-* **Secvență de Cod**:
+/**
+ * Exceptie pentru incalcarea regulilor de validare a domeniului (ADR-003).
+ */
+public class DomainValidationException extends RuntimeException {
+
+    private final String codEroare;
+
+    public DomainValidationException(String mesaj) {
+        super(mesaj);
+        this.codEroare = "VALIDARE_DOMENIU";
+    }
+
+    public DomainValidationException(String codEroare, String mesaj) {
+        super(mesaj);
+        this.codEroare = codEroare;
+    }
+
+    public String getCodEroare() {
+        return codEroare;
+    }
+}
+```
+
+## 📁 Director: `src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/persistence/converters`
+* **Modul de Business**: `Shared Kernel`
+* **Rol în Arhitectură**: Convertoare JPA AttributeConverter pentru serializarea și deserializarea transparentă a identificatorilor și tipurilor Value Object în coloane SQL.
+
+### 18. 📄 [`CodMaterialConverter.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/persistence/converters/CodMaterialConverter.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/persistence/converters/CodMaterialConverter.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/persistence/converters/CodMaterialConverter.java)
+* **Rol Arhitectural (Sprint 2)**: `Clasă de Domeniu Pure`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `CodMaterialConverter.java`.
+* **Secvență de Cod (Implementare)**:
+```java
+package ro.uaic.feaa.sdbis.supplychain.shared.persistence.converters;
+
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
+import ro.uaic.feaa.sdbis.supplychain.shared.CodMaterial;
+
+@Converter(autoApply = false)
+public class CodMaterialConverter implements AttributeConverter<CodMaterial, String> {
+    @Override
+    public String convertToDatabaseColumn(CodMaterial attribute) {
+        return attribute == null ? null : attribute.getCod();
+    }
+    @Override
+    public CodMaterial convertToEntityAttribute(String dbData) {
+        return dbData == null ? null : CodMaterial.of(dbData);
+    }
+}
+```
+
+### 19. 📄 [`CurrencyConverter.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/persistence/converters/CurrencyConverter.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/persistence/converters/CurrencyConverter.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/persistence/converters/CurrencyConverter.java)
+* **Rol Arhitectural (Sprint 2)**: `Clasă de Domeniu Pure`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `CurrencyConverter.java`.
+* **Secvență de Cod (Implementare)**:
+```java
+package ro.uaic.feaa.sdbis.supplychain.shared.persistence.converters;
+
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
+import java.util.Currency;
+
+@Converter(autoApply = true)
+public class CurrencyConverter implements AttributeConverter<Currency, String> {
+
+    @Override
+    public String convertToDatabaseColumn(Currency attribute) {
+        return attribute != null ? attribute.getCurrencyCode() : null;
+    }
+
+    @Override
+    public Currency convertToEntityAttribute(String dbData) {
+        return (dbData != null && !dbData.isBlank()) ? Currency.getInstance(dbData.trim()) : null;
+    }
+}
+
+```
+
+### 20. 📄 [`IdComandaConverter.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/persistence/converters/IdComandaConverter.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/persistence/converters/IdComandaConverter.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/persistence/converters/IdComandaConverter.java)
+* **Rol Arhitectural (Sprint 2)**: `Clasă de Domeniu Pure`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `IdComandaConverter.java`.
+* **Secvență de Cod (Implementare)**:
+```java
+package ro.uaic.feaa.sdbis.supplychain.shared.persistence.converters;
+
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
+import ro.uaic.feaa.sdbis.supplychain.shared.IdComanda;
+import java.util.UUID;
+
+@Converter(autoApply = false)
+public class IdComandaConverter implements AttributeConverter<IdComanda, UUID> {
+    @Override
+    public UUID convertToDatabaseColumn(IdComanda attribute) {
+        return attribute == null ? null : attribute.getValue();
+    }
+    @Override
+    public IdComanda convertToEntityAttribute(UUID dbData) {
+        return dbData == null ? null : IdComanda.of(dbData);
+    }
+}
+```
+
+### 21. 📄 [`IdFurnizorConverter.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/persistence/converters/IdFurnizorConverter.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/persistence/converters/IdFurnizorConverter.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/persistence/converters/IdFurnizorConverter.java)
+* **Rol Arhitectural (Sprint 2)**: `Clasă de Domeniu Pure`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `IdFurnizorConverter.java`.
+* **Secvență de Cod (Implementare)**:
+```java
+package ro.uaic.feaa.sdbis.supplychain.shared.persistence.converters;
+
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
+import ro.uaic.feaa.sdbis.supplychain.shared.IdFurnizor;
+import java.util.UUID;
+
+@Converter(autoApply = false)
+public class IdFurnizorConverter implements AttributeConverter<IdFurnizor, UUID> {
+    @Override
+    public UUID convertToDatabaseColumn(IdFurnizor attribute) {
+        return attribute == null ? null : attribute.getValue();
+    }
+    @Override
+    public IdFurnizor convertToEntityAttribute(UUID dbData) {
+        return dbData == null ? null : IdFurnizor.of(dbData);
+    }
+}
+```
+
+### 22. 📄 [`IdLotConverter.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/persistence/converters/IdLotConverter.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/persistence/converters/IdLotConverter.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/persistence/converters/IdLotConverter.java)
+* **Rol Arhitectural (Sprint 2)**: `Clasă de Domeniu Pure`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `IdLotConverter.java`.
+* **Secvență de Cod (Implementare)**:
+```java
+package ro.uaic.feaa.sdbis.supplychain.shared.persistence.converters;
+
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
+import ro.uaic.feaa.sdbis.supplychain.shared.IdLot;
+import java.util.UUID;
+
+@Converter(autoApply = false)
+public class IdLotConverter implements AttributeConverter<IdLot, UUID> {
+    @Override
+    public UUID convertToDatabaseColumn(IdLot attribute) {
+        return attribute == null ? null : attribute.getValue();
+    }
+    @Override
+    public IdLot convertToEntityAttribute(UUID dbData) {
+        return dbData == null ? null : IdLot.of(dbData);
+    }
+}
+```
+
+## 📁 Director: `src/main/java/ro/uaic/feaa/sdbis/supplychain/shared`
+* **Modul de Business**: `Shared Kernel`
+* **Rol în Arhitectură**: Value Objects universale (IdComanda, IdFurnizor, IdLot, CodMaterial, Perioada), mecanismul Transactional Outbox / Inbox și interfețele de audit.
+
+### 23. 📄 [`AbstractRepositoryJPA.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/AbstractRepositoryJPA.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/AbstractRepositoryJPA.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/AbstractRepositoryJPA.java)
+* **Rol Arhitectural (Sprint 2)**: `Clasă de Domeniu Pure`
+* **Descriere de Business & Invarianți**: Biblioteca tehnica comuna (Infrastructure) - Figura 10 din Project_OOAD.docx. Contine accesul la EntityManager pentru implementarea operatiilor CRUD de baza.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.shared;
 
@@ -501,14 +717,16 @@ public abstract class AbstractRepositoryJPA<T, ID> {
     public Optional<T> findById(ID id) {
         return Optional.ofNullable(em.find(entityClass, id));
     }
-    // ... [restul de 6 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
+
+    public List<T> findAll() {
+    // ... [restul de 4 linii omise pentru concizie in blueprint; codul complet este accesibil la link-ul de mai sus]
 ```
 
-#### 18. [`AuditLogEntry.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/AuditLogEntry.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/AuditLogEntry.java`
-* **Tip Componentă**: `Clasă de Domeniu`
-* **Descriere**: Implementare a componentei `AuditLogEntry.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 24. 📄 [`AuditLogEntry.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/AuditLogEntry.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/AuditLogEntry.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/AuditLogEntry.java)
+* **Rol Arhitectural (Sprint 2)**: `Clasă de Domeniu Pure`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `AuditLogEntry.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.shared;
 
@@ -550,14 +768,16 @@ public class AuditLogEntry implements Serializable {
     public String getObiect() { return obiect; }
 
     @Override
-    // ... [restul de 11 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
+    public boolean equals(Object o) {
+        if (this == o) return true;
+    // ... [restul de 9 linii omise pentru concizie in blueprint; codul complet este accesibil la link-ul de mai sus]
 ```
 
-#### 19. [`CodMaterial.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/CodMaterial.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/CodMaterial.java`
-* **Tip Componentă**: `Value Object (Obiect Valoare Imutabil DDD)`
-* **Descriere**: Implementare a componentei `CodMaterial.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 25. 📄 [`CodMaterial.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/CodMaterial.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/CodMaterial.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/CodMaterial.java)
+* **Rol Arhitectural (Sprint 2)**: `Value Object (Obiect Valoare Imutabil DDD)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `CodMaterial.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.shared;
 
@@ -599,14 +819,16 @@ public final class CodMaterial implements Serializable {
     public int hashCode() {
         return Objects.hash(cod);
     }
-    // ... [restul de 6 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
+
+    @Override
+    // ... [restul de 4 linii omise pentru concizie in blueprint; codul complet este accesibil la link-ul de mai sus]
 ```
 
-#### 20. [`DomainEvent.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/DomainEvent.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/DomainEvent.java`
-* **Tip Componentă**: `Clasă de Domeniu`
-* **Descriere**: Contract comun pentru toate evenimentele de domeniu din sistem.
-* **Secvență de Cod**:
+### 26. 📄 [`DomainEvent.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/DomainEvent.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/DomainEvent.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/DomainEvent.java)
+* **Rol Arhitectural (Sprint 2)**: `Port de Domeniu / Interfață de Business`
+* **Descriere de Business & Invarianți**: Contract comun pentru toate evenimentele de domeniu din sistem.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.shared;
 
@@ -623,11 +845,11 @@ public interface DomainEvent extends Serializable {
 }
 ```
 
-#### 21. [`IJurnalAudit.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/IJurnalAudit.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/IJurnalAudit.java`
-* **Tip Componentă**: `Clasă de Domeniu`
-* **Descriere**: Port pentru jurnalizarea imutabila (append-only) a accesului, actiunilor critice si trasabilitatii modificarilor operationale (Sprint 2 - ADR-003, GDPR, NIS2).
-* **Secvență de Cod**:
+### 27. 📄 [`IJurnalAudit.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/IJurnalAudit.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/IJurnalAudit.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/IJurnalAudit.java)
+* **Rol Arhitectural (Sprint 2)**: `Port de Domeniu / Interfață de Business`
+* **Descriere de Business & Invarianți**: Port pentru jurnalizarea imutabila (append-only) a accesului, actiunilor critice si trasabilitatii modificarilor operationale (Sprint 2 - ADR-003, GDPR, NIS2).
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.shared;
 
@@ -654,11 +876,11 @@ public interface IJurnalAudit {
 }
 ```
 
-#### 22. [`IdComanda.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/IdComanda.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/IdComanda.java`
-* **Tip Componentă**: `Value Object (Obiect Valoare Imutabil DDD)`
-* **Descriere**: Implementare a componentei `IdComanda.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 28. 📄 [`IdComanda.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/IdComanda.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/IdComanda.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/IdComanda.java)
+* **Rol Arhitectural (Sprint 2)**: `Value Object (Obiect Valoare Imutabil DDD)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `IdComanda.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.shared;
 
@@ -700,14 +922,16 @@ public final class IdComanda implements Serializable {
         return Objects.equals(value, that.value);
     }
 
-    // ... [restul de 10 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
+    @Override
+    public int hashCode() {
+    // ... [restul de 8 linii omise pentru concizie in blueprint; codul complet este accesibil la link-ul de mai sus]
 ```
 
-#### 23. [`IdFurnizor.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/IdFurnizor.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/IdFurnizor.java`
-* **Tip Componentă**: `Value Object (Obiect Valoare Imutabil DDD)`
-* **Descriere**: Implementare a componentei `IdFurnizor.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 29. 📄 [`IdFurnizor.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/IdFurnizor.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/IdFurnizor.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/IdFurnizor.java)
+* **Rol Arhitectural (Sprint 2)**: `Value Object (Obiect Valoare Imutabil DDD)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `IdFurnizor.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.shared;
 
@@ -749,14 +973,16 @@ public final class IdFurnizor implements Serializable {
         return Objects.equals(value, that.value);
     }
 
-    // ... [restul de 10 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
+    @Override
+    public int hashCode() {
+    // ... [restul de 8 linii omise pentru concizie in blueprint; codul complet este accesibil la link-ul de mai sus]
 ```
 
-#### 24. [`IdLot.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/IdLot.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/IdLot.java`
-* **Tip Componentă**: `Value Object (Obiect Valoare Imutabil DDD)`
-* **Descriere**: Implementare a componentei `IdLot.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 30. 📄 [`IdLot.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/IdLot.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/IdLot.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/IdLot.java)
+* **Rol Arhitectural (Sprint 2)**: `Value Object (Obiect Valoare Imutabil DDD)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `IdLot.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.shared;
 
@@ -798,14 +1024,16 @@ public final class IdLot implements Serializable {
         return Objects.equals(value, that.value);
     }
 
-    // ... [restul de 10 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
+    @Override
+    public int hashCode() {
+    // ... [restul de 8 linii omise pentru concizie in blueprint; codul complet este accesibil la link-ul de mai sus]
 ```
 
-#### 25. [`InboxEventEntity.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/InboxEventEntity.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/InboxEventEntity.java`
-* **Tip Componentă**: `Clasă de Domeniu`
-* **Descriere**: Implementare a componentei `InboxEventEntity.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 31. 📄 [`InboxEventEntity.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/InboxEventEntity.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/InboxEventEntity.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/InboxEventEntity.java)
+* **Rol Arhitectural (Sprint 2)**: `Clasă de Domeniu Pure`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `InboxEventEntity.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.shared;
 
@@ -847,14 +1075,16 @@ public class InboxEventEntity implements Serializable {
     public Instant getProcessedAt() { return processedAt; }
 
     @Override
-    // ... [restul de 11 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
+    public boolean equals(Object o) {
+        if (this == o) return true;
+    // ... [restul de 9 linii omise pentru concizie in blueprint; codul complet este accesibil la link-ul de mai sus]
 ```
 
-#### 26. [`InboxRepo.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/InboxRepo.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/InboxRepo.java`
-* **Tip Componentă**: `Clasă de Domeniu`
-* **Descriere**: Port pentru verificarea idempotentei la consumul evenimentelor (Idempotent Inbox pattern). Suporta urmarirea per-consumer a procesarii fiecarui eveniment.
-* **Secvență de Cod**:
+### 32. 📄 [`InboxRepo.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/InboxRepo.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/InboxRepo.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/InboxRepo.java)
+* **Rol Arhitectural (Sprint 2)**: `Port de Domeniu / Interfață de Business`
+* **Descriere de Business & Invarianți**: Port pentru verificarea idempotentei la consumul evenimentelor (Idempotent Inbox pattern). Suporta urmarirea per-consumer a procesarii fiecarui eveniment.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.shared;
 
@@ -873,11 +1103,11 @@ public interface InboxRepo {
 }
 ```
 
-#### 27. [`InboxRepoJPA.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/InboxRepoJPA.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/InboxRepoJPA.java`
-* **Tip Componentă**: `Clasă de Domeniu`
-* **Descriere**: Implementare a componentei `InboxRepoJPA.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 33. 📄 [`InboxRepoJPA.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/InboxRepoJPA.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/InboxRepoJPA.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/InboxRepoJPA.java)
+* **Rol Arhitectural (Sprint 2)**: `Clasă de Domeniu Pure`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `InboxRepoJPA.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.shared;
 
@@ -918,11 +1148,11 @@ public class InboxRepoJPA extends AbstractRepositoryJPA<InboxEventEntity, String
 }
 ```
 
-#### 28. [`OutboxEventEntity.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/OutboxEventEntity.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/OutboxEventEntity.java`
-* **Tip Componentă**: `Clasă de Domeniu`
-* **Descriere**: Implementare a componentei `OutboxEventEntity.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 34. 📄 [`OutboxEventEntity.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/OutboxEventEntity.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/OutboxEventEntity.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/OutboxEventEntity.java)
+* **Rol Arhitectural (Sprint 2)**: `Clasă de Domeniu Pure`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `OutboxEventEntity.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.shared;
 
@@ -964,14 +1194,16 @@ public class OutboxEventEntity implements Serializable {
 
     public UUID getEventId() { return eventId; }
     public Instant getOccurredOn() { return occurredOn; }
-    // ... [restul de 17 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
+    public String getEventType() { return eventType; }
+    public String getPayload() { return payload; }
+    // ... [restul de 15 linii omise pentru concizie in blueprint; codul complet este accesibil la link-ul de mai sus]
 ```
 
-#### 29. [`OutboxRepo.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/OutboxRepo.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/OutboxRepo.java`
-* **Tip Componentă**: `Clasă de Domeniu`
-* **Descriere**: Port pentru salvarea si publicarea evenimentelor conform Transactional Outbox pattern.
-* **Secvență de Cod**:
+### 35. 📄 [`OutboxRepo.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/OutboxRepo.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/OutboxRepo.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/OutboxRepo.java)
+* **Rol Arhitectural (Sprint 2)**: `Port de Domeniu / Interfață de Business`
+* **Descriere de Business & Invarianți**: Port pentru salvarea si publicarea evenimentelor conform Transactional Outbox pattern.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.shared;
 
@@ -988,11 +1220,11 @@ public interface OutboxRepo {
 }
 ```
 
-#### 30. [`OutboxRepoJPA.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/OutboxRepoJPA.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/OutboxRepoJPA.java`
-* **Tip Componentă**: `Clasă de Domeniu`
-* **Descriere**: Implementare a componentei `OutboxRepoJPA.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 36. 📄 [`OutboxRepoJPA.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/OutboxRepoJPA.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/OutboxRepoJPA.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/OutboxRepoJPA.java)
+* **Rol Arhitectural (Sprint 2)**: `Clasă de Domeniu Pure`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `OutboxRepoJPA.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.shared;
 
@@ -1034,14 +1266,16 @@ public class OutboxRepoJPA extends AbstractRepositoryJPA<OutboxEventEntity, UUID
             e.eventId(), e.occurredOn() != null ? e.occurredOn() : Instant.now(), e.getClass().getName(), payload
         );
         em.persist(entity);
-    // ... [restul de 44 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
+        em.flush();
+    }
+    // ... [restul de 42 linii omise pentru concizie in blueprint; codul complet este accesibil la link-ul de mai sus]
 ```
 
-#### 31. [`Perioada.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/Perioada.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/Perioada.java`
-* **Tip Componentă**: `Value Object (Obiect Valoare Imutabil DDD)`
-* **Descriere**: Implementare a componentei `Perioada.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 37. 📄 [`Perioada.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/Perioada.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/Perioada.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/Perioada.java)
+* **Rol Arhitectural (Sprint 2)**: `Value Object (Obiect Valoare Imutabil DDD)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `Perioada.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.shared;
 
@@ -1083,14 +1317,16 @@ public final class Perioada implements Serializable {
         LocalDate now = LocalDate.now();
         return ofLuna(now.getYear(), now.getMonthValue());
     }
-    // ... [restul de 41 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
+
+    public static Perioada zileUrmatoare(int days) {
+    // ... [restul de 39 linii omise pentru concizie in blueprint; codul complet este accesibil la link-ul de mai sus]
 ```
 
-#### 32. [`StoredDomainEvent.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/StoredDomainEvent.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/StoredDomainEvent.java`
-* **Tip Componentă**: `Clasă de Domeniu`
-* **Descriere**: Reprezentare generica sau fallback pentru evenimente de domeniu persistate in Outbox/Inbox.
-* **Secvență de Cod**:
+### 38. 📄 [`StoredDomainEvent.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/StoredDomainEvent.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/StoredDomainEvent.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/StoredDomainEvent.java)
+* **Rol Arhitectural (Sprint 2)**: `Clasă de Domeniu Pure`
+* **Descriere de Business & Invarianți**: Reprezentare generica sau fallback pentru evenimente de domeniu persistate in Outbox/Inbox.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.shared;
 
@@ -1108,11 +1344,11 @@ public record StoredDomainEvent(
 ) implements DomainEvent {}
 ```
 
-#### 33. [`package-info.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/package-info.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/package-info.java`
-* **Tip Componentă**: `Clasă de Domeniu`
-* **Descriere**: Implementare a componentei `package-info.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 39. 📄 [`package-info.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/package-info.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/package-info.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/package-info.java)
+* **Rol Arhitectural (Sprint 2)**: `Clasă de Domeniu Pure`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `package-info.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 @org.springframework.modulith.ApplicationModule(
     type = org.springframework.modulith.ApplicationModule.Type.OPEN
@@ -1120,187 +1356,15 @@ public record StoredDomainEvent(
 package ro.uaic.feaa.sdbis.supplychain.shared;
 ```
 
-### Director: src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/persistence/converters
+## 📁 Director: `src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain`
+* **Modul de Business**: `Bounded Context: Comenzi`
+* **Rol în Arhitectură**: Rădăcina de agregat ComandaAprovizionare, entitatea componentă Lot, Value Objects, enumerări de stare și porturile de persistență.
 
-> **Rol Director**: Convertoare JPA (AttributeConverter) pentru maparea transparentă a Value Objects în coloane de bază de date.
-
-#### 34. [`CodMaterialConverter.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/persistence/converters/CodMaterialConverter.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/persistence/converters/CodMaterialConverter.java`
-* **Tip Componentă**: `Clasă de Domeniu`
-* **Descriere**: Implementare a componentei `CodMaterialConverter.java` din modulul de afaceri.
-* **Secvență de Cod**:
-```java
-package ro.uaic.feaa.sdbis.supplychain.shared.persistence.converters;
-
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
-import ro.uaic.feaa.sdbis.supplychain.shared.CodMaterial;
-
-@Converter(autoApply = false)
-public class CodMaterialConverter implements AttributeConverter<CodMaterial, String> {
-    @Override
-    public String convertToDatabaseColumn(CodMaterial attribute) {
-        return attribute == null ? null : attribute.getCod();
-    }
-    @Override
-    public CodMaterial convertToEntityAttribute(String dbData) {
-        return dbData == null ? null : CodMaterial.of(dbData);
-    }
-}
-```
-
-#### 35. [`CurrencyConverter.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/persistence/converters/CurrencyConverter.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/persistence/converters/CurrencyConverter.java`
-* **Tip Componentă**: `Clasă de Domeniu`
-* **Descriere**: Implementare a componentei `CurrencyConverter.java` din modulul de afaceri.
-* **Secvență de Cod**:
-```java
-package ro.uaic.feaa.sdbis.supplychain.shared.persistence.converters;
-
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
-import java.util.Currency;
-
-@Converter(autoApply = true)
-public class CurrencyConverter implements AttributeConverter<Currency, String> {
-
-    @Override
-    public String convertToDatabaseColumn(Currency attribute) {
-        return attribute != null ? attribute.getCurrencyCode() : null;
-    }
-
-    @Override
-    public Currency convertToEntityAttribute(String dbData) {
-        return (dbData != null && !dbData.isBlank()) ? Currency.getInstance(dbData.trim()) : null;
-    }
-}
-
-```
-
-#### 36. [`IdComandaConverter.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/persistence/converters/IdComandaConverter.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/persistence/converters/IdComandaConverter.java`
-* **Tip Componentă**: `Clasă de Domeniu`
-* **Descriere**: Implementare a componentei `IdComandaConverter.java` din modulul de afaceri.
-* **Secvență de Cod**:
-```java
-package ro.uaic.feaa.sdbis.supplychain.shared.persistence.converters;
-
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
-import ro.uaic.feaa.sdbis.supplychain.shared.IdComanda;
-import java.util.UUID;
-
-@Converter(autoApply = false)
-public class IdComandaConverter implements AttributeConverter<IdComanda, UUID> {
-    @Override
-    public UUID convertToDatabaseColumn(IdComanda attribute) {
-        return attribute == null ? null : attribute.getValue();
-    }
-    @Override
-    public IdComanda convertToEntityAttribute(UUID dbData) {
-        return dbData == null ? null : IdComanda.of(dbData);
-    }
-}
-```
-
-#### 37. [`IdFurnizorConverter.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/persistence/converters/IdFurnizorConverter.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/persistence/converters/IdFurnizorConverter.java`
-* **Tip Componentă**: `Clasă de Domeniu`
-* **Descriere**: Implementare a componentei `IdFurnizorConverter.java` din modulul de afaceri.
-* **Secvență de Cod**:
-```java
-package ro.uaic.feaa.sdbis.supplychain.shared.persistence.converters;
-
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
-import ro.uaic.feaa.sdbis.supplychain.shared.IdFurnizor;
-import java.util.UUID;
-
-@Converter(autoApply = false)
-public class IdFurnizorConverter implements AttributeConverter<IdFurnizor, UUID> {
-    @Override
-    public UUID convertToDatabaseColumn(IdFurnizor attribute) {
-        return attribute == null ? null : attribute.getValue();
-    }
-    @Override
-    public IdFurnizor convertToEntityAttribute(UUID dbData) {
-        return dbData == null ? null : IdFurnizor.of(dbData);
-    }
-}
-```
-
-#### 38. [`IdLotConverter.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/persistence/converters/IdLotConverter.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/persistence/converters/IdLotConverter.java`
-* **Tip Componentă**: `Clasă de Domeniu`
-* **Descriere**: Implementare a componentei `IdLotConverter.java` din modulul de afaceri.
-* **Secvență de Cod**:
-```java
-package ro.uaic.feaa.sdbis.supplychain.shared.persistence.converters;
-
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
-import ro.uaic.feaa.sdbis.supplychain.shared.IdLot;
-import java.util.UUID;
-
-@Converter(autoApply = false)
-public class IdLotConverter implements AttributeConverter<IdLot, UUID> {
-    @Override
-    public UUID convertToDatabaseColumn(IdLot attribute) {
-        return attribute == null ? null : attribute.getValue();
-    }
-    @Override
-    public IdLot convertToEntityAttribute(UUID dbData) {
-        return dbData == null ? null : IdLot.of(dbData);
-    }
-}
-```
-
-### Director: src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/exception
-
-> **Rol Director**: Ierarhia excepțiilor de domeniu aruncate la încălcarea regulilor de business.
-
-#### 39. [`DomainValidationException.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/exception/DomainValidationException.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/exception/DomainValidationException.java`
-* **Tip Componentă**: `Clasă de Domeniu`
-* **Descriere**: Exceptie pentru incalcarea regulilor de validare a domeniului (ADR-003).
-* **Secvență de Cod**:
-```java
-package ro.uaic.feaa.sdbis.supplychain.shared.exception;
-
-/**
- * Exceptie pentru incalcarea regulilor de validare a domeniului (ADR-003).
- */
-public class DomainValidationException extends RuntimeException {
-
-    private final String codEroare;
-
-    public DomainValidationException(String mesaj) {
-        super(mesaj);
-        this.codEroare = "VALIDARE_DOMENIU";
-    }
-
-    public DomainValidationException(String codEroare, String mesaj) {
-        super(mesaj);
-        this.codEroare = codEroare;
-    }
-
-    public String getCodEroare() {
-        return codEroare;
-    }
-}
-```
-
-## 1.2 Bounded Context: Comenzi (Aprovizionare & Gestiune Loturi)
-
-### Director: src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain
-
-> **Rol Director**: Agregatul ComandaAprovizionare, entitatea componentă Lot, Value Objects, enumerări de stare și porturi de repository.
-
-#### 40. [`Cantitate.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/Cantitate.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/Cantitate.java`
-* **Tip Componentă**: `Value Object (Obiect Valoare Imutabil DDD)`
-* **Descriere**: Implementare a componentei `Cantitate.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 40. 📄 [`Cantitate.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/Cantitate.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/Cantitate.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/Cantitate.java)
+* **Rol Arhitectural (Sprint 2)**: `Value Object (Obiect Valoare Imutabil DDD)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `Cantitate.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.comenzi.domain;
 
@@ -1342,14 +1406,16 @@ public final class Cantitate implements Serializable {
     }
 
     public Cantitate adauga(Cantitate alta) {
-    // ... [restul de 44 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
+        Objects.requireNonNull(alta, "alta cantitate cannot be null");
+        if (!this.unitateMasura.equalsIgnoreCase(alta.unitateMasura)) {
+    // ... [restul de 42 linii omise pentru concizie in blueprint; codul complet este accesibil la link-ul de mai sus]
 ```
 
-#### 41. [`ComandaAprovizionare.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/ComandaAprovizionare.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/ComandaAprovizionare.java`
-* **Tip Componentă**: `Aggregate Root (Rădăcină de Agregat DDD)`
-* **Descriere**: Aggregate Root pentru Bounded Context-ul Procurement Order Management. Garanteaza invarianții din Tabelul 2.1 (Lifecycle Guard, Lot Quantity Boundary, Cascading Cancellation).
-* **Secvență de Cod**:
+### 41. 📄 [`ComandaAprovizionare.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/ComandaAprovizionare.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/ComandaAprovizionare.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/ComandaAprovizionare.java)
+* **Rol Arhitectural (Sprint 2)**: `Aggregate Root (Rădăcină de Agregat DDD)`
+* **Descriere de Business & Invarianți**: Aggregate Root pentru Bounded Context-ul Procurement Order Management. Garanteaza invarianții din Tabelul 2.1 (Lifecycle Guard, Lot Quantity Boundary, Cascading Cancellation).
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.comenzi.domain;
 
@@ -1391,14 +1457,16 @@ public class ComandaAprovizionare implements Serializable {
     @AttributeOverride(name = "value", column = @Column(name = "furnizor_id"))
     private IdFurnizor furnizorId;
 
-    // ... [restul de 304 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
+    @NotNull
+    @Column(nullable = false)
+    // ... [restul de 302 linii omise pentru concizie in blueprint; codul complet este accesibil la link-ul de mai sus]
 ```
 
-#### 42. [`ComandaRepo.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/ComandaRepo.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/ComandaRepo.java`
-* **Tip Componentă**: `Domain Repository Port (Port de Persistență Hexagonal)`
-* **Descriere**: Implementare a componentei `ComandaRepo.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 42. 📄 [`ComandaRepo.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/ComandaRepo.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/ComandaRepo.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/ComandaRepo.java)
+* **Rol Arhitectural (Sprint 2)**: `Domain Repository Port (Port de Persistență Hexagonal)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `ComandaRepo.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.comenzi.domain;
 
@@ -1418,11 +1486,11 @@ public interface ComandaRepo {
 }
 ```
 
-#### 43. [`EstimareLeadTimeService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/EstimareLeadTimeService.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/EstimareLeadTimeService.java`
-* **Tip Componentă**: `Computation Service (Serviciu de Calcul Matematic)`
-* **Descriere**: Domain Service pentru calculul datei de livrare folosind Strategy Pattern (MedieMobila, NetezireExponentiala, Percentila90). Pure Domain: fara adnotari de Spring!
-* **Secvență de Cod**:
+### 43. 📄 [`EstimareLeadTimeService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/EstimareLeadTimeService.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/EstimareLeadTimeService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/EstimareLeadTimeService.java)
+* **Rol Arhitectural (Sprint 2)**: `Computation Service (Serviciu de Calcul Matematic)`
+* **Descriere de Business & Invarianți**: Domain Service pentru calculul datei de livrare folosind Strategy Pattern (MedieMobila, NetezireExponentiala, Percentila90). Pure Domain: fara adnotari de Spring!
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.comenzi.domain;
 
@@ -1463,11 +1531,11 @@ public class EstimareLeadTimeService {
 }
 ```
 
-#### 44. [`EstimareLivrare.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/EstimareLivrare.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/EstimareLivrare.java`
-* **Tip Componentă**: `Value Object (Obiect Valoare Imutabil DDD)`
-* **Descriere**: Implementare a componentei `EstimareLivrare.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 44. 📄 [`EstimareLivrare.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/EstimareLivrare.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/EstimareLivrare.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/EstimareLivrare.java)
+* **Rol Arhitectural (Sprint 2)**: `Value Object (Obiect Valoare Imutabil DDD)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `EstimareLivrare.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.comenzi.domain;
 
@@ -1509,14 +1577,16 @@ public final class EstimareLivrare implements Serializable {
 
     public LocalDate getDataEstimata() {
         return dataEstimata;
-    // ... [restul de 24 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
+    }
+
+    // ... [restul de 22 linii omise pentru concizie in blueprint; codul complet este accesibil la link-ul de mai sus]
 ```
 
-#### 45. [`Expediere.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/Expediere.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/Expediere.java`
-* **Tip Componentă**: `Value Object (Obiect Valoare Imutabil DDD)`
-* **Descriere**: Implementare a componentei `Expediere.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 45. 📄 [`Expediere.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/Expediere.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/Expediere.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/Expediere.java)
+* **Rol Arhitectural (Sprint 2)**: `Value Object (Obiect Valoare Imutabil DDD)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `Expediere.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.comenzi.domain;
 
@@ -1558,14 +1628,16 @@ public final class Expediere implements Serializable {
         }
         if (nrAWB == null || nrAWB.trim().isEmpty()) {
             throw new IllegalArgumentException("nrAWB cannot be null or empty");
-    // ... [restul de 55 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
+        }
+        this.transportator = transportator.trim();
+    // ... [restul de 53 linii omise pentru concizie in blueprint; codul complet este accesibil la link-ul de mai sus]
 ```
 
-#### 46. [`IGestiuneFurnizoriAdapter.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/IGestiuneFurnizoriAdapter.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/IGestiuneFurnizoriAdapter.java`
-* **Tip Componentă**: `Clasă de Domeniu`
-* **Descriere**: Port din Domain Layer pentru verificarea eligibilitatii furnizorului (Figura 11).
-* **Secvență de Cod**:
+### 46. 📄 [`IGestiuneFurnizoriAdapter.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/IGestiuneFurnizoriAdapter.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/IGestiuneFurnizoriAdapter.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/IGestiuneFurnizoriAdapter.java)
+* **Rol Arhitectural (Sprint 2)**: `Port de Domeniu / Interfață de Business`
+* **Descriere de Business & Invarianți**: Port din Domain Layer pentru verificarea eligibilitatii furnizorului (Figura 11).
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.comenzi.domain;
 
@@ -1579,11 +1651,11 @@ public interface IGestiuneFurnizoriAdapter {
 }
 ```
 
-#### 47. [`IMetodaEstimareLeadTime.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/IMetodaEstimareLeadTime.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/IMetodaEstimareLeadTime.java`
-* **Tip Componentă**: `Clasă de Domeniu`
-* **Descriere**: Implementare a componentei `IMetodaEstimareLeadTime.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 47. 📄 [`IMetodaEstimareLeadTime.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/IMetodaEstimareLeadTime.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/IMetodaEstimareLeadTime.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/IMetodaEstimareLeadTime.java)
+* **Rol Arhitectural (Sprint 2)**: `Port de Domeniu / Interfață de Business`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `IMetodaEstimareLeadTime.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.comenzi.domain;
 
@@ -1592,11 +1664,11 @@ public interface IMetodaEstimareLeadTime {
 }
 ```
 
-#### 48. [`IstoricLivrariRepo.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/IstoricLivrariRepo.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/IstoricLivrariRepo.java`
-* **Tip Componentă**: `Domain Repository Port (Port de Persistență Hexagonal)`
-* **Descriere**: Implementare a componentei `IstoricLivrariRepo.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 48. 📄 [`IstoricLivrariRepo.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/IstoricLivrariRepo.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/IstoricLivrariRepo.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/IstoricLivrariRepo.java)
+* **Rol Arhitectural (Sprint 2)**: `Domain Repository Port (Port de Persistență Hexagonal)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `IstoricLivrariRepo.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.comenzi.domain;
 
@@ -1610,11 +1682,11 @@ public interface IstoricLivrariRepo {
 }
 ```
 
-#### 49. [`IstoricLivrariVO.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/IstoricLivrariVO.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/IstoricLivrariVO.java`
-* **Tip Componentă**: `Value Object (Obiect Valoare Imutabil DDD)`
-* **Descriere**: Implementare a componentei `IstoricLivrariVO.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 49. 📄 [`IstoricLivrariVO.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/IstoricLivrariVO.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/IstoricLivrariVO.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/IstoricLivrariVO.java)
+* **Rol Arhitectural (Sprint 2)**: `Value Object (Obiect Valoare Imutabil DDD)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `IstoricLivrariVO.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.comenzi.domain;
 
@@ -1633,11 +1705,11 @@ public record IstoricLivrariVO(List<Integer> leadTimeZile) implements Serializab
 }
 ```
 
-#### 50. [`LinieComanda.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/LinieComanda.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/LinieComanda.java`
-* **Tip Componentă**: `Value Object (Obiect Valoare Imutabil DDD)`
-* **Descriere**: Implementare a componentei `LinieComanda.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 50. 📄 [`LinieComanda.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/LinieComanda.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/LinieComanda.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/LinieComanda.java)
+* **Rol Arhitectural (Sprint 2)**: `Value Object (Obiect Valoare Imutabil DDD)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `LinieComanda.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.comenzi.domain;
 
@@ -1679,14 +1751,16 @@ public class LinieComanda implements Serializable {
         this.material = Objects.requireNonNull(material, "material cannot be null");
         this.cantitate = Objects.requireNonNull(cantitate, "cantitate cannot be null");
         this.pretUnitar = Objects.requireNonNull(pretUnitar, "pretUnitar cannot be null");
-    // ... [restul de 30 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
+    }
+
+    // ... [restul de 28 linii omise pentru concizie in blueprint; codul complet este accesibil la link-ul de mai sus]
 ```
 
-#### 51. [`Lot.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/Lot.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/Lot.java`
-* **Tip Componentă**: `Component Entity (Entitate Componentă DDD)`
-* **Descriere**: Entitate componenta a agregatului ComandaAprovizionare. Metodele de mutatie sunt exclusiv package-private (~) conform Tabelelor 2.1 din Project_OOAD.docx.
-* **Secvență de Cod**:
+### 51. 📄 [`Lot.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/Lot.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/Lot.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/Lot.java)
+* **Rol Arhitectural (Sprint 2)**: `Component Entity (Entitate Componentă DDD)`
+* **Descriere de Business & Invarianți**: Entitate componenta a agregatului ComandaAprovizionare. Metodele de mutatie sunt exclusiv package-private (~) conform Tabelelor 2.1 din Project_OOAD.docx.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.comenzi.domain;
 
@@ -1728,14 +1802,16 @@ public class Lot implements Serializable {
     @Embedded
     @AttributeOverride(name = "valoare", column = @Column(name = "cantitate", nullable = false, precision = 18, scale = 4))
     @AttributeOverride(name = "unitateMasura", column = @Column(name = "unitate_masura", nullable = false, length = 20))
-    // ... [restul de 133 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
+    private Cantitate cantitate;
+
+    // ... [restul de 131 linii omise pentru concizie in blueprint; codul complet este accesibil la link-ul de mai sus]
 ```
 
-#### 52. [`LotRepo.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/LotRepo.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/LotRepo.java`
-* **Tip Componentă**: `Domain Repository Port (Port de Persistență Hexagonal)`
-* **Descriere**: Repository read-only pentru Loturi (Figura 10). Mutațiile trec exclusiv prin ComandaAprovizionare.
-* **Secvență de Cod**:
+### 52. 📄 [`LotRepo.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/LotRepo.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/LotRepo.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/LotRepo.java)
+* **Rol Arhitectural (Sprint 2)**: `Domain Repository Port (Port de Persistență Hexagonal)`
+* **Descriere de Business & Invarianți**: Repository read-only pentru Loturi (Figura 10). Mutațiile trec exclusiv prin ComandaAprovizionare.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.comenzi.domain;
 
@@ -1755,11 +1831,11 @@ public interface LotRepo {
 }
 ```
 
-#### 53. [`MedieMobilaStrategy.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/MedieMobilaStrategy.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/MedieMobilaStrategy.java`
-* **Tip Componentă**: `Clasă de Domeniu`
-* **Descriere**: Implementare a componentei `MedieMobilaStrategy.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 53. 📄 [`MedieMobilaStrategy.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/MedieMobilaStrategy.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/MedieMobilaStrategy.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/MedieMobilaStrategy.java)
+* **Rol Arhitectural (Sprint 2)**: `Clasă de Domeniu Pure`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `MedieMobilaStrategy.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.comenzi.domain;
 
@@ -1776,11 +1852,11 @@ public class MedieMobilaStrategy implements IMetodaEstimareLeadTime {
 }
 ```
 
-#### 54. [`MetriciLivrareVO.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/MetriciLivrareVO.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/MetriciLivrareVO.java`
-* **Tip Componentă**: `Value Object (Obiect Valoare Imutabil DDD)`
-* **Descriere**: Implementare a componentei `MetriciLivrareVO.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 54. 📄 [`MetriciLivrareVO.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/MetriciLivrareVO.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/MetriciLivrareVO.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/MetriciLivrareVO.java)
+* **Rol Arhitectural (Sprint 2)**: `Value Object (Obiect Valoare Imutabil DDD)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `MetriciLivrareVO.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.comenzi.domain;
 
@@ -1806,11 +1882,11 @@ public record MetriciLivrareVO(
 }
 ```
 
-#### 55. [`NetezireExponentialaStrategy.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/NetezireExponentialaStrategy.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/NetezireExponentialaStrategy.java`
-* **Tip Componentă**: `Clasă de Domeniu`
-* **Descriere**: Implementare a componentei `NetezireExponentialaStrategy.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 55. 📄 [`NetezireExponentialaStrategy.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/NetezireExponentialaStrategy.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/NetezireExponentialaStrategy.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/NetezireExponentialaStrategy.java)
+* **Rol Arhitectural (Sprint 2)**: `Clasă de Domeniu Pure`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `NetezireExponentialaStrategy.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.comenzi.domain;
 
@@ -1840,11 +1916,11 @@ public class NetezireExponentialaStrategy implements IMetodaEstimareLeadTime {
 }
 ```
 
-#### 56. [`Percentila90Strategy.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/Percentila90Strategy.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/Percentila90Strategy.java`
-* **Tip Componentă**: `Clasă de Domeniu`
-* **Descriere**: Implementare a componentei `Percentila90Strategy.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 56. 📄 [`Percentila90Strategy.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/Percentila90Strategy.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/Percentila90Strategy.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/Percentila90Strategy.java)
+* **Rol Arhitectural (Sprint 2)**: `Clasă de Domeniu Pure`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `Percentila90Strategy.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.comenzi.domain;
 
@@ -1865,11 +1941,11 @@ public class Percentila90Strategy implements IMetodaEstimareLeadTime {
 }
 ```
 
-#### 57. [`PretUnitar.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/PretUnitar.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/PretUnitar.java`
-* **Tip Componentă**: `Value Object (Obiect Valoare Imutabil DDD)`
-* **Descriere**: Implementare a componentei `PretUnitar.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 57. 📄 [`PretUnitar.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/PretUnitar.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/PretUnitar.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/PretUnitar.java)
+* **Rol Arhitectural (Sprint 2)**: `Value Object (Obiect Valoare Imutabil DDD)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `PretUnitar.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.comenzi.domain;
 
@@ -1911,14 +1987,16 @@ public final class PretUnitar implements Serializable {
     public Currency getMoneda() {
         return moneda;
     }
-    // ... [restul de 18 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
+
+    @Override
+    // ... [restul de 16 linii omise pentru concizie in blueprint; codul complet este accesibil la link-ul de mai sus]
 ```
 
-#### 58. [`RezultatCalitateLot.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/RezultatCalitateLot.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/RezultatCalitateLot.java`
-* **Tip Componentă**: `Value Object (Obiect Valoare Imutabil DDD)`
-* **Descriere**: Implementare a componentei `RezultatCalitateLot.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 58. 📄 [`RezultatCalitateLot.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/RezultatCalitateLot.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/RezultatCalitateLot.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/RezultatCalitateLot.java)
+* **Rol Arhitectural (Sprint 2)**: `Value Object (Obiect Valoare Imutabil DDD)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `RezultatCalitateLot.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.comenzi.domain;
 
@@ -1932,11 +2010,11 @@ public enum RezultatCalitateLot {
 }
 ```
 
-#### 59. [`StareComanda.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/StareComanda.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/StareComanda.java`
-* **Tip Componentă**: `Value Object (Obiect Valoare Imutabil DDD)`
-* **Descriere**: Implementare a componentei `StareComanda.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 59. 📄 [`StareComanda.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/StareComanda.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/StareComanda.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/StareComanda.java)
+* **Rol Arhitectural (Sprint 2)**: `Value Object (Obiect Valoare Imutabil DDD)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `StareComanda.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.comenzi.domain;
 
@@ -1954,11 +2032,11 @@ public enum StareComanda {
 }
 ```
 
-#### 60. [`StareLot.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/StareLot.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/StareLot.java`
-* **Tip Componentă**: `Value Object (Obiect Valoare Imutabil DDD)`
-* **Descriere**: Implementare a componentei `StareLot.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 60. 📄 [`StareLot.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/StareLot.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/StareLot.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/StareLot.java)
+* **Rol Arhitectural (Sprint 2)**: `Value Object (Obiect Valoare Imutabil DDD)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `StareLot.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.comenzi.domain;
 
@@ -1977,219 +2055,15 @@ public enum StareLot {
 }
 ```
 
-### Director: src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/factory
+## 📁 Director: `src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/computation`
+* **Modul de Business**: `Bounded Context: Comenzi`
+* **Rol în Arhitectură**: Serviciul de calcul matematic al valorilor comenzilor (total net, discount de volum, taxe) și proiecțiile sumare.
 
-> **Rol Director**: Fabrica agregatului ComandaAprovizionare responsabilă de validarea precondițiilor și asamblarea inițială.
-
-#### 61. [`ComandaFactory.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/factory/ComandaFactory.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/factory/ComandaFactory.java`
-* **Tip Componentă**: `Domain Factory (Fabrică de Agregate DDD)`
-* **Descriere**: Aggregate Factory conform Sprint 2 (ADR-003). Garanteaza initializarea consistenta a agregatului ComandaAprovizionare.
-* **Secvență de Cod**:
-```java
-package ro.uaic.feaa.sdbis.supplychain.comenzi.domain.factory;
-
-import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.ComandaAprovizionare;
-import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.LinieComanda;
-import ro.uaic.feaa.sdbis.supplychain.shared.IdComanda;
-import ro.uaic.feaa.sdbis.supplychain.shared.IdFurnizor;
-import ro.uaic.feaa.sdbis.supplychain.shared.annotation.DomainFactory;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
-
-/**
- * Aggregate Factory conform Sprint 2 (ADR-003).
- * Garanteaza initializarea consistenta a agregatului ComandaAprovizionare.
- */
-@DomainFactory
-public class ComandaFactory {
-
-    public static ComandaAprovizionare creeaza(String numarComanda,
-                                               IdFurnizor furnizorId,
-                                               UUID cumparatorId,
-                                               LocalDate dataComanda,
-                                               LocalDate dataLivrareCeruta,
-                                               String depozit,
-                                               List<LinieComanda> linii) {
-        Objects.requireNonNull(numarComanda, "numarComanda cannot be null");
-        Objects.requireNonNull(furnizorId, "furnizorId cannot be null");
-        Objects.requireNonNull(cumparatorId, "cumparatorId cannot be null");
-        Objects.requireNonNull(dataComanda, "dataComanda cannot be null");
-        Objects.requireNonNull(dataLivrareCeruta, "dataLivrareCeruta cannot be null");
-        Objects.requireNonNull(depozit, "depozit cannot be null");
-        if (linii == null || linii.isEmpty()) {
-            throw new IllegalArgumentException("O comanda trebuie sa aiba cel putin o linie!");
-        }
-        if (dataLivrareCeruta.isBefore(dataComanda)) {
-            throw new IllegalArgumentException("Data de livrare ceruta nu poate fi anterioara datei comenzii!");
-        }
-
-    // ... [restul de 8 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
-```
-
-### Director: src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/policy
-
-> **Rol Director**: Politici de business decuplate conform Strategy Pattern (ex: praguri valorice pentru aprobare automată vs. CFO).
-
-#### 62. [`PoliticaAprobareComanda.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/policy/PoliticaAprobareComanda.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/policy/PoliticaAprobareComanda.java`
-* **Tip Componentă**: `Domain Policy (Politică de Business DDD)`
-* **Descriere**: Politica de business pentru stabilirea pragurilor si nivelelor de aprobare a comenzilor de aprovizionare. Conform regulilor de business (Other Business Rules - ADR-003 / Project_OOAD): - Sub 10,000 RON: Responsabil Achizitii (aprobare operationala)
-* **Secvență de Cod**:
-```java
-package ro.uaic.feaa.sdbis.supplychain.comenzi.domain.policy;
-
-import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.ComandaAprovizionare;
-import ro.uaic.feaa.sdbis.supplychain.shared.annotation.DomainPolicy;
-
-import java.math.BigDecimal;
-import java.util.Objects;
-
-/**
- * Politica de business pentru stabilirea pragurilor si nivelelor de aprobare a comenzilor de aprovizionare.
- * Conform regulilor de business (Other Business Rules - ADR-003 / Project_OOAD):
- * - Sub 10,000 RON: Responsabil Achizitii (aprobare operationala)
- * - 10,000 - 50,000 RON: Manager Departament
- * - Peste 50,000 RON: Director General / Consiliu
- */
-@DomainPolicy
-public class PoliticaAprobareComanda {
-
-    public static final BigDecimal PRAG_MANAGER = BigDecimal.valueOf(10000.00);
-    public static final BigDecimal PRAG_DIRECTOR = BigDecimal.valueOf(50000.00);
-
-    public enum NivelAprobare {
-        RESPONSABIL_ACHIZITII(1),
-        MANAGER_DEPARTAMENT(2),
-        DIRECTOR_GENERAL(3);
-
-        private final int rang;
-
-        NivelAprobare(int rang) {
-            this.rang = rang;
-        }
-
-        public int getRang() {
-            return rang;
-        }
-    }
-
-    public NivelAprobare determinaNivelNecesar(BigDecimal valoareTotala) {
-        Objects.requireNonNull(valoareTotala, "valoareTotala nu poate fi null");
-        if (valoareTotala.compareTo(PRAG_DIRECTOR) > 0) {
-    // ... [restul de 19 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
-```
-
-### Director: src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/validation
-
-> **Rol Director**: Servicii de validare a conformității și eligibilității comenzilor înainte de plasare.
-
-#### 63. [`ComandaValidationService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/validation/ComandaValidationService.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/validation/ComandaValidationService.java`
-* **Tip Componentă**: `Validation Service (Serviciu de Validare a Domeniului)`
-* **Descriere**: Implementare Domain Validation Service pentru Comenzi (Sprint 2 - ADR-003). Respecta izolarea pura de domeniu (ADR-011).
-* **Secvență de Cod**:
-```java
-package ro.uaic.feaa.sdbis.supplychain.comenzi.domain.validation;
-
-import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.ComandaAprovizionare;
-import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.LinieComanda;
-import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.StareComanda;
-import ro.uaic.feaa.sdbis.supplychain.shared.annotation.DomainValidationService;
-import ro.uaic.feaa.sdbis.supplychain.shared.exception.DomainValidationException;
-
-import java.math.BigDecimal;
-import java.util.Objects;
-
-/**
- * Implementare Domain Validation Service pentru Comenzi (Sprint 2 - ADR-003).
- * Respecta izolarea pura de domeniu (ADR-011).
- */
-@DomainValidationService
-public class ComandaValidationService implements IComandaValidationService {
-
-    @Override
-    public void valideazaComanda(ComandaAprovizionare comanda, boolean furnizorEligibil) {
-        Objects.requireNonNull(comanda, "Comanda nu poate fi null!");
-
-        if (!furnizorEligibil) {
-            throw new DomainValidationException("FURNIZOR_NEELIGIBIL",
-                "Furnizorul asociat comenzii " + comanda.getNumarComanda() + " nu este eligibil/aprobat pentru plasarea de comenzi!");
-        }
-
-        if (comanda.getDataLivrareCeruta().isBefore(comanda.getDataComanda())) {
-            throw new DomainValidationException("DATA_LIVRARE_INVALIDA",
-                "Data de livrare ceruta (" + comanda.getDataLivrareCeruta() + ") nu poate fi anterioara datei comenzii (" + comanda.getDataComanda() + ")!");
-        }
-
-        if (comanda.getLinii() == null || comanda.getLinii().isEmpty()) {
-            throw new DomainValidationException("LINII_COMANDA_GOALE",
-                "Comanda " + comanda.getNumarComanda() + " trebuie sa contina cel putin o linie de comanda!");
-        }
-
-        for (LinieComanda linie : comanda.getLinii()) {
-            valideazaLinie(linie);
-        }
-    // ... [restul de 70 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
-```
-
-#### 64. [`IComandaValidationService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/validation/IComandaValidationService.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/validation/IComandaValidationService.java`
-* **Tip Componentă**: `Validation Service (Serviciu de Validare a Domeniului)`
-* **Descriere**: Contract pentru Serviciul de Validare a Domeniului Comenzi (ADR-003). Trateaza validari complexe, cross-entity si cross-aggregate (Furnizor - Comanda).
-* **Secvență de Cod**:
-```java
-package ro.uaic.feaa.sdbis.supplychain.comenzi.domain.validation;
-
-import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.ComandaAprovizionare;
-import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.LinieComanda;
-import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.StareComanda;
-
-import ro.uaic.feaa.sdbis.supplychain.shared.annotation.DomainValidationService;
-
-import java.math.BigDecimal;
-
-/**
- * Contract pentru Serviciul de Validare a Domeniului Comenzi (ADR-003).
- * Trateaza validari complexe, cross-entity si cross-aggregate (Furnizor - Comanda).
- */
-@DomainValidationService
-public interface IComandaValidationService {
-
-    /**
-     * Valideaza consistenta integrala a comenzii de aprovizionare si eligibilitatea furnizorului.
-     */
-    void valideazaComanda(ComandaAprovizionare comanda, boolean furnizorEligibil);
-
-    /**
-     * Valideaza linia individuala de comanda (cantitate > 0, pret > 0).
-     */
-    void valideazaLinie(LinieComanda linie);
-
-    /**
-     * Valideaza permisiunea tranzitiei catre o stare tinta.
-     */
-    void valideazaTranzitieStare(ComandaAprovizionare comanda, StareComanda stareTinta);
-
-    /**
-     * Valideaza operatiunea de receptie de marfa asociata comenzii.
-     */
-    void valideazaReceptie(ComandaAprovizionare comanda, BigDecimal cantitateReceptieTotala);
-}
-```
-
-### Director: src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/computation
-
-> **Rol Director**: Servicii de calcul matematic determinist (totaluri nete/brute, discount de volum) și proiecții sumare.
-
-#### 65. [`ComandaComputationService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/computation/ComandaComputationService.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/computation/ComandaComputationService.java`
-* **Tip Componentă**: `Computation Service (Serviciu de Calcul Matematic)`
-* **Descriere**: Implementare a Serviciului de Calcul al Domeniului Comenzi (Sprint 2 - ADR-003). Respecta izolarea pura de domeniu (ADR-011).
-* **Secvență de Cod**:
+### 61. 📄 [`ComandaComputationService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/computation/ComandaComputationService.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/computation/ComandaComputationService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/computation/ComandaComputationService.java)
+* **Rol Arhitectural (Sprint 2)**: `Computation Service (Serviciu de Calcul Matematic)`
+* **Descriere de Business & Invarianți**: Implementare a Serviciului de Calcul al Domeniului Comenzi (Sprint 2 - ADR-003). Respecta izolarea pura de domeniu (ADR-011).
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.comenzi.domain.computation;
 
@@ -2231,14 +2105,16 @@ public class ComandaComputationService implements IComandaComputationService {
     public BigDecimal calculTotalCuTVA(ComandaAprovizionare comanda, BigDecimal cotaTVA) {
         BigDecimal subtotal = calculSubtotal(comanda);
         BigDecimal tva = calculTVA(comanda, cotaTVA);
-    // ... [restul de 56 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
+        return subtotal.add(tva).setScale(2, RoundingMode.HALF_UP);
+    }
+    // ... [restul de 54 linii omise pentru concizie in blueprint; codul complet este accesibil la link-ul de mai sus]
 ```
 
-#### 66. [`ComandaSummaryView.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/computation/ComandaSummaryView.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/computation/ComandaSummaryView.java`
-* **Tip Componentă**: `Value Object (Obiect Valoare Imutabil DDD)`
-* **Descriere**: Entity View Computation: Proiectie sumarizata pentru comanda de aprovizionare (Sprint 2 - ADR-003).
-* **Secvență de Cod**:
+### 62. 📄 [`ComandaSummaryView.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/computation/ComandaSummaryView.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/computation/ComandaSummaryView.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/computation/ComandaSummaryView.java)
+* **Rol Arhitectural (Sprint 2)**: `Value Object (Obiect Valoare Imutabil DDD)`
+* **Descriere de Business & Invarianți**: Entity View Computation: Proiectie sumarizata pentru comanda de aprovizionare (Sprint 2 - ADR-003).
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.comenzi.domain.computation;
 
@@ -2264,11 +2140,11 @@ public record ComandaSummaryView(
 ) implements Serializable {}
 ```
 
-#### 67. [`IComandaComputationService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/computation/IComandaComputationService.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/computation/IComandaComputationService.java`
-* **Tip Componentă**: `Computation Service (Serviciu de Calcul Matematic)`
-* **Descriere**: Contract pentru Serviciul de Calcul al Domeniului Comenzi (Sprint 2 - ADR-003). Trateaza Entity Field Computations (totaluri, TVA, procent livrare) si Entity View Computations (ComandaSummaryView).
-* **Secvență de Cod**:
+### 63. 📄 [`IComandaComputationService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/computation/IComandaComputationService.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/computation/IComandaComputationService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/computation/IComandaComputationService.java)
+* **Rol Arhitectural (Sprint 2)**: `Computation Service (Serviciu de Calcul Matematic)`
+* **Descriere de Business & Invarianți**: Contract pentru Serviciul de Calcul al Domeniului Comenzi (Sprint 2 - ADR-003). Trateaza Entity Field Computations (totaluri, TVA, procent livrare)
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.comenzi.domain.computation;
 
@@ -2310,18 +2186,18 @@ public interface IComandaComputationService {
      * Genereaza o proiectie sumarizata (Entity View Computation) a comenzii.
      */
     ComandaSummaryView genereazaSumar(ComandaAprovizionare comanda, BigDecimal cotaTVA);
-    // ... [restul de 1 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
+}
 ```
 
-### Director: src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/event
+## 📁 Director: `src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/event`
+* **Modul de Business**: `Bounded Context: Comenzi`
+* **Rol în Arhitectură**: Evenimentele de domeniu emise la crearea, confirmarea sau anularea în cascadă a comenzilor de aprovizionare.
 
-> **Rol Director**: Evenimentele de domeniu emise la tranzițiile de stare din ciclul de viață al comenzii.
-
-#### 68. [`ComandaAnulataEvent.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/event/ComandaAnulataEvent.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/event/ComandaAnulataEvent.java`
-* **Tip Componentă**: `Clasă de Domeniu`
-* **Descriere**: Implementare a componentei `ComandaAnulataEvent.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 64. 📄 [`ComandaAnulataEvent.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/event/ComandaAnulataEvent.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/event/ComandaAnulataEvent.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/event/ComandaAnulataEvent.java)
+* **Rol Arhitectural (Sprint 2)**: `Clasă de Domeniu Pure`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `ComandaAnulataEvent.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.comenzi.domain.event;
 
@@ -2341,11 +2217,11 @@ public record ComandaAnulataEvent(
 ) implements DomainEvent {}
 ```
 
-#### 69. [`ComandaNeconfirmataEvent.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/event/ComandaNeconfirmataEvent.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/event/ComandaNeconfirmataEvent.java`
-* **Tip Componentă**: `Clasă de Domeniu`
-* **Descriere**: Implementare a componentei `ComandaNeconfirmataEvent.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 65. 📄 [`ComandaNeconfirmataEvent.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/event/ComandaNeconfirmataEvent.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/event/ComandaNeconfirmataEvent.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/event/ComandaNeconfirmataEvent.java)
+* **Rol Arhitectural (Sprint 2)**: `Clasă de Domeniu Pure`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `ComandaNeconfirmataEvent.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.comenzi.domain.event;
 
@@ -2362,11 +2238,11 @@ public record ComandaNeconfirmataEvent(
 ) implements DomainEvent {}
 ```
 
-#### 70. [`ComandaReceptionataEvent.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/event/ComandaReceptionataEvent.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/event/ComandaReceptionataEvent.java`
-* **Tip Componentă**: `Clasă de Domeniu`
-* **Descriere**: Implementare a componentei `ComandaReceptionataEvent.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 66. 📄 [`ComandaReceptionataEvent.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/event/ComandaReceptionataEvent.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/event/ComandaReceptionataEvent.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/event/ComandaReceptionataEvent.java)
+* **Rol Arhitectural (Sprint 2)**: `Clasă de Domeniu Pure`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `ComandaReceptionataEvent.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.comenzi.domain.event;
 
@@ -2391,11 +2267,11 @@ public record ComandaReceptionataEvent(
 ) implements DomainEvent {}
 ```
 
-#### 71. [`EstimareDepasesteCerereaEvent.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/event/EstimareDepasesteCerereaEvent.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/event/EstimareDepasesteCerereaEvent.java`
-* **Tip Componentă**: `Clasă de Domeniu`
-* **Descriere**: Implementare a componentei `EstimareDepasesteCerereaEvent.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 67. 📄 [`EstimareDepasesteCerereaEvent.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/event/EstimareDepasesteCerereaEvent.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/event/EstimareDepasesteCerereaEvent.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/event/EstimareDepasesteCerereaEvent.java)
+* **Rol Arhitectural (Sprint 2)**: `Clasă de Domeniu Pure`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `EstimareDepasesteCerereaEvent.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.comenzi.domain.event;
 
@@ -2415,11 +2291,11 @@ public record EstimareDepasesteCerereaEvent(
 ) implements DomainEvent {}
 ```
 
-#### 72. [`VerdictNeaplicabilEvent.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/event/VerdictNeaplicabilEvent.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/event/VerdictNeaplicabilEvent.java`
-* **Tip Componentă**: `Clasă de Domeniu`
-* **Descriere**: Implementare a componentei `VerdictNeaplicabilEvent.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 68. 📄 [`VerdictNeaplicabilEvent.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/event/VerdictNeaplicabilEvent.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/event/VerdictNeaplicabilEvent.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/event/VerdictNeaplicabilEvent.java)
+* **Rol Arhitectural (Sprint 2)**: `Clasă de Domeniu Pure`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `VerdictNeaplicabilEvent.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.comenzi.domain.event;
 
@@ -2439,17 +2315,271 @@ public record VerdictNeaplicabilEvent(
 ) implements DomainEvent {}
 ```
 
-## 1.3 Bounded Context: Calitate (Furnizori, Inspecții, NCR & Scorecards)
+## 📁 Director: `src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/factory`
+* **Modul de Business**: `Bounded Context: Comenzi`
+* **Rol în Arhitectură**: Fabrica agregatului ComandaAprovizionare ce validează precondițiile și asamblează instanța inițială.
 
-### Director: src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain
+### 69. 📄 [`ComandaFactory.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/factory/ComandaFactory.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/factory/ComandaFactory.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/factory/ComandaFactory.java)
+* **Rol Arhitectural (Sprint 2)**: `Domain Factory (Fabrică de Agregate DDD)`
+* **Descriere de Business & Invarianți**: Aggregate Factory conform Sprint 2 (ADR-003). Garanteaza initializarea consistenta a agregatului ComandaAprovizionare.
+* **Secvență de Cod (Implementare)**:
+```java
+package ro.uaic.feaa.sdbis.supplychain.comenzi.domain.factory;
 
-> **Rol Director**: Agregatele Furnizor, InspectieCalitate, InspectorCalitate, RaportNeconformitate (NCR), entitatea ScorecardLunar, VOs și porturi de repository.
+import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.ComandaAprovizionare;
+import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.LinieComanda;
+import ro.uaic.feaa.sdbis.supplychain.shared.IdComanda;
+import ro.uaic.feaa.sdbis.supplychain.shared.IdFurnizor;
+import ro.uaic.feaa.sdbis.supplychain.shared.annotation.DomainFactory;
 
-#### 73. [`ActiuneCorectiva.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/ActiuneCorectiva.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/ActiuneCorectiva.java`
-* **Tip Componentă**: `Value Object (Obiect Valoare Imutabil DDD)`
-* **Descriere**: Implementare a componentei `ActiuneCorectiva.java` din modulul de afaceri.
-* **Secvență de Cod**:
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
+
+/**
+ * Aggregate Factory conform Sprint 2 (ADR-003).
+ * Garanteaza initializarea consistenta a agregatului ComandaAprovizionare.
+ */
+@DomainFactory
+public class ComandaFactory {
+
+    public static ComandaAprovizionare creeaza(String numarComanda,
+                                               IdFurnizor furnizorId,
+                                               UUID cumparatorId,
+                                               LocalDate dataComanda,
+                                               LocalDate dataLivrareCeruta,
+                                               String depozit,
+                                               List<LinieComanda> linii) {
+        Objects.requireNonNull(numarComanda, "numarComanda cannot be null");
+        Objects.requireNonNull(furnizorId, "furnizorId cannot be null");
+        Objects.requireNonNull(cumparatorId, "cumparatorId cannot be null");
+        Objects.requireNonNull(dataComanda, "dataComanda cannot be null");
+        Objects.requireNonNull(dataLivrareCeruta, "dataLivrareCeruta cannot be null");
+        Objects.requireNonNull(depozit, "depozit cannot be null");
+        if (linii == null || linii.isEmpty()) {
+            throw new IllegalArgumentException("O comanda trebuie sa aiba cel putin o linie!");
+        }
+        if (dataLivrareCeruta.isBefore(dataComanda)) {
+            throw new IllegalArgumentException("Data de livrare ceruta nu poate fi anterioara datei comenzii!");
+        }
+
+        IdComanda id = IdComanda.random();
+        ComandaAprovizionare comanda = new ComandaAprovizionare(
+    // ... [restul de 6 linii omise pentru concizie in blueprint; codul complet este accesibil la link-ul de mai sus]
+```
+
+## 📁 Director: `src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/policy`
+* **Modul de Business**: `Bounded Context: Comenzi`
+* **Rol în Arhitectură**: Politici de aprobare a comenzilor în funcție de pragurile valorice contractuale.
+
+### 70. 📄 [`PoliticaAprobareComanda.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/policy/PoliticaAprobareComanda.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/policy/PoliticaAprobareComanda.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/policy/PoliticaAprobareComanda.java)
+* **Rol Arhitectural (Sprint 2)**: `Domain Policy (Politică de Business DDD)`
+* **Descriere de Business & Invarianți**: Politica de business pentru stabilirea pragurilor si nivelelor de aprobare a comenzilor de aprovizionare. Conform regulilor de business (Other Business Rules - ADR-003 / Project_OOAD):
+* **Secvență de Cod (Implementare)**:
+```java
+package ro.uaic.feaa.sdbis.supplychain.comenzi.domain.policy;
+
+import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.ComandaAprovizionare;
+import ro.uaic.feaa.sdbis.supplychain.shared.annotation.DomainPolicy;
+
+import java.math.BigDecimal;
+import java.util.Objects;
+
+/**
+ * Politica de business pentru stabilirea pragurilor si nivelelor de aprobare a comenzilor de aprovizionare.
+ * Conform regulilor de business (Other Business Rules - ADR-003 / Project_OOAD):
+ * - Sub 10,000 RON: Responsabil Achizitii (aprobare operationala)
+ * - 10,000 - 50,000 RON: Manager Departament
+ * - Peste 50,000 RON: Director General / Consiliu
+ */
+@DomainPolicy
+public class PoliticaAprobareComanda {
+
+    public static final BigDecimal PRAG_MANAGER = BigDecimal.valueOf(10000.00);
+    public static final BigDecimal PRAG_DIRECTOR = BigDecimal.valueOf(50000.00);
+
+    public enum NivelAprobare {
+        RESPONSABIL_ACHIZITII(1),
+        MANAGER_DEPARTAMENT(2),
+        DIRECTOR_GENERAL(3);
+
+        private final int rang;
+
+        NivelAprobare(int rang) {
+            this.rang = rang;
+        }
+
+        public int getRang() {
+            return rang;
+        }
+    }
+
+    public NivelAprobare determinaNivelNecesar(BigDecimal valoareTotala) {
+        Objects.requireNonNull(valoareTotala, "valoareTotala nu poate fi null");
+        if (valoareTotala.compareTo(PRAG_DIRECTOR) > 0) {
+            return NivelAprobare.DIRECTOR_GENERAL;
+        }
+    // ... [restul de 17 linii omise pentru concizie in blueprint; codul complet este accesibil la link-ul de mai sus]
+```
+
+## 📁 Director: `src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/validation`
+* **Modul de Business**: `Bounded Context: Comenzi`
+* **Rol în Arhitectură**: Servicii de validare a eligibilității plasării comenzilor (furnizor activ, linii valide, articole distincte).
+
+### 71. 📄 [`ComandaValidationService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/validation/ComandaValidationService.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/validation/ComandaValidationService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/validation/ComandaValidationService.java)
+* **Rol Arhitectural (Sprint 2)**: `Validation Service (Serviciu de Validare a Domeniului)`
+* **Descriere de Business & Invarianți**: Implementare Domain Validation Service pentru Comenzi (Sprint 2 - ADR-003). Respecta izolarea pura de domeniu (ADR-011).
+* **Secvență de Cod (Implementare)**:
+```java
+package ro.uaic.feaa.sdbis.supplychain.comenzi.domain.validation;
+
+import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.ComandaAprovizionare;
+import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.LinieComanda;
+import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.StareComanda;
+import ro.uaic.feaa.sdbis.supplychain.shared.annotation.DomainValidationService;
+import ro.uaic.feaa.sdbis.supplychain.shared.exception.DomainValidationException;
+
+import java.math.BigDecimal;
+import java.util.Objects;
+
+/**
+ * Implementare Domain Validation Service pentru Comenzi (Sprint 2 - ADR-003).
+ * Respecta izolarea pura de domeniu (ADR-011).
+ */
+@DomainValidationService
+public class ComandaValidationService implements IComandaValidationService {
+
+    @Override
+    public void valideazaComanda(ComandaAprovizionare comanda, boolean furnizorEligibil) {
+        Objects.requireNonNull(comanda, "Comanda nu poate fi null!");
+
+        if (!furnizorEligibil) {
+            throw new DomainValidationException("FURNIZOR_NEELIGIBIL",
+                "Furnizorul asociat comenzii " + comanda.getNumarComanda() + " nu este eligibil/aprobat pentru plasarea de comenzi!");
+        }
+
+        if (comanda.getDataLivrareCeruta().isBefore(comanda.getDataComanda())) {
+            throw new DomainValidationException("DATA_LIVRARE_INVALIDA",
+                "Data de livrare ceruta (" + comanda.getDataLivrareCeruta() + ") nu poate fi anterioara datei comenzii (" + comanda.getDataComanda() + ")!");
+        }
+
+        if (comanda.getLinii() == null || comanda.getLinii().isEmpty()) {
+            throw new DomainValidationException("LINII_COMANDA_GOALE",
+                "Comanda " + comanda.getNumarComanda() + " trebuie sa contina cel putin o linie de comanda!");
+        }
+
+        for (LinieComanda linie : comanda.getLinii()) {
+            valideazaLinie(linie);
+        }
+    }
+
+    // ... [restul de 68 linii omise pentru concizie in blueprint; codul complet este accesibil la link-ul de mai sus]
+```
+
+### 72. 📄 [`IComandaValidationService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/validation/IComandaValidationService.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/validation/IComandaValidationService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/validation/IComandaValidationService.java)
+* **Rol Arhitectural (Sprint 2)**: `Validation Service (Serviciu de Validare a Domeniului)`
+* **Descriere de Business & Invarianți**: Contract pentru Serviciul de Validare a Domeniului Comenzi (ADR-003). Trateaza validari complexe, cross-entity si cross-aggregate (Furnizor - Comanda).
+* **Secvență de Cod (Implementare)**:
+```java
+package ro.uaic.feaa.sdbis.supplychain.comenzi.domain.validation;
+
+import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.ComandaAprovizionare;
+import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.LinieComanda;
+import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.StareComanda;
+
+import ro.uaic.feaa.sdbis.supplychain.shared.annotation.DomainValidationService;
+
+import java.math.BigDecimal;
+
+/**
+ * Contract pentru Serviciul de Validare a Domeniului Comenzi (ADR-003).
+ * Trateaza validari complexe, cross-entity si cross-aggregate (Furnizor - Comanda).
+ */
+@DomainValidationService
+public interface IComandaValidationService {
+
+    /**
+     * Valideaza consistenta integrala a comenzii de aprovizionare si eligibilitatea furnizorului.
+     */
+    void valideazaComanda(ComandaAprovizionare comanda, boolean furnizorEligibil);
+
+    /**
+     * Valideaza linia individuala de comanda (cantitate > 0, pret > 0).
+     */
+    void valideazaLinie(LinieComanda linie);
+
+    /**
+     * Valideaza permisiunea tranzitiei catre o stare tinta.
+     */
+    void valideazaTranzitieStare(ComandaAprovizionare comanda, StareComanda stareTinta);
+
+    /**
+     * Valideaza operatiunea de receptie de marfa asociata comenzii.
+     */
+    void valideazaReceptie(ComandaAprovizionare comanda, BigDecimal cantitateReceptieTotala);
+}
+```
+
+## 📁 Director: `src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/infrastructure/configuration`
+* **Modul de Business**: `Bounded Context: Comenzi`
+* **Rol în Arhitectură**: Configurația Spring (@Configuration, @Bean) ce asamblează serviciile pure de domeniu în containerul IoC fără a polua clasele de business.
+
+### 73. 📄 [`ComenziDomainConfig.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/infrastructure/configuration/ComenziDomainConfig.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/infrastructure/configuration/ComenziDomainConfig.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/infrastructure/configuration/ComenziDomainConfig.java)
+* **Rol Arhitectural (Sprint 2)**: `Spring Domain Configuration (@Configuration & @Bean)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `ComenziDomainConfig.java`.
+* **Secvență de Cod (Implementare)**:
+```java
+package ro.uaic.feaa.sdbis.supplychain.comenzi.infrastructure.configuration;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.EstimareLeadTimeService;
+import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.computation.ComandaComputationService;
+import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.computation.IComandaComputationService;
+import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.policy.PoliticaAprobareComanda;
+import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.validation.ComandaValidationService;
+import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.validation.IComandaValidationService;
+
+@Configuration
+public class ComenziDomainConfig {
+
+    @Bean
+    public EstimareLeadTimeService estimareLeadTimeService() {
+        return new EstimareLeadTimeService();
+    }
+
+    @Bean
+    public IComandaValidationService comandaValidationService() {
+        return new ComandaValidationService();
+    }
+
+    @Bean
+    public IComandaComputationService comandaComputationService() {
+        return new ComandaComputationService();
+    }
+
+    @Bean
+    public PoliticaAprobareComanda politicaAprobareComanda() {
+        return new PoliticaAprobareComanda();
+    }
+}
+```
+
+## 📁 Director: `src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain`
+* **Modul de Business**: `Bounded Context: Calitate`
+* **Rol în Arhitectură**: Agregatele Furnizor, InspectieCalitate, InspectorCalitate, RaportNeconformitate (NCR), entitatea ScorecardLunar, VOs și porturile de repository.
+
+### 74. 📄 [`ActiuneCorectiva.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/ActiuneCorectiva.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/ActiuneCorectiva.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/ActiuneCorectiva.java)
+* **Rol Arhitectural (Sprint 2)**: `Value Object (Obiect Valoare Imutabil DDD)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `ActiuneCorectiva.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.calitate.domain;
 
@@ -2491,14 +2621,16 @@ public final class ActiuneCorectiva implements Serializable {
         this.responsabil = responsabil.trim();
         this.termen = Objects.requireNonNull(termen, "termen cannot be null");
     }
-    // ... [restul de 24 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
+
+    public String getDescriere() { return descriere; }
+    // ... [restul de 22 linii omise pentru concizie in blueprint; codul complet este accesibil la link-ul de mai sus]
 ```
 
-#### 74. [`Adresa.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/Adresa.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/Adresa.java`
-* **Tip Componentă**: `Value Object (Obiect Valoare Imutabil DDD)`
-* **Descriere**: Implementare a componentei `Adresa.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 75. 📄 [`Adresa.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/Adresa.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/Adresa.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/Adresa.java)
+* **Rol Arhitectural (Sprint 2)**: `Value Object (Obiect Valoare Imutabil DDD)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `Adresa.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.calitate.domain;
 
@@ -2540,14 +2672,16 @@ public final class Adresa implements Serializable {
         }
         if (localitate == null || localitate.trim().isEmpty()) {
             throw new IllegalArgumentException("Localitate cannot be null or empty");
-    // ... [restul de 35 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
+        }
+        if (codPostal == null || codPostal.trim().isEmpty()) {
+    // ... [restul de 33 linii omise pentru concizie in blueprint; codul complet este accesibil la link-ul de mai sus]
 ```
 
-#### 75. [`AlocareInspectorService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/AlocareInspectorService.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/AlocareInspectorService.java`
-* **Tip Componentă**: `Clasă de Domeniu`
-* **Descriere**: Domain Service pentru validarea si alocarea inspectorului de calitate conform disponibilitatii si certificarii (Figura 20).
-* **Secvență de Cod**:
+### 76. 📄 [`AlocareInspectorService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/AlocareInspectorService.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/AlocareInspectorService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/AlocareInspectorService.java)
+* **Rol Arhitectural (Sprint 2)**: `Clasă de Domeniu Pure`
+* **Descriere de Business & Invarianți**: Domain Service pentru validarea si alocarea inspectorului de calitate conform disponibilitatii si certificarii (Figura 20).
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.calitate.domain;
 
@@ -2573,11 +2707,11 @@ public class AlocareInspectorService {
 }
 ```
 
-#### 76. [`CalculScorecardService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/CalculScorecardService.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/CalculScorecardService.java`
-* **Tip Componentă**: `Computation Service (Serviciu de Calcul Matematic)`
-* **Descriere**: Domain Service pentru calculul scorecardului lunar si indicatorilor de calitate (Figura 20). Pure Domain: fara adnotari de Spring (ADR-011).
-* **Secvență de Cod**:
+### 77. 📄 [`CalculScorecardService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/CalculScorecardService.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/CalculScorecardService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/CalculScorecardService.java)
+* **Rol Arhitectural (Sprint 2)**: `Computation Service (Serviciu de Calcul Matematic)`
+* **Descriere de Business & Invarianți**: Domain Service pentru calculul scorecardului lunar si indicatorilor de calitate (Figura 20). Pure Domain: fara adnotari de Spring (ADR-011).
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.calitate.domain;
 
@@ -2619,14 +2753,16 @@ public class CalculScorecardService implements ICalculScorecardService {
         int inspectiiAdmise = 0;
         int inspectiiRespinse = 0;
 
-    // ... [restul de 27 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
+        if (inspectii != null) {
+            for (InspectieCalitate insp : inspectii) {
+    // ... [restul de 25 linii omise pentru concizie in blueprint; codul complet este accesibil la link-ul de mai sus]
 ```
 
-#### 77. [`Calificativ.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/Calificativ.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/Calificativ.java`
-* **Tip Componentă**: `Value Object (Obiect Valoare Imutabil DDD)`
-* **Descriere**: Implementare a componentei `Calificativ.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 78. 📄 [`Calificativ.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/Calificativ.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/Calificativ.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/Calificativ.java)
+* **Rol Arhitectural (Sprint 2)**: `Value Object (Obiect Valoare Imutabil DDD)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `Calificativ.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.calitate.domain;
 
@@ -2641,11 +2777,11 @@ public enum Calificativ {
 }
 ```
 
-#### 78. [`Certificare.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/Certificare.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/Certificare.java`
-* **Tip Componentă**: `Value Object (Obiect Valoare Imutabil DDD)`
-* **Descriere**: Implementare a componentei `Certificare.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 79. 📄 [`Certificare.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/Certificare.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/Certificare.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/Certificare.java)
+* **Rol Arhitectural (Sprint 2)**: `Value Object (Obiect Valoare Imutabil DDD)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `Certificare.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.calitate.domain;
 
@@ -2687,14 +2823,16 @@ public final class Certificare implements Serializable {
     }
 
     public boolean esteExpirataIn(LocalDate data) {
-    // ... [restul de 24 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
+        return dataExpirare.isBefore(data);
+    }
+    // ... [restul de 22 linii omise pentru concizie in blueprint; codul complet este accesibil la link-ul de mai sus]
 ```
 
-#### 79. [`ConditiiContractuale.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/ConditiiContractuale.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/ConditiiContractuale.java`
-* **Tip Componentă**: `Value Object (Obiect Valoare Imutabil DDD)`
-* **Descriere**: Implementare a componentei `ConditiiContractuale.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 80. 📄 [`ConditiiContractuale.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/ConditiiContractuale.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/ConditiiContractuale.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/ConditiiContractuale.java)
+* **Rol Arhitectural (Sprint 2)**: `Value Object (Obiect Valoare Imutabil DDD)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `ConditiiContractuale.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.calitate.domain;
 
@@ -2736,14 +2874,16 @@ public class ConditiiContractuale implements Serializable {
         }
         this.termenPlataZile = termenPlataZile;
         this.moneda = Objects.requireNonNull(moneda, "moneda cannot be null");
-    // ... [restul de 28 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
+        if (preturiNegociate != null) {
+            this.preturiNegociate.putAll(preturiNegociate);
+    // ... [restul de 26 linii omise pentru concizie in blueprint; codul complet este accesibil la link-ul de mai sus]
 ```
 
-#### 80. [`Email.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/Email.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/Email.java`
-* **Tip Componentă**: `Value Object (Obiect Valoare Imutabil DDD)`
-* **Descriere**: Implementare a componentei `Email.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 81. 📄 [`Email.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/Email.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/Email.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/Email.java)
+* **Rol Arhitectural (Sprint 2)**: `Value Object (Obiect Valoare Imutabil DDD)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `Email.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.calitate.domain;
 
@@ -2785,14 +2925,16 @@ public final class Email implements Serializable {
 
     @Override
     public int hashCode() { return Objects.hash(email); }
-    // ... [restul de 4 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
+
+    @Override
+    // ... [restul de 2 linii omise pentru concizie in blueprint; codul complet este accesibil la link-ul de mai sus]
 ```
 
-#### 81. [`FullName.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/FullName.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/FullName.java`
-* **Tip Componentă**: `Value Object (Obiect Valoare Imutabil DDD)`
-* **Descriere**: Implementare a componentei `FullName.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 82. 📄 [`FullName.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/FullName.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/FullName.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/FullName.java)
+* **Rol Arhitectural (Sprint 2)**: `Value Object (Obiect Valoare Imutabil DDD)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `FullName.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.calitate.domain;
 
@@ -2834,14 +2976,16 @@ public final class FullName implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-    // ... [restul de 15 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
+        if (!(o instanceof FullName fullName)) return false;
+        return Objects.equals(firstName, fullName.firstName) &&
+    // ... [restul de 13 linii omise pentru concizie in blueprint; codul complet este accesibil la link-ul de mai sus]
 ```
 
-#### 82. [`Furnizor.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/Furnizor.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/Furnizor.java`
-* **Tip Componentă**: `Aggregate Root (Rădăcină de Agregat DDD)`
-* **Descriere**: Implementare a componentei `Furnizor.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 83. 📄 [`Furnizor.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/Furnizor.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/Furnizor.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/Furnizor.java)
+* **Rol Arhitectural (Sprint 2)**: `Aggregate Root (Rădăcină de Agregat DDD)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `Furnizor.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.calitate.domain;
 
@@ -2883,14 +3027,16 @@ public class Furnizor implements Serializable {
     @Embedded
     private Adresa adresa;
 
-    // ... [restul de 181 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "calitate_furnizori_emailuri", joinColumns = @JoinColumn(name = "furnizor_id"))
+    // ... [restul de 179 linii omise pentru concizie in blueprint; codul complet este accesibil la link-ul de mai sus]
 ```
 
-#### 83. [`FurnizorRepo.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/FurnizorRepo.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/FurnizorRepo.java`
-* **Tip Componentă**: `Domain Repository Port (Port de Persistență Hexagonal)`
-* **Descriere**: Implementare a componentei `FurnizorRepo.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 84. 📄 [`FurnizorRepo.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/FurnizorRepo.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/FurnizorRepo.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/FurnizorRepo.java)
+* **Rol Arhitectural (Sprint 2)**: `Domain Repository Port (Port de Persistență Hexagonal)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `FurnizorRepo.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.calitate.domain;
 
@@ -2908,11 +3054,11 @@ public interface FurnizorRepo {
 }
 ```
 
-#### 84. [`IPerformantaLivrariAdapter.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/IPerformantaLivrariAdapter.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/IPerformantaLivrariAdapter.java`
-* **Tip Componentă**: `Clasă de Domeniu`
-* **Descriere**: Implementare a componentei `IPerformantaLivrariAdapter.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 85. 📄 [`IPerformantaLivrariAdapter.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/IPerformantaLivrariAdapter.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/IPerformantaLivrariAdapter.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/IPerformantaLivrariAdapter.java)
+* **Rol Arhitectural (Sprint 2)**: `Port de Domeniu / Interfață de Business`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `IPerformantaLivrariAdapter.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.calitate.domain;
 
@@ -2924,11 +3070,11 @@ public interface IPerformantaLivrariAdapter {
 }
 ```
 
-#### 85. [`Iban.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/Iban.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/Iban.java`
-* **Tip Componentă**: `Value Object (Obiect Valoare Imutabil DDD)`
-* **Descriere**: Implementare a componentei `Iban.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 86. 📄 [`Iban.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/Iban.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/Iban.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/Iban.java)
+* **Rol Arhitectural (Sprint 2)**: `Value Object (Obiect Valoare Imutabil DDD)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `Iban.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.calitate.domain;
 
@@ -2970,14 +3116,16 @@ public final class Iban implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-    // ... [restul de 13 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
+        if (this == o) return true;
+        if (!(o instanceof Iban iban)) return false;
+    // ... [restul de 11 linii omise pentru concizie in blueprint; codul complet este accesibil la link-ul de mai sus]
 ```
 
-#### 86. [`InspectieCalitate.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/InspectieCalitate.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/InspectieCalitate.java`
-* **Tip Componentă**: `Aggregate Root (Rădăcină de Agregat DDD)`
-* **Descriere**: Aggregate Root pentru inspectia de calitate AQL (Figura 20 si 23).
-* **Secvență de Cod**:
+### 87. 📄 [`InspectieCalitate.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/InspectieCalitate.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/InspectieCalitate.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/InspectieCalitate.java)
+* **Rol Arhitectural (Sprint 2)**: `Aggregate Root (Rădăcină de Agregat DDD)`
+* **Descriere de Business & Invarianți**: Aggregate Root pentru inspectia de calitate AQL (Figura 20 si 23).
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.calitate.domain;
 
@@ -3019,14 +3167,16 @@ public class InspectieCalitate implements Serializable {
     @Embedded
     @AttributeOverride(name = "value", column = @Column(name = "comanda_id", nullable = false))
     private IdComanda comandaId;
-    // ... [restul de 135 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
+
+    @NotNull
+    // ... [restul de 133 linii omise pentru concizie in blueprint; codul complet este accesibil la link-ul de mai sus]
 ```
 
-#### 87. [`InspectieRepo.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/InspectieRepo.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/InspectieRepo.java`
-* **Tip Componentă**: `Domain Repository Port (Port de Persistență Hexagonal)`
-* **Descriere**: Implementare a componentei `InspectieRepo.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 88. 📄 [`InspectieRepo.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/InspectieRepo.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/InspectieRepo.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/InspectieRepo.java)
+* **Rol Arhitectural (Sprint 2)**: `Domain Repository Port (Port de Persistență Hexagonal)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `InspectieRepo.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.calitate.domain;
 
@@ -3044,11 +3194,11 @@ public interface InspectieRepo {
 }
 ```
 
-#### 88. [`InspectorCalitate.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/InspectorCalitate.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/InspectorCalitate.java`
-* **Tip Componentă**: `Aggregate Root (Rădăcină de Agregat DDD)`
-* **Descriere**: Implementare a componentei `InspectorCalitate.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 89. 📄 [`InspectorCalitate.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/InspectorCalitate.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/InspectorCalitate.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/InspectorCalitate.java)
+* **Rol Arhitectural (Sprint 2)**: `Aggregate Root (Rădăcină de Agregat DDD)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `InspectorCalitate.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.calitate.domain;
 
@@ -3090,14 +3240,16 @@ public class InspectorCalitate implements Serializable {
     @Version
     @Column(name = "version", nullable = false)
     private Long version = 0L;
-    // ... [restul de 45 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
+
+    protected InspectorCalitate() {}
+    // ... [restul de 43 linii omise pentru concizie in blueprint; codul complet este accesibil la link-ul de mai sus]
 ```
 
-#### 89. [`InspectorRepo.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/InspectorRepo.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/InspectorRepo.java`
-* **Tip Componentă**: `Domain Repository Port (Port de Persistență Hexagonal)`
-* **Descriere**: Implementare a componentei `InspectorRepo.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 90. 📄 [`InspectorRepo.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/InspectorRepo.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/InspectorRepo.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/InspectorRepo.java)
+* **Rol Arhitectural (Sprint 2)**: `Domain Repository Port (Port de Persistență Hexagonal)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `InspectorRepo.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.calitate.domain;
 
@@ -3115,11 +3267,11 @@ public interface InspectorRepo {
 }
 ```
 
-#### 90. [`NCRRepo.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/NCRRepo.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/NCRRepo.java`
-* **Tip Componentă**: `Domain Repository Port (Port de Persistență Hexagonal)`
-* **Descriere**: Implementare a componentei `NCRRepo.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 91. 📄 [`NCRRepo.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/NCRRepo.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/NCRRepo.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/NCRRepo.java)
+* **Rol Arhitectural (Sprint 2)**: `Domain Repository Port (Port de Persistență Hexagonal)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `NCRRepo.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.calitate.domain;
 
@@ -3137,11 +3289,11 @@ public interface NCRRepo {
 }
 ```
 
-#### 91. [`PerformantaLivrariVO.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/PerformantaLivrariVO.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/PerformantaLivrariVO.java`
-* **Tip Componentă**: `Value Object (Obiect Valoare Imutabil DDD)`
-* **Descriere**: Implementare a componentei `PerformantaLivrariVO.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 92. 📄 [`PerformantaLivrariVO.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/PerformantaLivrariVO.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/PerformantaLivrariVO.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/PerformantaLivrariVO.java)
+* **Rol Arhitectural (Sprint 2)**: `Value Object (Obiect Valoare Imutabil DDD)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `PerformantaLivrariVO.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.calitate.domain;
 
@@ -3168,11 +3320,11 @@ public record PerformantaLivrariVO(
 }
 ```
 
-#### 92. [`PlanAQL.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/PlanAQL.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/PlanAQL.java`
-* **Tip Componentă**: `Value Object (Obiect Valoare Imutabil DDD)`
-* **Descriere**: Value Object pentru planul de esantionare conform ISO 2859-1 (Tabelul 2.2). Invariant strict: numarRespingere = numarAcceptare + 1.
-* **Secvență de Cod**:
+### 93. 📄 [`PlanAQL.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/PlanAQL.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/PlanAQL.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/PlanAQL.java)
+* **Rol Arhitectural (Sprint 2)**: `Value Object (Obiect Valoare Imutabil DDD)`
+* **Descriere de Business & Invarianți**: Value Object pentru planul de esantionare conform ISO 2859-1 (Tabelul 2.2). Invariant strict: numarRespingere = numarAcceptare + 1.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.calitate.domain;
 
@@ -3214,14 +3366,16 @@ public final class PlanAQL implements Serializable {
     protected PlanAQL() {}
 
     public PlanAQL(BigDecimal nivelAQL, int dimensiuneEsantion, int numarAcceptare, int numarRespingere) {
-    // ... [restul de 49 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
+        if (numarRespingere != numarAcceptare + 1) {
+            throw new IllegalArgumentException("Invariant ISO 2859-1 incalcat: numarRespingere (" + numarRespingere + ") trebuie sa fie numarAcceptare (" + numarAcceptare + ") + 1");
+    // ... [restul de 47 linii omise pentru concizie in blueprint; codul complet este accesibil la link-ul de mai sus]
 ```
 
-#### 93. [`PretNegociat.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/PretNegociat.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/PretNegociat.java`
-* **Tip Componentă**: `Value Object (Obiect Valoare Imutabil DDD)`
-* **Descriere**: Implementare a componentei `PretNegociat.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 94. 📄 [`PretNegociat.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/PretNegociat.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/PretNegociat.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/PretNegociat.java)
+* **Rol Arhitectural (Sprint 2)**: `Value Object (Obiect Valoare Imutabil DDD)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `PretNegociat.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.calitate.domain;
 
@@ -3263,14 +3417,16 @@ public final class PretNegociat implements Serializable {
     }
 
     public CodMaterial getMaterial() {
-    // ... [restul de 25 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
+        return material;
+    }
+    // ... [restul de 23 linii omise pentru concizie in blueprint; codul complet este accesibil la link-ul de mai sus]
 ```
 
-#### 94. [`RaportNeconformitate.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/RaportNeconformitate.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/RaportNeconformitate.java`
-* **Tip Componentă**: `Aggregate Root (Rădăcină de Agregat DDD)`
-* **Descriere**: Implementare a componentei `RaportNeconformitate.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 95. 📄 [`RaportNeconformitate.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/RaportNeconformitate.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/RaportNeconformitate.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/RaportNeconformitate.java)
+* **Rol Arhitectural (Sprint 2)**: `Aggregate Root (Rădăcină de Agregat DDD)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `RaportNeconformitate.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.calitate.domain;
 
@@ -3312,14 +3468,16 @@ public class RaportNeconformitate implements Serializable {
 
     @Column(name = "cauza_radacina")
     private String cauzaRadacina;
-    // ... [restul de 75 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
+
+    @Embedded
+    // ... [restul de 73 linii omise pentru concizie in blueprint; codul complet este accesibil la link-ul de mai sus]
 ```
 
-#### 95. [`Scor.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/Scor.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/Scor.java`
-* **Tip Componentă**: `Value Object (Obiect Valoare Imutabil DDD)`
-* **Descriere**: Value Object pentru scorul lunar ponderat conform cerintelor OOAD: 40% OTIF + 40% Calitate (100 - rata respingere) + 20% Pret.
-* **Secvență de Cod**:
+### 96. 📄 [`Scor.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/Scor.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/Scor.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/Scor.java)
+* **Rol Arhitectural (Sprint 2)**: `Value Object (Obiect Valoare Imutabil DDD)`
+* **Descriere de Business & Invarianți**: Value Object pentru scorul lunar ponderat conform cerintelor OOAD: 40% OTIF + 40% Calitate (100 - rata respingere) + 20% Pret.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.calitate.domain;
 
@@ -3361,14 +3519,16 @@ public final class Scor implements Serializable {
     }
 
     public Calificativ calificativ() {
-    // ... [restul de 27 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
+        if (valoare.compareTo(BigDecimal.valueOf(90.0)) >= 0) return Calificativ.A;
+        if (valoare.compareTo(BigDecimal.valueOf(80.0)) >= 0) return Calificativ.B;
+    // ... [restul de 25 linii omise pentru concizie in blueprint; codul complet este accesibil la link-ul de mai sus]
 ```
 
-#### 96. [`ScorecardLunar.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/ScorecardLunar.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/ScorecardLunar.java`
-* **Tip Componentă**: `Component Entity (Entitate Componentă DDD)`
-* **Descriere**: Entitate componenta a agregatului Furnizor.
-* **Secvență de Cod**:
+### 97. 📄 [`ScorecardLunar.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/ScorecardLunar.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/ScorecardLunar.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/ScorecardLunar.java)
+* **Rol Arhitectural (Sprint 2)**: `Component Entity (Entitate Componentă DDD)`
+* **Descriere de Business & Invarianți**: Entitate componenta a agregatului Furnizor.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.calitate.domain;
 
@@ -3410,14 +3570,16 @@ public class ScorecardLunar implements Serializable {
 
     @NotNull
     @Column(name = "conformitate_pret", nullable = false, precision = 5, scale = 2)
-    // ... [restul de 53 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
+    private BigDecimal conformitatePret;
+
+    // ... [restul de 51 linii omise pentru concizie in blueprint; codul complet este accesibil la link-ul de mai sus]
 ```
 
-#### 97. [`StareFurnizor.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/StareFurnizor.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/StareFurnizor.java`
-* **Tip Componentă**: `Value Object (Obiect Valoare Imutabil DDD)`
-* **Descriere**: Implementare a componentei `StareFurnizor.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 98. 📄 [`StareFurnizor.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/StareFurnizor.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/StareFurnizor.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/StareFurnizor.java)
+* **Rol Arhitectural (Sprint 2)**: `Value Object (Obiect Valoare Imutabil DDD)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `StareFurnizor.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.calitate.domain;
 
@@ -3434,11 +3596,11 @@ public enum StareFurnizor {
 }
 ```
 
-#### 98. [`StareInspectie.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/StareInspectie.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/StareInspectie.java`
-* **Tip Componentă**: `Value Object (Obiect Valoare Imutabil DDD)`
-* **Descriere**: Implementare a componentei `StareInspectie.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 99. 📄 [`StareInspectie.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/StareInspectie.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/StareInspectie.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/StareInspectie.java)
+* **Rol Arhitectural (Sprint 2)**: `Value Object (Obiect Valoare Imutabil DDD)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `StareInspectie.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.calitate.domain;
 
@@ -3457,11 +3619,11 @@ public enum StareInspectie {
 }
 ```
 
-#### 99. [`StareNCR.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/StareNCR.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/StareNCR.java`
-* **Tip Componentă**: `Value Object (Obiect Valoare Imutabil DDD)`
-* **Descriere**: Implementare a componentei `StareNCR.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 100. 📄 [`StareNCR.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/StareNCR.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/StareNCR.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/StareNCR.java)
+* **Rol Arhitectural (Sprint 2)**: `Value Object (Obiect Valoare Imutabil DDD)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `StareNCR.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.calitate.domain;
 
@@ -3478,11 +3640,11 @@ public enum StareNCR {
 }
 ```
 
-#### 100. [`Verdict.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/Verdict.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/Verdict.java`
-* **Tip Componentă**: `Value Object (Obiect Valoare Imutabil DDD)`
-* **Descriere**: Implementare a componentei `Verdict.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 101. 📄 [`Verdict.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/Verdict.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/Verdict.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/Verdict.java)
+* **Rol Arhitectural (Sprint 2)**: `Value Object (Obiect Valoare Imutabil DDD)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `Verdict.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.calitate.domain;
 
@@ -3495,15 +3657,248 @@ public enum Verdict {
 }
 ```
 
-### Director: src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/factory
+## 📁 Director: `src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/computation`
+* **Modul de Business**: `Bounded Context: Calitate`
+* **Rol în Arhitectură**: Serviciul de calcul al formulei lunare de performanță (OTIF) și DTO-urile de dashboard calitativ.
 
-> **Rol Director**: Fabrici de creare și calificare a partenerilor furnizori și a inspecțiilor de laborator.
+### 102. 📄 [`CalitateDashboardView.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/computation/CalitateDashboardView.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/computation/CalitateDashboardView.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/computation/CalitateDashboardView.java)
+* **Rol Arhitectural (Sprint 2)**: `Value Object (Obiect Valoare Imutabil DDD)`
+* **Descriere de Business & Invarianți**: Entity View Computation: Proiectie dashboard pentru calitatea furnizorilor si inspectii (Sprint 2 - ADR-003).
+* **Secvență de Cod (Implementare)**:
+```java
+package ro.uaic.feaa.sdbis.supplychain.calitate.domain.computation;
 
-#### 101. [`FurnizorFactory.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/factory/FurnizorFactory.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/factory/FurnizorFactory.java`
-* **Tip Componentă**: `Domain Factory (Fabrică de Agregate DDD)`
-* **Descriere**: Aggregate Factory pentru agregatul Furnizor (Sprint 2 - ADR-003). Garanteaza initializarea consistenta a agregatului in starea initiala Candidat.
-* **Secvență de Cod**:
+import ro.uaic.feaa.sdbis.supplychain.shared.annotation.ValueObject;
+
+import java.io.Serializable;
+
+/**
+ * Entity View Computation: Proiectie dashboard pentru calitatea furnizorilor si inspectii (Sprint 2 - ADR-003).
+ */
+@ValueObject
+public record CalitateDashboardView(
+    int totalFurnizori,
+    int furnizoriAprobati,
+    int furnizoriBlocati,
+    int totalInspectii,
+    int inspectiiAdmise,
+    int inspectiiRespinse,
+    double rataConformitateLoturi
+) implements Serializable {}
+```
+
+### 103. 📄 [`ICalculScorecardService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/computation/ICalculScorecardService.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/computation/ICalculScorecardService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/computation/ICalculScorecardService.java)
+* **Rol Arhitectural (Sprint 2)**: `Computation Service (Serviciu de Calcul Matematic)`
+* **Descriere de Business & Invarianți**: Contract pentru Serviciul de Calcul Calitate si Scorecard Furnizori (Sprint 2 - ADR-003).
+* **Secvență de Cod (Implementare)**:
+```java
+package ro.uaic.feaa.sdbis.supplychain.calitate.domain.computation;
+
+import ro.uaic.feaa.sdbis.supplychain.calitate.domain.Furnizor;
+import ro.uaic.feaa.sdbis.supplychain.calitate.domain.InspectieCalitate;
+import ro.uaic.feaa.sdbis.supplychain.calitate.domain.PerformantaLivrariVO;
+import ro.uaic.feaa.sdbis.supplychain.calitate.domain.ScorecardLunar;
+import ro.uaic.feaa.sdbis.supplychain.shared.Perioada;
+import ro.uaic.feaa.sdbis.supplychain.shared.annotation.DomainComputationService;
+
+import java.math.BigDecimal;
+import java.util.List;
+
+/**
+ * Contract pentru Serviciul de Calcul Calitate si Scorecard Furnizori (Sprint 2 - ADR-003).
+ */
+@DomainComputationService
+public interface ICalculScorecardService {
+
+    /**
+     * Entity Field Computation: Calculeaza scorecardul lunar al furnizorului.
+     */
+    ScorecardLunar calculeazaScorecard(Perioada luna, PerformantaLivrariVO perf, BigDecimal rataRespingere);
+
+    /**
+     * Entity View Computation: Agrega indicatorii globali de calitate intr-un dashboard.
+     */
+    CalitateDashboardView calculeazaDashboard(List<Furnizor> furnizori, List<InspectieCalitate> inspectii);
+}
+```
+
+## 📁 Director: `src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/event`
+* **Modul de Business**: `Bounded Context: Calitate`
+* **Rol în Arhitectură**: Evenimentele de domeniu emise la înregistrarea furnizorilor, finalizarea inspecțiilor sau deschiderea rapoartelor NCR.
+
+### 104. 📄 [`CertificareInspectorExpiraEvent.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/event/CertificareInspectorExpiraEvent.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/event/CertificareInspectorExpiraEvent.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/event/CertificareInspectorExpiraEvent.java)
+* **Rol Arhitectural (Sprint 2)**: `Clasă de Domeniu Pure`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `CertificareInspectorExpiraEvent.java`.
+* **Secvență de Cod (Implementare)**:
+```java
+package ro.uaic.feaa.sdbis.supplychain.calitate.domain.event;
+
+import ro.uaic.feaa.sdbis.supplychain.shared.DomainEvent;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.UUID;
+
+public record CertificareInspectorExpiraEvent(
+    UUID eventId,
+    Instant occurredOn,
+    UUID inspectorId,
+    String denumireCertificare,
+    LocalDate dataExpirare
+) implements DomainEvent {}
+```
+
+### 105. 📄 [`FurnizorBlocatEvent.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/event/FurnizorBlocatEvent.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/event/FurnizorBlocatEvent.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/event/FurnizorBlocatEvent.java)
+* **Rol Arhitectural (Sprint 2)**: `Clasă de Domeniu Pure`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `FurnizorBlocatEvent.java`.
+* **Secvență de Cod (Implementare)**:
+```java
+package ro.uaic.feaa.sdbis.supplychain.calitate.domain.event;
+
+import ro.uaic.feaa.sdbis.supplychain.shared.DomainEvent;
+import ro.uaic.feaa.sdbis.supplychain.shared.IdFurnizor;
+import java.time.Instant;
+import java.util.UUID;
+
+public record FurnizorBlocatEvent(
+    UUID eventId,
+    Instant occurredOn,
+    IdFurnizor furnizorId,
+    String motiv
+) implements DomainEvent {}
+```
+
+### 106. 📄 [`FurnizorSuspendatEvent.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/event/FurnizorSuspendatEvent.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/event/FurnizorSuspendatEvent.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/event/FurnizorSuspendatEvent.java)
+* **Rol Arhitectural (Sprint 2)**: `Clasă de Domeniu Pure`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `FurnizorSuspendatEvent.java`.
+* **Secvență de Cod (Implementare)**:
+```java
+package ro.uaic.feaa.sdbis.supplychain.calitate.domain.event;
+
+import ro.uaic.feaa.sdbis.supplychain.shared.DomainEvent;
+import ro.uaic.feaa.sdbis.supplychain.shared.IdFurnizor;
+import java.time.Instant;
+import java.util.UUID;
+
+public record FurnizorSuspendatEvent(
+    UUID eventId,
+    Instant occurredOn,
+    IdFurnizor furnizorId,
+    String motiv
+) implements DomainEvent {}
+```
+
+### 107. 📄 [`InspectieProgramataEvent.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/event/InspectieProgramataEvent.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/event/InspectieProgramataEvent.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/event/InspectieProgramataEvent.java)
+* **Rol Arhitectural (Sprint 2)**: `Clasă de Domeniu Pure`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `InspectieProgramataEvent.java`.
+* **Secvență de Cod (Implementare)**:
+```java
+package ro.uaic.feaa.sdbis.supplychain.calitate.domain.event;
+
+import ro.uaic.feaa.sdbis.supplychain.shared.DomainEvent;
+import ro.uaic.feaa.sdbis.supplychain.shared.IdComanda;
+import ro.uaic.feaa.sdbis.supplychain.shared.IdLot;
+import java.time.Instant;
+import java.util.UUID;
+
+public record InspectieProgramataEvent(
+    UUID eventId,
+    Instant occurredOn,
+    UUID inspectieId,
+    IdLot lotId,
+    IdComanda comandaId
+) implements DomainEvent {}
+```
+
+### 108. 📄 [`LotScutitDeInspectieEvent.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/event/LotScutitDeInspectieEvent.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/event/LotScutitDeInspectieEvent.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/event/LotScutitDeInspectieEvent.java)
+* **Rol Arhitectural (Sprint 2)**: `Clasă de Domeniu Pure`
+* **Descriere de Business & Invarianți**: Eveniment emis cand un lot este scutit de inspectie fizica AQL (ex: furnizor de clasa A cu istoric impecabil conform Figurii 1, Tabelului 1.3 si Figurii 20 din Project_OOAD.docx).
+* **Secvență de Cod (Implementare)**:
+```java
+package ro.uaic.feaa.sdbis.supplychain.calitate.domain.event;
+
+import ro.uaic.feaa.sdbis.supplychain.shared.DomainEvent;
+import ro.uaic.feaa.sdbis.supplychain.shared.IdComanda;
+import ro.uaic.feaa.sdbis.supplychain.shared.IdFurnizor;
+import ro.uaic.feaa.sdbis.supplychain.shared.IdLot;
+
+import java.time.Instant;
+import java.util.UUID;
+
+/**
+ * Eveniment emis cand un lot este scutit de inspectie fizica AQL
+ * (ex: furnizor de clasa A cu istoric impecabil conform Figurii 1, Tabelului 1.3 si Figurii 20 din Project_OOAD.docx).
+ */
+public record LotScutitDeInspectieEvent(
+    UUID eventId,
+    Instant occurredOn,
+    IdLot lotId,
+    IdComanda comandaId,
+    IdFurnizor furnizorId,
+    String motiv
+) implements DomainEvent {}
+```
+
+### 109. 📄 [`NCREscaladatEvent.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/event/NCREscaladatEvent.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/event/NCREscaladatEvent.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/event/NCREscaladatEvent.java)
+* **Rol Arhitectural (Sprint 2)**: `Clasă de Domeniu Pure`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `NCREscaladatEvent.java`.
+* **Secvență de Cod (Implementare)**:
+```java
+package ro.uaic.feaa.sdbis.supplychain.calitate.domain.event;
+
+import ro.uaic.feaa.sdbis.supplychain.shared.DomainEvent;
+import ro.uaic.feaa.sdbis.supplychain.shared.IdFurnizor;
+import java.time.Instant;
+import java.util.UUID;
+
+public record NCREscaladatEvent(
+    UUID eventId,
+    Instant occurredOn,
+    UUID ncrId,
+    IdFurnizor furnizorId
+) implements DomainEvent {}
+```
+
+### 110. 📄 [`VerdictInspectieEvent.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/event/VerdictInspectieEvent.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/event/VerdictInspectieEvent.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/event/VerdictInspectieEvent.java)
+* **Rol Arhitectural (Sprint 2)**: `Clasă de Domeniu Pure`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `VerdictInspectieEvent.java`.
+* **Secvență de Cod (Implementare)**:
+```java
+package ro.uaic.feaa.sdbis.supplychain.calitate.domain.event;
+
+import ro.uaic.feaa.sdbis.supplychain.calitate.domain.Verdict;
+import ro.uaic.feaa.sdbis.supplychain.shared.DomainEvent;
+import ro.uaic.feaa.sdbis.supplychain.shared.IdComanda;
+import ro.uaic.feaa.sdbis.supplychain.shared.IdLot;
+import java.time.Instant;
+import java.util.UUID;
+
+public record VerdictInspectieEvent(
+    UUID eventId,
+    Instant occurredOn,
+    IdLot lotId,
+    IdComanda comandaId,
+    Verdict verdict
+) implements DomainEvent {}
+```
+
+## 📁 Director: `src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/factory`
+* **Modul de Business**: `Bounded Context: Calitate`
+* **Rol în Arhitectură**: Fabricile de asamblare și calificare a furnizorilor și a inspecțiilor de lot.
+
+### 111. 📄 [`FurnizorFactory.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/factory/FurnizorFactory.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/factory/FurnizorFactory.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/factory/FurnizorFactory.java)
+* **Rol Arhitectural (Sprint 2)**: `Domain Factory (Fabrică de Agregate DDD)`
+* **Descriere de Business & Invarianți**: Aggregate Factory pentru agregatul Furnizor (Sprint 2 - ADR-003). Garanteaza initializarea consistenta a agregatului in starea initiala Candidat.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.calitate.domain.factory;
 
@@ -3545,14 +3940,14 @@ public class FurnizorFactory {
         IdFurnizor id = IdFurnizor.random();
         return new Furnizor(id, codFiscal.trim(), denumire.trim(), adresa, emailuri, iban, categoriiMateriale, conditii);
     }
-    // ... [restul de 1 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
+}
 ```
 
-#### 102. [`InspectieCalitateFactory.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/factory/InspectieCalitateFactory.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/factory/InspectieCalitateFactory.java`
-* **Tip Componentă**: `Domain Factory (Fabrică de Agregate DDD)`
-* **Descriere**: Aggregate Factory pentru InspectieCalitate (Sprint 2 - ADR-003). Garanteaza initializarea consistenta a agregatului in starea initiala Programata.
-* **Secvență de Cod**:
+### 112. 📄 [`InspectieCalitateFactory.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/factory/InspectieCalitateFactory.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/factory/InspectieCalitateFactory.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/factory/InspectieCalitateFactory.java)
+* **Rol Arhitectural (Sprint 2)**: `Domain Factory (Fabrică de Agregate DDD)`
+* **Descriere de Business & Invarianți**: Aggregate Factory pentru InspectieCalitate (Sprint 2 - ADR-003). Garanteaza initializarea consistenta a agregatului in starea initiala Programata.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.calitate.domain.factory;
 
@@ -3594,18 +3989,20 @@ public class InspectieCalitateFactory {
         if (material == null) {
             throw new DomainValidationException("MATERIAL_LIPSA", "Materialul inspectat este obligatoriu!");
         }
-    // ... [restul de 14 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
+        if (plan == null) {
+            throw new DomainValidationException("PLAN_LIPSA", "Planul AQL este obligatoriu!");
+    // ... [restul de 12 linii omise pentru concizie in blueprint; codul complet este accesibil la link-ul de mai sus]
 ```
 
-### Director: src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/policy
+## 📁 Director: `src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/policy`
+* **Modul de Business**: `Bounded Context: Calitate`
+* **Rol în Arhitectură**: Politici de eșantionare statistică AQL conform standardului internațional ISO 2859-1.
 
-> **Rol Director**: Politici de eșantionare statistică a calității conform standardului internațional ISO 2859-1 (AQL).
-
-#### 103. [`PoliticaSelectieAQL.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/policy/PoliticaSelectieAQL.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/policy/PoliticaSelectieAQL.java`
-* **Tip Componentă**: `Domain Policy (Politică de Business DDD)`
-* **Descriere**: Politica de selectie a regimului de inspectie si planului AQL conform ISO 2859-1 (Other Business Rules - ADR-003). Adapteaza severitatea inspectiei in functie de calificativul furnizorului si marimea lotului.
-* **Secvență de Cod**:
+### 113. 📄 [`PoliticaSelectieAQL.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/policy/PoliticaSelectieAQL.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/policy/PoliticaSelectieAQL.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/policy/PoliticaSelectieAQL.java)
+* **Rol Arhitectural (Sprint 2)**: `Domain Policy (Politică de Business DDD)`
+* **Descriere de Business & Invarianți**: Politica de selectie a regimului de inspectie si planului AQL conform ISO 2859-1 (Other Business Rules - ADR-003). Adapteaza severitatea inspectiei in functie de calificativul furnizorului si marimea lotului.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.calitate.domain.policy;
 
@@ -3647,18 +4044,20 @@ public class PoliticaSelectieAQL {
             throw new IllegalArgumentException("Marimea lotului trebuie sa fie pozitiva: " + marimeLot);
         }
         RegimInspectie regim = determinaRegim(calificativ);
-    // ... [restul de 39 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
+
+        int esantion;
+    // ... [restul de 37 linii omise pentru concizie in blueprint; codul complet este accesibil la link-ul de mai sus]
 ```
 
-### Director: src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/validation
+## 📁 Director: `src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/validation`
+* **Modul de Business**: `Bounded Context: Calitate`
+* **Rol în Arhitectură**: Servicii de validare a conformității inspecțiilor, disponibilității inspectorilor și a termenelor contractuale.
 
-> **Rol Director**: Servicii de validare a certificărilor tehnice și a compatibilității inspectorilor.
-
-#### 104. [`CalitateValidationService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/validation/CalitateValidationService.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/validation/CalitateValidationService.java`
-* **Tip Componentă**: `Validation Service (Serviciu de Validare a Domeniului)`
-* **Descriere**: Implementare Domain Validation Service pentru Calitate (Sprint 2 - ADR-003). Respecta izolarea pura de domeniu (ADR-011).
-* **Secvență de Cod**:
+### 114. 📄 [`CalitateValidationService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/validation/CalitateValidationService.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/validation/CalitateValidationService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/validation/CalitateValidationService.java)
+* **Rol Arhitectural (Sprint 2)**: `Validation Service (Serviciu de Validare a Domeniului)`
+* **Descriere de Business & Invarianți**: Implementare Domain Validation Service pentru Calitate (Sprint 2 - ADR-003). Respecta izolarea pura de domeniu (ADR-011).
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.calitate.domain.validation;
 
@@ -3700,14 +4099,16 @@ public class CalitateValidationService implements ICalitateValidationService {
         }
     }
 
-    // ... [restul de 37 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
+    @Override
+    public void valideazaInspectieProgramata(InspectieCalitate inspectie, Perioada valabilitateCertificareInspector) {
+    // ... [restul de 35 linii omise pentru concizie in blueprint; codul complet este accesibil la link-ul de mai sus]
 ```
 
-#### 105. [`ICalitateValidationService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/validation/ICalitateValidationService.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/validation/ICalitateValidationService.java`
-* **Tip Componentă**: `Validation Service (Serviciu de Validare a Domeniului)`
-* **Descriere**: Contract pentru Serviciul de Validare a Domeniului Calitate & Furnizori (ADR-003). Trateaza reguli de business pentru inspectii AQL, conformitate furnizori si alocari inspectori.
-* **Secvență de Cod**:
+### 115. 📄 [`ICalitateValidationService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/validation/ICalitateValidationService.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/validation/ICalitateValidationService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/validation/ICalitateValidationService.java)
+* **Rol Arhitectural (Sprint 2)**: `Validation Service (Serviciu de Validare a Domeniului)`
+* **Descriere de Business & Invarianți**: Contract pentru Serviciul de Validare a Domeniului Calitate & Furnizori (ADR-003). Trateaza reguli de business pentru inspectii AQL, conformitate furnizori si alocari inspectori.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.calitate.domain.validation;
 
@@ -3741,250 +4142,60 @@ public interface ICalitateValidationService {
 }
 ```
 
-### Director: src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/computation
+## 📁 Director: `src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/infrastructure/configuration`
+* **Modul de Business**: `Bounded Context: Calitate`
+* **Rol în Arhitectură**: Configurația Spring (@Configuration, @Bean) ce instanțiază serviciile și fabricile modulului Calitate.
 
-> **Rol Director**: Interfețe de calcul al formulei lunare de performanță (OTIF) și DTO-uri agregate de dashboard.
-
-#### 106. [`CalitateDashboardView.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/computation/CalitateDashboardView.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/computation/CalitateDashboardView.java`
-* **Tip Componentă**: `Value Object (Obiect Valoare Imutabil DDD)`
-* **Descriere**: Entity View Computation: Proiectie dashboard pentru calitatea furnizorilor si inspectii (Sprint 2 - ADR-003).
-* **Secvență de Cod**:
+### 116. 📄 [`CalitateDomainConfig.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/infrastructure/configuration/CalitateDomainConfig.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/infrastructure/configuration/CalitateDomainConfig.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/infrastructure/configuration/CalitateDomainConfig.java)
+* **Rol Arhitectural (Sprint 2)**: `Spring Domain Configuration (@Configuration & @Bean)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `CalitateDomainConfig.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
-package ro.uaic.feaa.sdbis.supplychain.calitate.domain.computation;
+package ro.uaic.feaa.sdbis.supplychain.calitate.infrastructure.configuration;
 
-import ro.uaic.feaa.sdbis.supplychain.shared.annotation.ValueObject;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import ro.uaic.feaa.sdbis.supplychain.calitate.domain.AlocareInspectorService;
+import ro.uaic.feaa.sdbis.supplychain.calitate.domain.CalculScorecardService;
+import ro.uaic.feaa.sdbis.supplychain.calitate.domain.policy.PoliticaSelectieAQL;
+import ro.uaic.feaa.sdbis.supplychain.calitate.domain.validation.CalitateValidationService;
+import ro.uaic.feaa.sdbis.supplychain.calitate.domain.validation.ICalitateValidationService;
 
-import java.io.Serializable;
+@Configuration
+public class CalitateDomainConfig {
 
-/**
- * Entity View Computation: Proiectie dashboard pentru calitatea furnizorilor si inspectii (Sprint 2 - ADR-003).
- */
-@ValueObject
-public record CalitateDashboardView(
-    int totalFurnizori,
-    int furnizoriAprobati,
-    int furnizoriBlocati,
-    int totalInspectii,
-    int inspectiiAdmise,
-    int inspectiiRespinse,
-    double rataConformitateLoturi
-) implements Serializable {}
-```
+    @Bean
+    public CalculScorecardService calculScorecardService() {
+        return new CalculScorecardService();
+    }
 
-#### 107. [`ICalculScorecardService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/computation/ICalculScorecardService.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/computation/ICalculScorecardService.java`
-* **Tip Componentă**: `Computation Service (Serviciu de Calcul Matematic)`
-* **Descriere**: Contract pentru Serviciul de Calcul Calitate si Scorecard Furnizori (Sprint 2 - ADR-003).
-* **Secvență de Cod**:
-```java
-package ro.uaic.feaa.sdbis.supplychain.calitate.domain.computation;
+    @Bean
+    public AlocareInspectorService alocareInspectorService() {
+        return new AlocareInspectorService();
+    }
 
-import ro.uaic.feaa.sdbis.supplychain.calitate.domain.Furnizor;
-import ro.uaic.feaa.sdbis.supplychain.calitate.domain.InspectieCalitate;
-import ro.uaic.feaa.sdbis.supplychain.calitate.domain.PerformantaLivrariVO;
-import ro.uaic.feaa.sdbis.supplychain.calitate.domain.ScorecardLunar;
-import ro.uaic.feaa.sdbis.supplychain.shared.Perioada;
-import ro.uaic.feaa.sdbis.supplychain.shared.annotation.DomainComputationService;
+    @Bean
+    public ICalitateValidationService calitateValidationService() {
+        return new CalitateValidationService();
+    }
 
-import java.math.BigDecimal;
-import java.util.List;
-
-/**
- * Contract pentru Serviciul de Calcul Calitate si Scorecard Furnizori (Sprint 2 - ADR-003).
- */
-@DomainComputationService
-public interface ICalculScorecardService {
-
-    /**
-     * Entity Field Computation: Calculeaza scorecardul lunar al furnizorului.
-     */
-    ScorecardLunar calculeazaScorecard(Perioada luna, PerformantaLivrariVO perf, BigDecimal rataRespingere);
-
-    /**
-     * Entity View Computation: Agrega indicatorii globali de calitate intr-un dashboard.
-     */
-    CalitateDashboardView calculeazaDashboard(List<Furnizor> furnizori, List<InspectieCalitate> inspectii);
+    @Bean
+    public PoliticaSelectieAQL politicaSelectieAQL() {
+        return new PoliticaSelectieAQL();
+    }
 }
 ```
 
-### Director: src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/event
+## 📁 Director: `src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain`
+* **Modul de Business**: `Bounded Context: Facturi`
+* **Rol în Arhitectură**: Agregatele FacturaFurnizor, NIR, OrdinPlata, VOs de reconciliere și toleranță, enums, serviciul ReconciliereService și porturile de repository.
 
-> **Rol Director**: Evenimente de domeniu emise la blocarea furnizorilor, emiterea rapoartelor NCR și finalizarea inspecțiilor.
-
-#### 108. [`CertificareInspectorExpiraEvent.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/event/CertificareInspectorExpiraEvent.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/event/CertificareInspectorExpiraEvent.java`
-* **Tip Componentă**: `Clasă de Domeniu`
-* **Descriere**: Implementare a componentei `CertificareInspectorExpiraEvent.java` din modulul de afaceri.
-* **Secvență de Cod**:
-```java
-package ro.uaic.feaa.sdbis.supplychain.calitate.domain.event;
-
-import ro.uaic.feaa.sdbis.supplychain.shared.DomainEvent;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.util.UUID;
-
-public record CertificareInspectorExpiraEvent(
-    UUID eventId,
-    Instant occurredOn,
-    UUID inspectorId,
-    String denumireCertificare,
-    LocalDate dataExpirare
-) implements DomainEvent {}
-```
-
-#### 109. [`FurnizorBlocatEvent.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/event/FurnizorBlocatEvent.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/event/FurnizorBlocatEvent.java`
-* **Tip Componentă**: `Clasă de Domeniu`
-* **Descriere**: Implementare a componentei `FurnizorBlocatEvent.java` din modulul de afaceri.
-* **Secvență de Cod**:
-```java
-package ro.uaic.feaa.sdbis.supplychain.calitate.domain.event;
-
-import ro.uaic.feaa.sdbis.supplychain.shared.DomainEvent;
-import ro.uaic.feaa.sdbis.supplychain.shared.IdFurnizor;
-import java.time.Instant;
-import java.util.UUID;
-
-public record FurnizorBlocatEvent(
-    UUID eventId,
-    Instant occurredOn,
-    IdFurnizor furnizorId,
-    String motiv
-) implements DomainEvent {}
-```
-
-#### 110. [`FurnizorSuspendatEvent.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/event/FurnizorSuspendatEvent.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/event/FurnizorSuspendatEvent.java`
-* **Tip Componentă**: `Clasă de Domeniu`
-* **Descriere**: Implementare a componentei `FurnizorSuspendatEvent.java` din modulul de afaceri.
-* **Secvență de Cod**:
-```java
-package ro.uaic.feaa.sdbis.supplychain.calitate.domain.event;
-
-import ro.uaic.feaa.sdbis.supplychain.shared.DomainEvent;
-import ro.uaic.feaa.sdbis.supplychain.shared.IdFurnizor;
-import java.time.Instant;
-import java.util.UUID;
-
-public record FurnizorSuspendatEvent(
-    UUID eventId,
-    Instant occurredOn,
-    IdFurnizor furnizorId,
-    String motiv
-) implements DomainEvent {}
-```
-
-#### 111. [`InspectieProgramataEvent.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/event/InspectieProgramataEvent.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/event/InspectieProgramataEvent.java`
-* **Tip Componentă**: `Clasă de Domeniu`
-* **Descriere**: Implementare a componentei `InspectieProgramataEvent.java` din modulul de afaceri.
-* **Secvență de Cod**:
-```java
-package ro.uaic.feaa.sdbis.supplychain.calitate.domain.event;
-
-import ro.uaic.feaa.sdbis.supplychain.shared.DomainEvent;
-import ro.uaic.feaa.sdbis.supplychain.shared.IdComanda;
-import ro.uaic.feaa.sdbis.supplychain.shared.IdLot;
-import java.time.Instant;
-import java.util.UUID;
-
-public record InspectieProgramataEvent(
-    UUID eventId,
-    Instant occurredOn,
-    UUID inspectieId,
-    IdLot lotId,
-    IdComanda comandaId
-) implements DomainEvent {}
-```
-
-#### 112. [`LotScutitDeInspectieEvent.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/event/LotScutitDeInspectieEvent.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/event/LotScutitDeInspectieEvent.java`
-* **Tip Componentă**: `Clasă de Domeniu`
-* **Descriere**: Eveniment emis cand un lot este scutit de inspectie fizica AQL (ex: furnizor de clasa A cu istoric impecabil conform Figurii 1, Tabelului 1.3 si Figurii 20 din Project_OOAD.docx).
-* **Secvență de Cod**:
-```java
-package ro.uaic.feaa.sdbis.supplychain.calitate.domain.event;
-
-import ro.uaic.feaa.sdbis.supplychain.shared.DomainEvent;
-import ro.uaic.feaa.sdbis.supplychain.shared.IdComanda;
-import ro.uaic.feaa.sdbis.supplychain.shared.IdFurnizor;
-import ro.uaic.feaa.sdbis.supplychain.shared.IdLot;
-
-import java.time.Instant;
-import java.util.UUID;
-
-/**
- * Eveniment emis cand un lot este scutit de inspectie fizica AQL
- * (ex: furnizor de clasa A cu istoric impecabil conform Figurii 1, Tabelului 1.3 si Figurii 20 din Project_OOAD.docx).
- */
-public record LotScutitDeInspectieEvent(
-    UUID eventId,
-    Instant occurredOn,
-    IdLot lotId,
-    IdComanda comandaId,
-    IdFurnizor furnizorId,
-    String motiv
-) implements DomainEvent {}
-```
-
-#### 113. [`NCREscaladatEvent.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/event/NCREscaladatEvent.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/event/NCREscaladatEvent.java`
-* **Tip Componentă**: `Clasă de Domeniu`
-* **Descriere**: Implementare a componentei `NCREscaladatEvent.java` din modulul de afaceri.
-* **Secvență de Cod**:
-```java
-package ro.uaic.feaa.sdbis.supplychain.calitate.domain.event;
-
-import ro.uaic.feaa.sdbis.supplychain.shared.DomainEvent;
-import ro.uaic.feaa.sdbis.supplychain.shared.IdFurnizor;
-import java.time.Instant;
-import java.util.UUID;
-
-public record NCREscaladatEvent(
-    UUID eventId,
-    Instant occurredOn,
-    UUID ncrId,
-    IdFurnizor furnizorId
-) implements DomainEvent {}
-```
-
-#### 114. [`VerdictInspectieEvent.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/event/VerdictInspectieEvent.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/event/VerdictInspectieEvent.java`
-* **Tip Componentă**: `Clasă de Domeniu`
-* **Descriere**: Implementare a componentei `VerdictInspectieEvent.java` din modulul de afaceri.
-* **Secvență de Cod**:
-```java
-package ro.uaic.feaa.sdbis.supplychain.calitate.domain.event;
-
-import ro.uaic.feaa.sdbis.supplychain.calitate.domain.Verdict;
-import ro.uaic.feaa.sdbis.supplychain.shared.DomainEvent;
-import ro.uaic.feaa.sdbis.supplychain.shared.IdComanda;
-import ro.uaic.feaa.sdbis.supplychain.shared.IdLot;
-import java.time.Instant;
-import java.util.UUID;
-
-public record VerdictInspectieEvent(
-    UUID eventId,
-    Instant occurredOn,
-    IdLot lotId,
-    IdComanda comandaId,
-    Verdict verdict
-) implements DomainEvent {}
-```
-
-## 1.4 Bounded Context: Facturi (3-Way Matching, Reconciliere & Plăți)
-
-### Director: src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain
-
-> **Rol Director**: Agregatele FacturaFurnizor, NIR, OrdinPlata, VOs de toleranță și reconciliere, enums și porturi de repository/adaptor.
-
-#### 115. [`ComandaSummaryVO.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/ComandaSummaryVO.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/ComandaSummaryVO.java`
-* **Tip Componentă**: `Value Object (Obiect Valoare Imutabil DDD)`
-* **Descriere**: Implementare a componentei `ComandaSummaryVO.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 117. 📄 [`ComandaSummaryVO.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/ComandaSummaryVO.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/ComandaSummaryVO.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/ComandaSummaryVO.java)
+* **Rol Arhitectural (Sprint 2)**: `Value Object (Obiect Valoare Imutabil DDD)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `ComandaSummaryVO.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.facturi.domain;
 
@@ -4007,11 +4218,11 @@ public record ComandaSummaryVO(
 }
 ```
 
-#### 116. [`FacturaFurnizor.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/FacturaFurnizor.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/FacturaFurnizor.java`
-* **Tip Componentă**: `Aggregate Root (Rădăcină de Agregat DDD)`
-* **Descriere**: Aggregate Root pentru Factura Furnizor (Figura 21 si 24). Invariant strict: Creeaza OrdinPlata DOAR daca este AprobataLaPlata sau PartialPlatita, iar suma ordinului <= restDePlata.
-* **Secvență de Cod**:
+### 118. 📄 [`FacturaFurnizor.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/FacturaFurnizor.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/FacturaFurnizor.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/FacturaFurnizor.java)
+* **Rol Arhitectural (Sprint 2)**: `Aggregate Root (Rădăcină de Agregat DDD)`
+* **Descriere de Business & Invarianți**: Aggregate Root pentru Factura Furnizor (Figura 21 si 24). Invariant strict: Creeaza OrdinPlata DOAR daca este AprobataLaPlata sau PartialPlatita,
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.facturi.domain;
 
@@ -4053,14 +4264,16 @@ public class FacturaFurnizor implements Serializable {
 
     @NotNull
     @Column(name = "data_emitere", nullable = false)
-    // ... [restul de 149 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
+    private LocalDate dataEmitere;
+
+    // ... [restul de 147 linii omise pentru concizie in blueprint; codul complet este accesibil la link-ul de mai sus]
 ```
 
-#### 117. [`FacturaRepo.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/FacturaRepo.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/FacturaRepo.java`
-* **Tip Componentă**: `Domain Repository Port (Port de Persistență Hexagonal)`
-* **Descriere**: Implementare a componentei `FacturaRepo.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 119. 📄 [`FacturaRepo.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/FacturaRepo.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/FacturaRepo.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/FacturaRepo.java)
+* **Rol Arhitectural (Sprint 2)**: `Domain Repository Port (Port de Persistență Hexagonal)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `FacturaRepo.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.facturi.domain;
 
@@ -4078,11 +4291,11 @@ public interface FacturaRepo {
 }
 ```
 
-#### 118. [`FurnizoriBlocatiRepo.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/FurnizoriBlocatiRepo.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/FurnizoriBlocatiRepo.java`
-* **Tip Componentă**: `Domain Repository Port (Port de Persistență Hexagonal)`
-* **Descriere**: Implementare a componentei `FurnizoriBlocatiRepo.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 120. 📄 [`FurnizoriBlocatiRepo.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/FurnizoriBlocatiRepo.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/FurnizoriBlocatiRepo.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/FurnizoriBlocatiRepo.java)
+* **Rol Arhitectural (Sprint 2)**: `Domain Repository Port (Port de Persistență Hexagonal)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `FurnizoriBlocatiRepo.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.facturi.domain;
 
@@ -4096,11 +4309,11 @@ public interface FurnizoriBlocatiRepo {
 }
 ```
 
-#### 119. [`IBancaPlataProvider.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/IBancaPlataProvider.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/IBancaPlataProvider.java`
-* **Tip Componentă**: `Clasă de Domeniu`
-* **Descriere**: Implementare a componentei `IBancaPlataProvider.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 121. 📄 [`IBancaPlataProvider.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/IBancaPlataProvider.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/IBancaPlataProvider.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/IBancaPlataProvider.java)
+* **Rol Arhitectural (Sprint 2)**: `Port de Domeniu / Interfață de Business`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `IBancaPlataProvider.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.facturi.domain;
 
@@ -4109,11 +4322,11 @@ public interface IBancaPlataProvider {
 }
 ```
 
-#### 120. [`IComenziAdapter.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/IComenziAdapter.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/IComenziAdapter.java`
-* **Tip Componentă**: `Clasă de Domeniu`
-* **Descriere**: Implementare a componentei `IComenziAdapter.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 122. 📄 [`IComenziAdapter.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/IComenziAdapter.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/IComenziAdapter.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/IComenziAdapter.java)
+* **Rol Arhitectural (Sprint 2)**: `Port de Domeniu / Interfață de Business`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `IComenziAdapter.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.facturi.domain;
 
@@ -4124,11 +4337,11 @@ public interface IComenziAdapter {
 }
 ```
 
-#### 121. [`LinieFactura.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/LinieFactura.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/LinieFactura.java`
-* **Tip Componentă**: `Value Object (Obiect Valoare Imutabil DDD)`
-* **Descriere**: Implementare a componentei `LinieFactura.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 123. 📄 [`LinieFactura.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/LinieFactura.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/LinieFactura.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/LinieFactura.java)
+* **Rol Arhitectural (Sprint 2)**: `Value Object (Obiect Valoare Imutabil DDD)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `LinieFactura.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.facturi.domain;
 
@@ -4170,14 +4383,16 @@ public class LinieFactura implements Serializable {
     @AttributeOverride(name = "valoare", column = @Column(name = "pret_unitar", nullable = false, precision = 18, scale = 4))
     @AttributeOverride(name = "moneda", column = @Column(name = "moneda", nullable = false, length = 3))
     private Suma pretUnitar;
-    // ... [restul de 55 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
+
+    @NotNull
+    // ... [restul de 53 linii omise pentru concizie in blueprint; codul complet este accesibil la link-ul de mai sus]
 ```
 
-#### 122. [`LinieNIR.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/LinieNIR.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/LinieNIR.java`
-* **Tip Componentă**: `Value Object (Obiect Valoare Imutabil DDD)`
-* **Descriere**: Implementare a componentei `LinieNIR.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 124. 📄 [`LinieNIR.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/LinieNIR.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/LinieNIR.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/LinieNIR.java)
+* **Rol Arhitectural (Sprint 2)**: `Value Object (Obiect Valoare Imutabil DDD)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `LinieNIR.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.facturi.domain;
 
@@ -4219,14 +4434,16 @@ public class LinieNIR implements Serializable {
     @Column(name = "unitate_masura", nullable = false, length = 20)
     private String unitateMasura;
 
-    // ... [restul de 34 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
+    protected LinieNIR() {}
+
+    // ... [restul de 32 linii omise pentru concizie in blueprint; codul complet este accesibil la link-ul de mai sus]
 ```
 
-#### 123. [`LinieSumar.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/LinieSumar.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/LinieSumar.java`
-* **Tip Componentă**: `Value Object (Obiect Valoare Imutabil DDD)`
-* **Descriere**: Implementare a componentei `LinieSumar.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 125. 📄 [`LinieSumar.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/LinieSumar.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/LinieSumar.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/LinieSumar.java)
+* **Rol Arhitectural (Sprint 2)**: `Value Object (Obiect Valoare Imutabil DDD)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `LinieSumar.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.facturi.domain;
 
@@ -4250,11 +4467,11 @@ public record LinieSumar(
 }
 ```
 
-#### 124. [`NIR.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/NIR.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/NIR.java`
-* **Tip Componentă**: `Aggregate Root (Rădăcină de Agregat DDD)`
-* **Descriere**: Implementare a componentei `NIR.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 126. 📄 [`NIR.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/NIR.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/NIR.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/NIR.java)
+* **Rol Arhitectural (Sprint 2)**: `Aggregate Root (Rădăcină de Agregat DDD)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `NIR.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.facturi.domain;
 
@@ -4296,14 +4513,16 @@ public class NIR implements Serializable {
 
     @NotNull
     @Column(name = "data_receptie", nullable = false)
-    // ... [restul de 87 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
+    private LocalDate dataReceptie;
+
+    // ... [restul de 85 linii omise pentru concizie in blueprint; codul complet este accesibil la link-ul de mai sus]
 ```
 
-#### 125. [`NIRRepo.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/NIRRepo.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/NIRRepo.java`
-* **Tip Componentă**: `Domain Repository Port (Port de Persistență Hexagonal)`
-* **Descriere**: Implementare a componentei `NIRRepo.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 127. 📄 [`NIRRepo.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/NIRRepo.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/NIRRepo.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/NIRRepo.java)
+* **Rol Arhitectural (Sprint 2)**: `Domain Repository Port (Port de Persistență Hexagonal)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `NIRRepo.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.facturi.domain;
 
@@ -4324,11 +4543,11 @@ public interface NIRRepo {
 }
 ```
 
-#### 126. [`OrdinPlata.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/OrdinPlata.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/OrdinPlata.java`
-* **Tip Componentă**: `Aggregate Root (Rădăcină de Agregat DDD)`
-* **Descriere**: Aggregate Root pentru Ordinul de Plata (Figura 21 si 4.4). Constructorul este exclusiv package-private (~): poate fi instantiat doar de FacturaFurnizor.creeazaOrdinPlata().
-* **Secvență de Cod**:
+### 128. 📄 [`OrdinPlata.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/OrdinPlata.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/OrdinPlata.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/OrdinPlata.java)
+* **Rol Arhitectural (Sprint 2)**: `Aggregate Root (Rădăcină de Agregat DDD)`
+* **Descriere de Business & Invarianți**: Aggregate Root pentru Ordinul de Plata (Figura 21 si 4.4). Constructorul este exclusiv package-private (~): poate fi instantiat doar de FacturaFurnizor.creeazaOrdinPlata().
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.facturi.domain;
 
@@ -4370,14 +4589,16 @@ public class OrdinPlata implements Serializable {
     @Column(name = "creat_de", nullable = false)
     private UUID creatDe;
 
-    // ... [restul de 85 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
+    @Column(name = "aprobat_de")
+    private UUID aprobatDe;
+    // ... [restul de 83 linii omise pentru concizie in blueprint; codul complet este accesibil la link-ul de mai sus]
 ```
 
-#### 127. [`OrdinPlataRepo.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/OrdinPlataRepo.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/OrdinPlataRepo.java`
-* **Tip Componentă**: `Domain Repository Port (Port de Persistență Hexagonal)`
-* **Descriere**: Implementare a componentei `OrdinPlataRepo.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 129. 📄 [`OrdinPlataRepo.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/OrdinPlataRepo.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/OrdinPlataRepo.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/OrdinPlataRepo.java)
+* **Rol Arhitectural (Sprint 2)**: `Domain Repository Port (Port de Persistență Hexagonal)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `OrdinPlataRepo.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.facturi.domain;
 
@@ -4395,11 +4616,11 @@ public interface OrdinPlataRepo {
 }
 ```
 
-#### 128. [`ReconciliereService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/ReconciliereService.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/ReconciliereService.java`
-* **Tip Componentă**: `Clasă de Domeniu`
-* **Descriere**: Domain Service pentru reconcilierea in 3 cai (Three-Way Match: Factura vs. Comanda vs. NIR). Pure Domain: fara Spring.
-* **Secvență de Cod**:
+### 130. 📄 [`ReconciliereService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/ReconciliereService.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/ReconciliereService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/ReconciliereService.java)
+* **Rol Arhitectural (Sprint 2)**: `Clasă de Domeniu Pure`
+* **Descriere de Business & Invarianți**: Domain Service pentru reconcilierea in 3 cai (Three-Way Match: Factura vs. Comanda vs. NIR). Pure Domain: fara Spring.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.facturi.domain;
 
@@ -4441,14 +4662,16 @@ public class ReconciliereService {
             if (ls == null) {
                 diferente.add("Materialul " + lf.getMaterial() + " din factura nu exista pe comanda");
             } else {
-    // ... [restul de 10 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
+                if (!t.acopera(ls.pretUnitar(), lf.getPretUnitar().getValoare())) {
+                    diferente.add("Pretul facturat (" + lf.getPretUnitar().getValoare() + ") difera de pretul din comanda (" + ls.pretUnitar() + ") pt " + lf.getMaterial());
+    // ... [restul de 8 linii omise pentru concizie in blueprint; codul complet este accesibil la link-ul de mai sus]
 ```
 
-#### 129. [`RezultatReconciliere.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/RezultatReconciliere.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/RezultatReconciliere.java`
-* **Tip Componentă**: `Value Object (Obiect Valoare Imutabil DDD)`
-* **Descriere**: Implementare a componentei `RezultatReconciliere.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 131. 📄 [`RezultatReconciliere.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/RezultatReconciliere.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/RezultatReconciliere.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/RezultatReconciliere.java)
+* **Rol Arhitectural (Sprint 2)**: `Value Object (Obiect Valoare Imutabil DDD)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `RezultatReconciliere.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.facturi.domain;
 
@@ -4468,11 +4691,11 @@ public record RezultatReconciliere(
 }
 ```
 
-#### 130. [`StareFactura.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/StareFactura.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/StareFactura.java`
-* **Tip Componentă**: `Value Object (Obiect Valoare Imutabil DDD)`
-* **Descriere**: Implementare a componentei `StareFactura.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 132. 📄 [`StareFactura.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/StareFactura.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/StareFactura.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/StareFactura.java)
+* **Rol Arhitectural (Sprint 2)**: `Value Object (Obiect Valoare Imutabil DDD)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `StareFactura.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.facturi.domain;
 
@@ -4491,11 +4714,11 @@ public enum StareFactura {
 }
 ```
 
-#### 131. [`StareNIR.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/StareNIR.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/StareNIR.java`
-* **Tip Componentă**: `Value Object (Obiect Valoare Imutabil DDD)`
-* **Descriere**: Implementare a componentei `StareNIR.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 133. 📄 [`StareNIR.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/StareNIR.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/StareNIR.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/StareNIR.java)
+* **Rol Arhitectural (Sprint 2)**: `Value Object (Obiect Valoare Imutabil DDD)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `StareNIR.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.facturi.domain;
 
@@ -4512,11 +4735,11 @@ public enum StareNIR {
 }
 ```
 
-#### 132. [`StareOrdinPlata.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/StareOrdinPlata.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/StareOrdinPlata.java`
-* **Tip Componentă**: `Value Object (Obiect Valoare Imutabil DDD)`
-* **Descriere**: Implementare a componentei `StareOrdinPlata.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 134. 📄 [`StareOrdinPlata.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/StareOrdinPlata.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/StareOrdinPlata.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/StareOrdinPlata.java)
+* **Rol Arhitectural (Sprint 2)**: `Value Object (Obiect Valoare Imutabil DDD)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `StareOrdinPlata.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.facturi.domain;
 
@@ -4534,11 +4757,11 @@ public enum StareOrdinPlata {
 }
 ```
 
-#### 133. [`Suma.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/Suma.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/Suma.java`
-* **Tip Componentă**: `Value Object (Obiect Valoare Imutabil DDD)`
-* **Descriere**: Implementare a componentei `Suma.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 135. 📄 [`Suma.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/Suma.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/Suma.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/Suma.java)
+* **Rol Arhitectural (Sprint 2)**: `Value Object (Obiect Valoare Imutabil DDD)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `Suma.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.facturi.domain;
 
@@ -4580,14 +4803,16 @@ public final class Suma implements Serializable {
 
     public Suma adauga(Suma alta) {
         Objects.requireNonNull(alta, "alta suma cannot be null");
-    // ... [restul de 41 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
+        if (!this.moneda.equals(alta.moneda)) {
+            throw new IllegalArgumentException("Cannot add different currencies: " + this.moneda + " vs " + alta.moneda);
+    // ... [restul de 39 linii omise pentru concizie in blueprint; codul complet este accesibil la link-ul de mai sus]
 ```
 
-#### 134. [`Toleranta.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/Toleranta.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/Toleranta.java`
-* **Tip Componentă**: `Value Object (Obiect Valoare Imutabil DDD)`
-* **Descriere**: Value Object pentru verificarea incadrarii in toleranta de reconciliere (+- procent).
-* **Secvență de Cod**:
+### 136. 📄 [`Toleranta.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/Toleranta.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/Toleranta.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/Toleranta.java)
+* **Rol Arhitectural (Sprint 2)**: `Value Object (Obiect Valoare Imutabil DDD)`
+* **Descriere de Business & Invarianți**: Value Object pentru verificarea incadrarii in toleranta de reconciliere (+- procent).
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.facturi.domain;
 
@@ -4629,14 +4854,16 @@ public final class Toleranta implements Serializable {
         this.procent = procent;
     }
 
-    // ... [restul de 47 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
+    public static Toleranta standard() {
+        return new Toleranta(DEFAULT_PROCENT);
+    // ... [restul de 45 linii omise pentru concizie in blueprint; codul complet este accesibil la link-ul de mai sus]
 ```
 
-#### 135. [`ValoareFactura.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/ValoareFactura.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/ValoareFactura.java`
-* **Tip Componentă**: `Value Object (Obiect Valoare Imutabil DDD)`
-* **Descriere**: Implementare a componentei `ValoareFactura.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 137. 📄 [`ValoareFactura.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/ValoareFactura.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/ValoareFactura.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/ValoareFactura.java)
+* **Rol Arhitectural (Sprint 2)**: `Value Object (Obiect Valoare Imutabil DDD)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `ValoareFactura.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.facturi.domain;
 
@@ -4678,266 +4905,20 @@ public final class ValoareFactura implements Serializable {
         Objects.requireNonNull(valoareTotala, "valoareTotala cannot be null");
         this.valoareFaraTVA = valoareFaraTVA.setScale(2, RoundingMode.HALF_UP);
         this.valoareTVA = valoareTVA.setScale(2, RoundingMode.HALF_UP);
-    // ... [restul de 38 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
-```
-
-### Director: src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/factory
-
-> **Rol Director**: Fabrici de asamblare a facturilor și a documentelor de recepție în depozit (NIR).
-
-#### 136. [`FacturaFactory.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/factory/FacturaFactory.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/factory/FacturaFactory.java`
-* **Tip Componentă**: `Domain Factory (Fabrică de Agregate DDD)`
-* **Descriere**: Aggregate Factory pentru FacturaFurnizor (Sprint 2 - ADR-003). Garanteaza initializarea consistenta a facturii in starea initiala Inregistrata si calculul invariant al valorilor de linie.
-* **Secvență de Cod**:
-```java
-package ro.uaic.feaa.sdbis.supplychain.facturi.domain.factory;
-
-import ro.uaic.feaa.sdbis.supplychain.facturi.domain.FacturaFurnizor;
-import ro.uaic.feaa.sdbis.supplychain.facturi.domain.LinieFactura;
-import ro.uaic.feaa.sdbis.supplychain.shared.IdComanda;
-import ro.uaic.feaa.sdbis.supplychain.shared.IdFurnizor;
-import ro.uaic.feaa.sdbis.supplychain.shared.annotation.DomainFactory;
-import ro.uaic.feaa.sdbis.supplychain.shared.exception.DomainValidationException;
-
-import java.time.LocalDate;
-import java.util.Currency;
-import java.util.List;
-import java.util.UUID;
-
-/**
- * Aggregate Factory pentru FacturaFurnizor (Sprint 2 - ADR-003).
- * Garanteaza initializarea consistenta a facturii in starea initiala Inregistrata
- * si calculul invariant al valorilor de linie.
- */
-@DomainFactory
-public class FacturaFactory {
-
-    public static FacturaFurnizor creeaza(String serie,
-                                          String numar,
-                                          LocalDate dataEmitere,
-                                          LocalDate dataScadenta,
-                                          IdComanda comandaId,
-                                          IdFurnizor furnizorId,
-                                          List<LinieFactura> linii,
-                                          Currency moneda) {
-        if (serie == null || serie.trim().isEmpty()) {
-            throw new DomainValidationException("SERIE_LIPSA", "Seria facturii este obligatorie!");
-        }
-        if (numar == null || numar.trim().isEmpty()) {
-            throw new DomainValidationException("NUMAR_LIPSA", "Numarul facturii este obligatoriu!");
-        }
-        if (dataEmitere == null) {
-            throw new DomainValidationException("DATA_EMITERE_LIPSA", "Data emiterii facturii este obligatorie!");
-        }
-        if (dataScadenta == null) {
-    // ... [restul de 22 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
-```
-
-#### 137. [`NIRFactory.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/factory/NIRFactory.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/factory/NIRFactory.java`
-* **Tip Componentă**: `Domain Factory (Fabrică de Agregate DDD)`
-* **Descriere**: Aggregate Factory pentru NIR (Nota de Intrare-Receptie) (Sprint 2 - ADR-003). Garanteaza crearea conforma si idempotenta a receptiei de marfa.
-* **Secvență de Cod**:
-```java
-package ro.uaic.feaa.sdbis.supplychain.facturi.domain.factory;
-
-import ro.uaic.feaa.sdbis.supplychain.facturi.domain.LinieNIR;
-import ro.uaic.feaa.sdbis.supplychain.facturi.domain.NIR;
-import ro.uaic.feaa.sdbis.supplychain.shared.IdComanda;
-import ro.uaic.feaa.sdbis.supplychain.shared.annotation.DomainFactory;
-import ro.uaic.feaa.sdbis.supplychain.shared.exception.DomainValidationException;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.UUID;
-
-/**
- * Aggregate Factory pentru NIR (Nota de Intrare-Receptie) (Sprint 2 - ADR-003).
- * Garanteaza crearea conforma si idempotenta a receptiei de marfa.
- */
-@DomainFactory
-public class NIRFactory {
-
-    public static NIR creeaza(String numarNIR,
-                             IdComanda comandaId,
-                             UUID eventSursaId,
-                             LocalDate dataReceptie,
-                             List<LinieNIR> linii) {
-        if (numarNIR == null || numarNIR.trim().isEmpty()) {
-            throw new DomainValidationException("NUMAR_NIR_LIPSA", "Numarul NIR-ului este obligatoriu!");
-        }
-        if (comandaId == null) {
-            throw new DomainValidationException("COMANDA_LIPSA", "NIR-ul trebuie asociat unei comenzi!");
-        }
-        if (eventSursaId == null) {
-            throw new DomainValidationException("EVENT_SURSA_LIPSA", "Identificatorul evenimentului sursa este obligatoriu pentru idempotenta!");
-        }
-        if (dataReceptie == null) {
-            throw new DomainValidationException("DATA_RECEPTIE_LIPSA", "Data receptiei este obligatorie!");
-        }
-        if (linii == null || linii.isEmpty()) {
-            throw new DomainValidationException("LINII_NIR_LIPSA", "NIR-ul trebuie sa contina cel putin o linie de receptie!");
-        }
-
-    // ... [restul de 4 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
-```
-
-### Director: src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/policy
-
-> **Rol Director**: Politici de autorizare a plăților condiționate de absența blocajelor sau a rapoartelor de neconformitate deschise.
-
-#### 138. [`PoliticaAutorizarePlata.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/policy/PoliticaAutorizarePlata.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/policy/PoliticaAutorizarePlata.java`
-* **Tip Componentă**: `Domain Policy (Politică de Business DDD)`
-* **Descriere**: Politica de autorizare a platilor (Other Business Rules - ADR-003 / Project_OOAD): 1. Principiul celor 4 ochi (Four-Eyes Principle): Creatorul ordinului de plata NU poate fi aprobatorul platii. 2. Conditie stare factura: Factura trebuie sa fie AprobataLaPlata sau PartialPlatita.
-* **Secvență de Cod**:
-```java
-package ro.uaic.feaa.sdbis.supplychain.facturi.domain.policy;
-
-import ro.uaic.feaa.sdbis.supplychain.facturi.domain.StareFactura;
-import ro.uaic.feaa.sdbis.supplychain.facturi.domain.Suma;
-import ro.uaic.feaa.sdbis.supplychain.shared.annotation.DomainPolicy;
-
-import java.math.BigDecimal;
-import java.util.Objects;
-import java.util.UUID;
-
-/**
- * Politica de autorizare a platilor (Other Business Rules - ADR-003 / Project_OOAD):
- * 1. Principiul celor 4 ochi (Four-Eyes Principle): Creatorul ordinului de plata NU poate fi aprobatorul platii.
- * 2. Conditie stare factura: Factura trebuie sa fie AprobataLaPlata sau PartialPlatita.
- * 3. Prag autorizare CFO: Platile ce depasesc 20,000 RON necesita aprobarea Directorului Financiar (CFO).
- */
-@DomainPolicy
-public class PoliticaAutorizarePlata {
-
-    public static final BigDecimal PRAG_CFO = BigDecimal.valueOf(20000.00);
-
-    public boolean respectaFourEyesPrinciple(UUID creatorId, UUID aprobatorId) {
-        Objects.requireNonNull(creatorId, "creatorId cannot be null");
-        Objects.requireNonNull(aprobatorId, "aprobatorId cannot be null");
-        return !creatorId.equals(aprobatorId);
+        this.valoareTotala = valoareTotala.setScale(2, RoundingMode.HALF_UP);
     }
-
-    public boolean necesitaAprobareCFO(Suma suma) {
-        Objects.requireNonNull(suma, "suma cannot be null");
-        return suma.getValoare().compareTo(PRAG_CFO) > 0;
-    }
-
-    public boolean esteStareFacturaEligibila(StareFactura stareFactura) {
-        return stareFactura == StareFactura.AprobataLaPlata || stareFactura == StareFactura.PartialPlatita;
-    }
-
-    public void valideazaAutorizare(UUID creatorId, UUID aprobatorId, Suma suma, StareFactura stareFactura, boolean esteCFO) {
-        if (!respectaFourEyesPrinciple(creatorId, aprobatorId)) {
-            throw new IllegalStateException("Four-Eyes Principle incalcat: Creatorul ordinului de plata (" 
-                    + creatorId + ") nu poate fi acelasi cu aprobatorul platii.");
-    // ... [restul de 13 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
+    // ... [restul de 36 linii omise pentru concizie in blueprint; codul complet este accesibil la link-ul de mai sus]
 ```
 
-### Director: src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/validation
+## 📁 Director: `src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/computation`
+* **Modul de Business**: `Bounded Context: Facturi`
+* **Rol în Arhitectură**: Algoritmul de calcul matematic 3-Way Matching (reconciliere cantitate și preț între Comandă, NIR și Factură).
 
-> **Rol Director**: Servicii de validare a conformității fiscale a facturii și a datelor bancare ale beneficiarului.
-
-#### 139. [`FacturaValidationService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/validation/FacturaValidationService.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/validation/FacturaValidationService.java`
-* **Tip Componentă**: `Validation Service (Serviciu de Validare a Domeniului)`
-* **Descriere**: Implementare Domain Validation Service pentru Facturi si 3-Way Matching (Sprint 2 - ADR-003). Respecta izolarea pura de domeniu si separarea de context Bounded Context (ADR-011).
-* **Secvență de Cod**:
-```java
-package ro.uaic.feaa.sdbis.supplychain.facturi.domain.validation;
-
-import ro.uaic.feaa.sdbis.supplychain.facturi.domain.ComandaSummaryVO;
-import ro.uaic.feaa.sdbis.supplychain.facturi.domain.FacturaFurnizor;
-import ro.uaic.feaa.sdbis.supplychain.facturi.domain.LinieSumar;
-import ro.uaic.feaa.sdbis.supplychain.facturi.domain.NIR;
-import ro.uaic.feaa.sdbis.supplychain.facturi.domain.StareFactura;
-import ro.uaic.feaa.sdbis.supplychain.shared.annotation.DomainValidationService;
-import ro.uaic.feaa.sdbis.supplychain.shared.exception.DomainValidationException;
-
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.Objects;
-
-/**
- * Implementare Domain Validation Service pentru Facturi si 3-Way Matching (Sprint 2 - ADR-003).
- * Respecta izolarea pura de domeniu si separarea de context Bounded Context (ADR-011).
- */
-@DomainValidationService
-public class FacturaValidationService implements IFacturaValidationService {
-
-    @Override
-    public void valideazaFacturaInregistrare(FacturaFurnizor factura) {
-        Objects.requireNonNull(factura, "Factura nu poate fi null!");
-
-        if (factura.getSerie() == null || factura.getSerie().trim().isEmpty()) {
-            throw new DomainValidationException("SERIE_FACTURA_LIPSA", "Seria facturii este obligatorie!");
-        }
-        if (factura.getNumar() == null || factura.getNumar().trim().isEmpty()) {
-            throw new DomainValidationException("NUMAR_FACTURA_LIPSA", "Numarul facturii este obligatoriu!");
-        }
-        if (factura.getDataScadenta().isBefore(factura.getDataEmitere())) {
-            throw new DomainValidationException("SCADENTA_INVALIDA", "Data scadenta nu poate fi anterioara datei emiterii facturii!");
-        }
-        if (factura.getLinii() == null || factura.getLinii().isEmpty()) {
-            throw new DomainValidationException("LINII_FACTURA_LIPSA", "Factura trebuie sa contina cel putin o linie!");
-        }
-        if (factura.getValoare() == null || factura.getValoare().getValoareTotala().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new DomainValidationException("VALOARE_FACTURA_INVALIDA", "Valoarea totala a facturii trebuie sa fie strict pozitiva!");
-        }
-    // ... [restul de 60 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
-```
-
-#### 140. [`IFacturaValidationService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/validation/IFacturaValidationService.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/validation/IFacturaValidationService.java`
-* **Tip Componentă**: `Validation Service (Serviciu de Validare a Domeniului)`
-* **Descriere**: Contract pentru Serviciul de Validare a Domeniului Facturare & Reconciliere (ADR-003). Respecta izolarea stricta a Bounded Context-ului facturi (ADR-011).
-* **Secvență de Cod**:
-```java
-package ro.uaic.feaa.sdbis.supplychain.facturi.domain.validation;
-
-import ro.uaic.feaa.sdbis.supplychain.facturi.domain.ComandaSummaryVO;
-import ro.uaic.feaa.sdbis.supplychain.facturi.domain.FacturaFurnizor;
-import ro.uaic.feaa.sdbis.supplychain.facturi.domain.NIR;
-
-import ro.uaic.feaa.sdbis.supplychain.shared.annotation.DomainValidationService;
-
-import java.math.BigDecimal;
-
-/**
- * Contract pentru Serviciul de Validare a Domeniului Facturare & Reconciliere (ADR-003).
- * Respecta izolarea stricta a Bounded Context-ului facturi (ADR-011).
- */
-@DomainValidationService
-public interface IFacturaValidationService {
-
-    /**
-     * Valideaza datele de baza la inregistrarea unei facturi de la furnizor.
-     */
-    void valideazaFacturaInregistrare(FacturaFurnizor factura);
-
-    /**
-     * Valideaza reconcilierea 3-Way Match (Comanda vs NIR vs Factura) conform tolerantei stabilite.
-     */
-    void valideaza3WayMatch(FacturaFurnizor factura, NIR nir, ComandaSummaryVO comanda, double tolerantaProcentualaMax);
-
-    /**
-     * Valideaza emiterea unui ordin de plata in raport cu starea facturii si restul de plata.
-     */
-    void valideazaOrdinPlata(FacturaFurnizor factura, BigDecimal sumaPlata);
-}
-```
-
-### Director: src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/computation
-
-> **Rol Director**: Algoritmul de reconciliere matematică 3-Way Matching (cantitate comandată vs. cantitate NIR vs. cantitate facturată).
-
-#### 141. [`IReconciliereComputationService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/computation/IReconciliereComputationService.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/computation/IReconciliereComputationService.java`
-* **Tip Componentă**: `Computation Service (Serviciu de Calcul Matematic)`
-* **Descriere**: Contract pentru Serviciul de Calcul Financiar si Reconciliere (Sprint 2 - ADR-003).
-* **Secvență de Cod**:
+### 138. 📄 [`IReconciliereComputationService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/computation/IReconciliereComputationService.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/computation/IReconciliereComputationService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/computation/IReconciliereComputationService.java)
+* **Rol Arhitectural (Sprint 2)**: `Computation Service (Serviciu de Calcul Matematic)`
+* **Descriere de Business & Invarianți**: Contract pentru Serviciul de Calcul Financiar si Reconciliere (Sprint 2 - ADR-003).
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.facturi.domain.computation;
 
@@ -4970,11 +4951,11 @@ public interface IReconciliereComputationService {
 }
 ```
 
-#### 142. [`PlatiSummaryView.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/computation/PlatiSummaryView.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/computation/PlatiSummaryView.java`
-* **Tip Componentă**: `Value Object (Obiect Valoare Imutabil DDD)`
-* **Descriere**: Entity View Computation: Proiectie sumarizata a indicatorilor de plati si facturi (Sprint 2 - ADR-003).
-* **Secvență de Cod**:
+### 139. 📄 [`PlatiSummaryView.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/computation/PlatiSummaryView.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/computation/PlatiSummaryView.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/computation/PlatiSummaryView.java)
+* **Rol Arhitectural (Sprint 2)**: `Value Object (Obiect Valoare Imutabil DDD)`
+* **Descriere de Business & Invarianți**: Entity View Computation: Proiectie sumarizata a indicatorilor de plati si facturi (Sprint 2 - ADR-003).
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.facturi.domain.computation;
 
@@ -4997,11 +4978,11 @@ public record PlatiSummaryView(
 ) implements Serializable {}
 ```
 
-#### 143. [`ReconciliereComputationService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/computation/ReconciliereComputationService.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/computation/ReconciliereComputationService.java`
-* **Tip Componentă**: `Computation Service (Serviciu de Calcul Matematic)`
-* **Descriere**: Implementare a Serviciului de Calcul Financiar si Reconciliere Facturi (Sprint 2 - ADR-003). Respecta izolarea pura de domeniu (ADR-011).
-* **Secvență de Cod**:
+### 140. 📄 [`ReconciliereComputationService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/computation/ReconciliereComputationService.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/computation/ReconciliereComputationService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/computation/ReconciliereComputationService.java)
+* **Rol Arhitectural (Sprint 2)**: `Computation Service (Serviciu de Calcul Matematic)`
+* **Descriere de Business & Invarianți**: Implementare a Serviciului de Calcul Financiar si Reconciliere Facturi (Sprint 2 - ADR-003). Respecta izolarea pura de domeniu (ADR-011).
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.facturi.domain.computation;
 
@@ -5043,18 +5024,20 @@ public class ReconciliereComputationService implements IReconciliereComputationS
         }
 
         BigDecimal totalFacturat = BigDecimal.ZERO;
-    // ... [restul de 55 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
+        BigDecimal totalAchitat = BigDecimal.ZERO;
+        BigDecimal totalRestant = BigDecimal.ZERO;
+    // ... [restul de 53 linii omise pentru concizie in blueprint; codul complet este accesibil la link-ul de mai sus]
 ```
 
-### Director: src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/event
+## 📁 Director: `src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/event`
+* **Modul de Business**: `Bounded Context: Facturi`
+* **Rol în Arhitectură**: Evenimentele de domeniu emise la reconcilierea facturilor, apropierea scadenței sau autorizarea plăților.
 
-> **Rol Director**: Evenimentele emise la autorizarea sau executarea plăților și la detectarea discrepanțelor.
-
-#### 144. [`PlataExecutataEvent.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/event/PlataExecutataEvent.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/event/PlataExecutataEvent.java`
-* **Tip Componentă**: `Clasă de Domeniu`
-* **Descriere**: Implementare a componentei `PlataExecutataEvent.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 141. 📄 [`PlataExecutataEvent.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/event/PlataExecutataEvent.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/event/PlataExecutataEvent.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/event/PlataExecutataEvent.java)
+* **Rol Arhitectural (Sprint 2)**: `Clasă de Domeniu Pure`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `PlataExecutataEvent.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.facturi.domain.event;
 
@@ -5072,11 +5055,11 @@ public record PlataExecutataEvent(
 ) implements DomainEvent {}
 ```
 
-#### 145. [`ScadentaApropiataEvent.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/event/ScadentaApropiataEvent.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/event/ScadentaApropiataEvent.java`
-* **Tip Componentă**: `Clasă de Domeniu`
-* **Descriere**: Implementare a componentei `ScadentaApropiataEvent.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 142. 📄 [`ScadentaApropiataEvent.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/event/ScadentaApropiataEvent.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/event/ScadentaApropiataEvent.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/event/ScadentaApropiataEvent.java)
+* **Rol Arhitectural (Sprint 2)**: `Clasă de Domeniu Pure`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `ScadentaApropiataEvent.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.facturi.domain.event;
 
@@ -5093,110 +5076,271 @@ public record ScadentaApropiataEvent(
 ) implements DomainEvent {}
 ```
 
-# LAYER 2: INFRASTRUCTURE CONFIGURATION LAYER (Asamblarea Domeniului IoC fără Poluare)
+## 📁 Director: `src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/factory`
+* **Modul de Business**: `Bounded Context: Facturi`
+* **Rol în Arhitectură**: Fabricile de creare a facturilor furnizor și a notelor de intrare recepție (NIR).
 
-## 2.1 Compoziția de Dependențe (@Configuration & @Bean)
-
-### Director: src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/infrastructure/configuration
-
-> **Rol Director**: Asamblarea serviciilor, politicilor și fabricilor modulului Comenzi în containerul Spring IoC.
-
-#### 146. [`ComenziDomainConfig.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/infrastructure/configuration/ComenziDomainConfig.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/infrastructure/configuration/ComenziDomainConfig.java`
-* **Tip Componentă**: `Spring Domain Configuration (@Configuration & @Bean)`
-* **Descriere**: Implementare a componentei `ComenziDomainConfig.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 143. 📄 [`FacturaFactory.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/factory/FacturaFactory.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/factory/FacturaFactory.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/factory/FacturaFactory.java)
+* **Rol Arhitectural (Sprint 2)**: `Domain Factory (Fabrică de Agregate DDD)`
+* **Descriere de Business & Invarianți**: Aggregate Factory pentru FacturaFurnizor (Sprint 2 - ADR-003). Garanteaza initializarea consistenta a facturii in starea initiala Inregistrata
+* **Secvență de Cod (Implementare)**:
 ```java
-package ro.uaic.feaa.sdbis.supplychain.comenzi.infrastructure.configuration;
+package ro.uaic.feaa.sdbis.supplychain.facturi.domain.factory;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.EstimareLeadTimeService;
-import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.computation.ComandaComputationService;
-import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.computation.IComandaComputationService;
-import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.policy.PoliticaAprobareComanda;
-import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.validation.ComandaValidationService;
-import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.validation.IComandaValidationService;
+import ro.uaic.feaa.sdbis.supplychain.facturi.domain.FacturaFurnizor;
+import ro.uaic.feaa.sdbis.supplychain.facturi.domain.LinieFactura;
+import ro.uaic.feaa.sdbis.supplychain.shared.IdComanda;
+import ro.uaic.feaa.sdbis.supplychain.shared.IdFurnizor;
+import ro.uaic.feaa.sdbis.supplychain.shared.annotation.DomainFactory;
+import ro.uaic.feaa.sdbis.supplychain.shared.exception.DomainValidationException;
 
-@Configuration
-public class ComenziDomainConfig {
+import java.time.LocalDate;
+import java.util.Currency;
+import java.util.List;
+import java.util.UUID;
 
-    @Bean
-    public EstimareLeadTimeService estimareLeadTimeService() {
-        return new EstimareLeadTimeService();
+/**
+ * Aggregate Factory pentru FacturaFurnizor (Sprint 2 - ADR-003).
+ * Garanteaza initializarea consistenta a facturii in starea initiala Inregistrata
+ * si calculul invariant al valorilor de linie.
+ */
+@DomainFactory
+public class FacturaFactory {
+
+    public static FacturaFurnizor creeaza(String serie,
+                                          String numar,
+                                          LocalDate dataEmitere,
+                                          LocalDate dataScadenta,
+                                          IdComanda comandaId,
+                                          IdFurnizor furnizorId,
+                                          List<LinieFactura> linii,
+                                          Currency moneda) {
+        if (serie == null || serie.trim().isEmpty()) {
+            throw new DomainValidationException("SERIE_LIPSA", "Seria facturii este obligatorie!");
+        }
+        if (numar == null || numar.trim().isEmpty()) {
+            throw new DomainValidationException("NUMAR_LIPSA", "Numarul facturii este obligatoriu!");
+        }
+        if (dataEmitere == null) {
+            throw new DomainValidationException("DATA_EMITERE_LIPSA", "Data emiterii facturii este obligatorie!");
+        }
+        if (dataScadenta == null) {
+            throw new DomainValidationException("DATA_SCADENTA_LIPSA", "Data scadenta a facturii este obligatorie!");
+        }
+    // ... [restul de 20 linii omise pentru concizie in blueprint; codul complet este accesibil la link-ul de mai sus]
+```
+
+### 144. 📄 [`NIRFactory.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/factory/NIRFactory.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/factory/NIRFactory.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/factory/NIRFactory.java)
+* **Rol Arhitectural (Sprint 2)**: `Domain Factory (Fabrică de Agregate DDD)`
+* **Descriere de Business & Invarianți**: Aggregate Factory pentru NIR (Nota de Intrare-Receptie) (Sprint 2 - ADR-003). Garanteaza crearea conforma si idempotenta a receptiei de marfa.
+* **Secvență de Cod (Implementare)**:
+```java
+package ro.uaic.feaa.sdbis.supplychain.facturi.domain.factory;
+
+import ro.uaic.feaa.sdbis.supplychain.facturi.domain.LinieNIR;
+import ro.uaic.feaa.sdbis.supplychain.facturi.domain.NIR;
+import ro.uaic.feaa.sdbis.supplychain.shared.IdComanda;
+import ro.uaic.feaa.sdbis.supplychain.shared.annotation.DomainFactory;
+import ro.uaic.feaa.sdbis.supplychain.shared.exception.DomainValidationException;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.UUID;
+
+/**
+ * Aggregate Factory pentru NIR (Nota de Intrare-Receptie) (Sprint 2 - ADR-003).
+ * Garanteaza crearea conforma si idempotenta a receptiei de marfa.
+ */
+@DomainFactory
+public class NIRFactory {
+
+    public static NIR creeaza(String numarNIR,
+                             IdComanda comandaId,
+                             UUID eventSursaId,
+                             LocalDate dataReceptie,
+                             List<LinieNIR> linii) {
+        if (numarNIR == null || numarNIR.trim().isEmpty()) {
+            throw new DomainValidationException("NUMAR_NIR_LIPSA", "Numarul NIR-ului este obligatoriu!");
+        }
+        if (comandaId == null) {
+            throw new DomainValidationException("COMANDA_LIPSA", "NIR-ul trebuie asociat unei comenzi!");
+        }
+        if (eventSursaId == null) {
+            throw new DomainValidationException("EVENT_SURSA_LIPSA", "Identificatorul evenimentului sursa este obligatoriu pentru idempotenta!");
+        }
+        if (dataReceptie == null) {
+            throw new DomainValidationException("DATA_RECEPTIE_LIPSA", "Data receptiei este obligatorie!");
+        }
+        if (linii == null || linii.isEmpty()) {
+            throw new DomainValidationException("LINII_NIR_LIPSA", "NIR-ul trebuie sa contina cel putin o linie de receptie!");
+        }
+
+        UUID idNIR = UUID.randomUUID();
+        return new NIR(idNIR, numarNIR.trim(), comandaId, eventSursaId, dataReceptie, linii);
+    // ... [restul de 2 linii omise pentru concizie in blueprint; codul complet este accesibil la link-ul de mai sus]
+```
+
+## 📁 Director: `src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/policy`
+* **Modul de Business**: `Bounded Context: Facturi`
+* **Rol în Arhitectură**: Politici de autorizare a plăților condiționate de absența blocajelor sau a disputelor calitative.
+
+### 145. 📄 [`PoliticaAutorizarePlata.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/policy/PoliticaAutorizarePlata.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/policy/PoliticaAutorizarePlata.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/policy/PoliticaAutorizarePlata.java)
+* **Rol Arhitectural (Sprint 2)**: `Domain Policy (Politică de Business DDD)`
+* **Descriere de Business & Invarianți**: Politica de autorizare a platilor (Other Business Rules - ADR-003 / Project_OOAD): 1. Principiul celor 4 ochi (Four-Eyes Principle): Creatorul ordinului de plata NU poate fi aprobatorul platii.
+* **Secvență de Cod (Implementare)**:
+```java
+package ro.uaic.feaa.sdbis.supplychain.facturi.domain.policy;
+
+import ro.uaic.feaa.sdbis.supplychain.facturi.domain.StareFactura;
+import ro.uaic.feaa.sdbis.supplychain.facturi.domain.Suma;
+import ro.uaic.feaa.sdbis.supplychain.shared.annotation.DomainPolicy;
+
+import java.math.BigDecimal;
+import java.util.Objects;
+import java.util.UUID;
+
+/**
+ * Politica de autorizare a platilor (Other Business Rules - ADR-003 / Project_OOAD):
+ * 1. Principiul celor 4 ochi (Four-Eyes Principle): Creatorul ordinului de plata NU poate fi aprobatorul platii.
+ * 2. Conditie stare factura: Factura trebuie sa fie AprobataLaPlata sau PartialPlatita.
+ * 3. Prag autorizare CFO: Platile ce depasesc 20,000 RON necesita aprobarea Directorului Financiar (CFO).
+ */
+@DomainPolicy
+public class PoliticaAutorizarePlata {
+
+    public static final BigDecimal PRAG_CFO = BigDecimal.valueOf(20000.00);
+
+    public boolean respectaFourEyesPrinciple(UUID creatorId, UUID aprobatorId) {
+        Objects.requireNonNull(creatorId, "creatorId cannot be null");
+        Objects.requireNonNull(aprobatorId, "aprobatorId cannot be null");
+        return !creatorId.equals(aprobatorId);
     }
 
-    @Bean
-    public IComandaValidationService comandaValidationService() {
-        return new ComandaValidationService();
+    public boolean necesitaAprobareCFO(Suma suma) {
+        Objects.requireNonNull(suma, "suma cannot be null");
+        return suma.getValoare().compareTo(PRAG_CFO) > 0;
     }
 
-    @Bean
-    public IComandaComputationService comandaComputationService() {
-        return new ComandaComputationService();
+    public boolean esteStareFacturaEligibila(StareFactura stareFactura) {
+        return stareFactura == StareFactura.AprobataLaPlata || stareFactura == StareFactura.PartialPlatita;
     }
 
-    @Bean
-    public PoliticaAprobareComanda politicaAprobareComanda() {
-        return new PoliticaAprobareComanda();
+    public void valideazaAutorizare(UUID creatorId, UUID aprobatorId, Suma suma, StareFactura stareFactura, boolean esteCFO) {
+        if (!respectaFourEyesPrinciple(creatorId, aprobatorId)) {
+            throw new IllegalStateException("Four-Eyes Principle incalcat: Creatorul ordinului de plata (" 
+                    + creatorId + ") nu poate fi acelasi cu aprobatorul platii.");
+        }
+
+    // ... [restul de 11 linii omise pentru concizie in blueprint; codul complet este accesibil la link-ul de mai sus]
+```
+
+## 📁 Director: `src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/validation`
+* **Modul de Business**: `Bounded Context: Facturi`
+* **Rol în Arhitectură**: Servicii de validare a corectitudinii fiscale a facturilor și a conturilor IBAN.
+
+### 146. 📄 [`FacturaValidationService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/validation/FacturaValidationService.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/validation/FacturaValidationService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/validation/FacturaValidationService.java)
+* **Rol Arhitectural (Sprint 2)**: `Validation Service (Serviciu de Validare a Domeniului)`
+* **Descriere de Business & Invarianți**: Implementare Domain Validation Service pentru Facturi si 3-Way Matching (Sprint 2 - ADR-003). Respecta izolarea pura de domeniu si separarea de context Bounded Context (ADR-011).
+* **Secvență de Cod (Implementare)**:
+```java
+package ro.uaic.feaa.sdbis.supplychain.facturi.domain.validation;
+
+import ro.uaic.feaa.sdbis.supplychain.facturi.domain.ComandaSummaryVO;
+import ro.uaic.feaa.sdbis.supplychain.facturi.domain.FacturaFurnizor;
+import ro.uaic.feaa.sdbis.supplychain.facturi.domain.LinieSumar;
+import ro.uaic.feaa.sdbis.supplychain.facturi.domain.NIR;
+import ro.uaic.feaa.sdbis.supplychain.facturi.domain.StareFactura;
+import ro.uaic.feaa.sdbis.supplychain.shared.annotation.DomainValidationService;
+import ro.uaic.feaa.sdbis.supplychain.shared.exception.DomainValidationException;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.Objects;
+
+/**
+ * Implementare Domain Validation Service pentru Facturi si 3-Way Matching (Sprint 2 - ADR-003).
+ * Respecta izolarea pura de domeniu si separarea de context Bounded Context (ADR-011).
+ */
+@DomainValidationService
+public class FacturaValidationService implements IFacturaValidationService {
+
+    @Override
+    public void valideazaFacturaInregistrare(FacturaFurnizor factura) {
+        Objects.requireNonNull(factura, "Factura nu poate fi null!");
+
+        if (factura.getSerie() == null || factura.getSerie().trim().isEmpty()) {
+            throw new DomainValidationException("SERIE_FACTURA_LIPSA", "Seria facturii este obligatorie!");
+        }
+        if (factura.getNumar() == null || factura.getNumar().trim().isEmpty()) {
+            throw new DomainValidationException("NUMAR_FACTURA_LIPSA", "Numarul facturii este obligatoriu!");
+        }
+        if (factura.getDataScadenta().isBefore(factura.getDataEmitere())) {
+            throw new DomainValidationException("SCADENTA_INVALIDA", "Data scadenta nu poate fi anterioara datei emiterii facturii!");
+        }
+        if (factura.getLinii() == null || factura.getLinii().isEmpty()) {
+            throw new DomainValidationException("LINII_FACTURA_LIPSA", "Factura trebuie sa contina cel putin o linie!");
+        }
+        if (factura.getValoare() == null || factura.getValoare().getValoareTotala().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new DomainValidationException("VALOARE_FACTURA_INVALIDA", "Valoarea totala a facturii trebuie sa fie strict pozitiva!");
+        }
     }
+
+    // ... [restul de 58 linii omise pentru concizie in blueprint; codul complet este accesibil la link-ul de mai sus]
+```
+
+### 147. 📄 [`IFacturaValidationService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/validation/IFacturaValidationService.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/validation/IFacturaValidationService.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/validation/IFacturaValidationService.java)
+* **Rol Arhitectural (Sprint 2)**: `Validation Service (Serviciu de Validare a Domeniului)`
+* **Descriere de Business & Invarianți**: Contract pentru Serviciul de Validare a Domeniului Facturare & Reconciliere (ADR-003). Respecta izolarea stricta a Bounded Context-ului facturi (ADR-011).
+* **Secvență de Cod (Implementare)**:
+```java
+package ro.uaic.feaa.sdbis.supplychain.facturi.domain.validation;
+
+import ro.uaic.feaa.sdbis.supplychain.facturi.domain.ComandaSummaryVO;
+import ro.uaic.feaa.sdbis.supplychain.facturi.domain.FacturaFurnizor;
+import ro.uaic.feaa.sdbis.supplychain.facturi.domain.NIR;
+
+import ro.uaic.feaa.sdbis.supplychain.shared.annotation.DomainValidationService;
+
+import java.math.BigDecimal;
+
+/**
+ * Contract pentru Serviciul de Validare a Domeniului Facturare & Reconciliere (ADR-003).
+ * Respecta izolarea stricta a Bounded Context-ului facturi (ADR-011).
+ */
+@DomainValidationService
+public interface IFacturaValidationService {
+
+    /**
+     * Valideaza datele de baza la inregistrarea unei facturi de la furnizor.
+     */
+    void valideazaFacturaInregistrare(FacturaFurnizor factura);
+
+    /**
+     * Valideaza reconcilierea 3-Way Match (Comanda vs NIR vs Factura) conform tolerantei stabilite.
+     */
+    void valideaza3WayMatch(FacturaFurnizor factura, NIR nir, ComandaSummaryVO comanda, double tolerantaProcentualaMax);
+
+    /**
+     * Valideaza emiterea unui ordin de plata in raport cu starea facturii si restul de plata.
+     */
+    void valideazaOrdinPlata(FacturaFurnizor factura, BigDecimal sumaPlata);
 }
 ```
 
-### Director: src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/infrastructure/configuration
+## 📁 Director: `src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/infrastructure/configuration`
+* **Modul de Business**: `Bounded Context: Facturi`
+* **Rol în Arhitectură**: Configurația Spring (@Configuration, @Bean) ce expune serviciile de reconciliere și validare ca bean-uri Singleton.
 
-> **Rol Director**: Asamblarea serviciilor, politicilor și fabricilor modulului Calitate în containerul Spring IoC.
-
-#### 147. [`CalitateDomainConfig.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/infrastructure/configuration/CalitateDomainConfig.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/infrastructure/configuration/CalitateDomainConfig.java`
-* **Tip Componentă**: `Spring Domain Configuration (@Configuration & @Bean)`
-* **Descriere**: Implementare a componentei `CalitateDomainConfig.java` din modulul de afaceri.
-* **Secvență de Cod**:
-```java
-package ro.uaic.feaa.sdbis.supplychain.calitate.infrastructure.configuration;
-
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import ro.uaic.feaa.sdbis.supplychain.calitate.domain.AlocareInspectorService;
-import ro.uaic.feaa.sdbis.supplychain.calitate.domain.CalculScorecardService;
-import ro.uaic.feaa.sdbis.supplychain.calitate.domain.policy.PoliticaSelectieAQL;
-import ro.uaic.feaa.sdbis.supplychain.calitate.domain.validation.CalitateValidationService;
-import ro.uaic.feaa.sdbis.supplychain.calitate.domain.validation.ICalitateValidationService;
-
-@Configuration
-public class CalitateDomainConfig {
-
-    @Bean
-    public CalculScorecardService calculScorecardService() {
-        return new CalculScorecardService();
-    }
-
-    @Bean
-    public AlocareInspectorService alocareInspectorService() {
-        return new AlocareInspectorService();
-    }
-
-    @Bean
-    public ICalitateValidationService calitateValidationService() {
-        return new CalitateValidationService();
-    }
-
-    @Bean
-    public PoliticaSelectieAQL politicaSelectieAQL() {
-        return new PoliticaSelectieAQL();
-    }
-}
-```
-
-### Director: src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/infrastructure/configuration
-
-> **Rol Director**: Asamblarea serviciilor, politicilor și fabricilor modulului Facturi în containerul Spring IoC.
-
-#### 148. [`FacturiDomainConfig.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/infrastructure/configuration/FacturiDomainConfig.java)
-* **Cale Fișier**: `src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/infrastructure/configuration/FacturiDomainConfig.java`
-* **Tip Componentă**: `Spring Domain Configuration (@Configuration & @Bean)`
-* **Descriere**: Implementare a componentei `FacturiDomainConfig.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 148. 📄 [`FacturiDomainConfig.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/infrastructure/configuration/FacturiDomainConfig.java)
+* **Path Local Direct**: [`src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/infrastructure/configuration/FacturiDomainConfig.java`](file:///C:/Users/bmugu/Desktop/app/src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/infrastructure/configuration/FacturiDomainConfig.java)
+* **Rol Arhitectural (Sprint 2)**: `Spring Domain Configuration (@Configuration & @Bean)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `FacturiDomainConfig.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.facturi.infrastructure.configuration;
 
@@ -5234,19 +5378,15 @@ public class FacturiDomainConfig {
 }
 ```
 
-# LAYER 3: DOMAIN UNIT TESTS LAYER (Suita de Testare Automată a Regulilor Sprint 2 - DoD)
+## 📁 Director: `src/test/java/ro/uaic/feaa/sdbis/supplychain/unit`
+* **Modul de Business**: `Domain Unit Tests (Sprint 2 DoD)`
+* **Rol în Arhitectură**: Suitele complete de teste unitare care validează invarianții, regulile de calcul, validările și mașinile de stări conform criteriilor Definition of Done din Sprintul 2.
 
-## 3.1 Teste Unitare de Domeniu Pure (JUnit 5 & AssertJ)
-
-### Director: src/test/java/ro/uaic/feaa/sdbis/supplychain/unit
-
-> **Rol Director**: Suitele complete de teste unitare care validează invarianții, regulile de calcul, validările și mașinile de stări conform criteriilor Definition of Done din Sprintul 2.
-
-#### 149. [`ComputationRulesTest.java`](file:///C:/Users/bmugu/Desktop/app/src/test/java/ro/uaic/feaa/sdbis/supplychain/unit/ComputationRulesTest.java)
-* **Cale Fișier**: `src/test/java/ro/uaic/feaa/sdbis/supplychain/unit/ComputationRulesTest.java`
-* **Tip Componentă**: `JUnit 5 Unit Test Suite (Test de Domeniu)`
-* **Descriere**: Implementare a componentei `ComputationRulesTest.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 149. 📄 [`ComputationRulesTest.java`](file:///C:/Users/bmugu/Desktop/app/src/test/java/ro/uaic/feaa/sdbis/supplychain/unit/ComputationRulesTest.java)
+* **Path Local Direct**: [`src/test/java/ro/uaic/feaa/sdbis/supplychain/unit/ComputationRulesTest.java`](file:///C:/Users/bmugu/Desktop/app/src/test/java/ro/uaic/feaa/sdbis/supplychain/unit/ComputationRulesTest.java)
+* **Rol Arhitectural (Sprint 2)**: `JUnit 5 Unit Test Suite (Test de Domeniu Sprint 2 DoD)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `ComputationRulesTest.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.unit;
 
@@ -5288,14 +5428,16 @@ public class ComputationRulesTest {
         Scor sD = Scor.ponderat(BigDecimal.valueOf(50.0), BigDecimal.valueOf(50.0), BigDecimal.valueOf(60.0));
         assertEquals(Calificativ.D, sD.calificativ());
     }
-    // ... [restul de 40 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
+
+    @Test
+    // ... [restul de 38 linii omise pentru concizie in blueprint; codul complet este accesibil la link-ul de mai sus]
 ```
 
-#### 150. [`ComputationServicesTest.java`](file:///C:/Users/bmugu/Desktop/app/src/test/java/ro/uaic/feaa/sdbis/supplychain/unit/ComputationServicesTest.java)
-* **Cale Fișier**: `src/test/java/ro/uaic/feaa/sdbis/supplychain/unit/ComputationServicesTest.java`
-* **Tip Componentă**: `JUnit 5 Unit Test Suite (Test de Domeniu)`
-* **Descriere**: Implementare a componentei `ComputationServicesTest.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 150. 📄 [`ComputationServicesTest.java`](file:///C:/Users/bmugu/Desktop/app/src/test/java/ro/uaic/feaa/sdbis/supplychain/unit/ComputationServicesTest.java)
+* **Path Local Direct**: [`src/test/java/ro/uaic/feaa/sdbis/supplychain/unit/ComputationServicesTest.java`](file:///C:/Users/bmugu/Desktop/app/src/test/java/ro/uaic/feaa/sdbis/supplychain/unit/ComputationServicesTest.java)
+* **Rol Arhitectural (Sprint 2)**: `JUnit 5 Unit Test Suite (Test de Domeniu Sprint 2 DoD)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `ComputationServicesTest.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.unit;
 
@@ -5337,14 +5479,16 @@ public class ComputationServicesTest {
         comandaComputationService = new ComandaComputationService();
         calculScorecardService = new CalculScorecardService();
         reconciliereComputationService = new ReconciliereComputationService();
-    // ... [restul de 188 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
+    }
+
+    // ... [restul de 186 linii omise pentru concizie in blueprint; codul complet este accesibil la link-ul de mai sus]
 ```
 
-#### 151. [`ValidationRulesTest.java`](file:///C:/Users/bmugu/Desktop/app/src/test/java/ro/uaic/feaa/sdbis/supplychain/unit/ValidationRulesTest.java)
-* **Cale Fișier**: `src/test/java/ro/uaic/feaa/sdbis/supplychain/unit/ValidationRulesTest.java`
-* **Tip Componentă**: `JUnit 5 Unit Test Suite (Test de Domeniu)`
-* **Descriere**: Implementare a componentei `ValidationRulesTest.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 151. 📄 [`ValidationRulesTest.java`](file:///C:/Users/bmugu/Desktop/app/src/test/java/ro/uaic/feaa/sdbis/supplychain/unit/ValidationRulesTest.java)
+* **Path Local Direct**: [`src/test/java/ro/uaic/feaa/sdbis/supplychain/unit/ValidationRulesTest.java`](file:///C:/Users/bmugu/Desktop/app/src/test/java/ro/uaic/feaa/sdbis/supplychain/unit/ValidationRulesTest.java)
+* **Rol Arhitectural (Sprint 2)**: `JUnit 5 Unit Test Suite (Test de Domeniu Sprint 2 DoD)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `ValidationRulesTest.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.unit;
 
@@ -5386,14 +5530,16 @@ public class ValidationRulesTest {
         LocalDate start = LocalDate.of(2026, 3, 1);
         LocalDate end = LocalDate.of(2026, 3, 31);
         Perioada p = Perioada.of(start, end);
-    // ... [restul de 28 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
+        assertTrue(p.includeData(LocalDate.of(2026, 3, 15)));
+
+    // ... [restul de 26 linii omise pentru concizie in blueprint; codul complet este accesibil la link-ul de mai sus]
 ```
 
-#### 152. [`ValidationServicesTest.java`](file:///C:/Users/bmugu/Desktop/app/src/test/java/ro/uaic/feaa/sdbis/supplychain/unit/ValidationServicesTest.java)
-* **Cale Fișier**: `src/test/java/ro/uaic/feaa/sdbis/supplychain/unit/ValidationServicesTest.java`
-* **Tip Componentă**: `JUnit 5 Unit Test Suite (Test de Domeniu)`
-* **Descriere**: Implementare a componentei `ValidationServicesTest.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 152. 📄 [`ValidationServicesTest.java`](file:///C:/Users/bmugu/Desktop/app/src/test/java/ro/uaic/feaa/sdbis/supplychain/unit/ValidationServicesTest.java)
+* **Path Local Direct**: [`src/test/java/ro/uaic/feaa/sdbis/supplychain/unit/ValidationServicesTest.java`](file:///C:/Users/bmugu/Desktop/app/src/test/java/ro/uaic/feaa/sdbis/supplychain/unit/ValidationServicesTest.java)
+* **Rol Arhitectural (Sprint 2)**: `JUnit 5 Unit Test Suite (Test de Domeniu Sprint 2 DoD)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `ValidationServicesTest.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.unit;
 
@@ -5435,14 +5581,16 @@ public class ValidationServicesTest {
 
     private IComandaValidationService comandaValidationService;
     private ICalitateValidationService calitateValidationService;
-    // ... [restul de 493 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
+    private IFacturaValidationService facturaValidationService;
+    private Validator validator;
+    // ... [restul de 491 linii omise pentru concizie in blueprint; codul complet este accesibil la link-ul de mai sus]
 ```
 
-#### 153. [`WorkflowRulesTest.java`](file:///C:/Users/bmugu/Desktop/app/src/test/java/ro/uaic/feaa/sdbis/supplychain/unit/WorkflowRulesTest.java)
-* **Cale Fișier**: `src/test/java/ro/uaic/feaa/sdbis/supplychain/unit/WorkflowRulesTest.java`
-* **Tip Componentă**: `JUnit 5 Unit Test Suite (Test de Domeniu)`
-* **Descriere**: Implementare a componentei `WorkflowRulesTest.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 153. 📄 [`WorkflowRulesTest.java`](file:///C:/Users/bmugu/Desktop/app/src/test/java/ro/uaic/feaa/sdbis/supplychain/unit/WorkflowRulesTest.java)
+* **Path Local Direct**: [`src/test/java/ro/uaic/feaa/sdbis/supplychain/unit/WorkflowRulesTest.java`](file:///C:/Users/bmugu/Desktop/app/src/test/java/ro/uaic/feaa/sdbis/supplychain/unit/WorkflowRulesTest.java)
+* **Rol Arhitectural (Sprint 2)**: `JUnit 5 Unit Test Suite (Test de Domeniu Sprint 2 DoD)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `WorkflowRulesTest.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.unit;
 
@@ -5484,14 +5632,16 @@ public class WorkflowRulesTest {
         comanda.inregistreazaReceptie(lot1, Cantitate.of(40.0, "TO"));
         assertEquals(StareComanda.ReceptionatPartial, comanda.getStareComanda());
 
-    // ... [restul de 35 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
+        // Cancel order: lot2 (Planificat) must become Anulat, while lot1 (SositInDepozit) remains unchanged
+        ComandaAnulataEvent event = comanda.anuleazaComanda();
+    // ... [restul de 33 linii omise pentru concizie in blueprint; codul complet este accesibil la link-ul de mai sus]
 ```
 
-#### 154. [`WorkflowServicesTest.java`](file:///C:/Users/bmugu/Desktop/app/src/test/java/ro/uaic/feaa/sdbis/supplychain/unit/WorkflowServicesTest.java)
-* **Cale Fișier**: `src/test/java/ro/uaic/feaa/sdbis/supplychain/unit/WorkflowServicesTest.java`
-* **Tip Componentă**: `JUnit 5 Unit Test Suite (Test de Domeniu)`
-* **Descriere**: Implementare a componentei `WorkflowServicesTest.java` din modulul de afaceri.
-* **Secvență de Cod**:
+### 154. 📄 [`WorkflowServicesTest.java`](file:///C:/Users/bmugu/Desktop/app/src/test/java/ro/uaic/feaa/sdbis/supplychain/unit/WorkflowServicesTest.java)
+* **Path Local Direct**: [`src/test/java/ro/uaic/feaa/sdbis/supplychain/unit/WorkflowServicesTest.java`](file:///C:/Users/bmugu/Desktop/app/src/test/java/ro/uaic/feaa/sdbis/supplychain/unit/WorkflowServicesTest.java)
+* **Rol Arhitectural (Sprint 2)**: `JUnit 5 Unit Test Suite (Test de Domeniu Sprint 2 DoD)`
+* **Descriere de Business & Invarianți**: Componentă a modelului de business `WorkflowServicesTest.java`.
+* **Secvență de Cod (Implementare)**:
 ```java
 package ro.uaic.feaa.sdbis.supplychain.unit;
 
@@ -5533,5 +5683,11 @@ public class WorkflowServicesTest {
         assertEquals(StareComanda.Confirmat, comanda.getStareComanda());
 
         // 3. Planificare lot si expediere (InTranzit)
-    // ... [restul de 128 linii omise pentru concizie in catalog; fisierul complet este la path-ul indicat]
+        IdLot lot1 = comanda.planificaLot("LOT-T1", mat, Cantitate.of(100.0, "MP"), LocalDate.now(), LocalDate.now().plusYears(1));
+        IdLot lot2 = comanda.planificaLot("LOT-T2", mat, Cantitate.of(100.0, "MP"), LocalDate.now(), LocalDate.now().plusYears(1));
+    // ... [restul de 126 linii omise pentru concizie in blueprint; codul complet este accesibil la link-ul de mai sus]
 ```
+
+---
+
+**Total fișiere indexate în Blueprint**: 154 fișiere Java exclusiv pentru Sprintul 2.
