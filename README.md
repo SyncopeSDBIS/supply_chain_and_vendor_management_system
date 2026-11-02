@@ -1,58 +1,60 @@
-# Supply Chain & Vendor Management System (Procure-to-Pay)
+# Supply Chain and Vendor Management System (Procure-to-Pay)
 
-Sistem enterprise de gestiune a lanțului de aprovizionare și a relațiilor cu furnizorii (**Procure-to-Pay - P2P**), implementat conform principiilor **Domain-Driven Design (DDD)**, **Arhitecturii Hexagonale (Ports & Adapters)**, modelului **Event-Driven Architecture (EDA)** cu tranzacționalitate garantată prin șabloanele **Transactional Outbox / Idempotent Inbox**, integrat cu procesatorul de plăți **Stripe** și brokerul de mesagerie **RabbitMQ**.
+Enterprise-grade **Procure-to-Pay (P2P)** system implementing **Domain-Driven Design (DDD)**, **Hexagonal Architecture (Ports & Adapters)**, and **Event-Driven Architecture (EDA)** with guaranteed atomicity through the **Transactional Outbox / Idempotent Inbox** patterns. Fully integrated with **RabbitMQ** for asynchronous messaging and **Stripe** for payment execution.
 
-Proiectul este aliniat 1:1 cu specificațiile academice și industriale din **Project_OOAD.docx** și cerințele evaluate în Sprinturile 1–4 (cu accent pe nucleul de domeniu bogat din **Sprintul 2 / ADR-003**).
-
----
-
-## 📑 Cuprins
-1. [Ghid Rapid de Pornire (Quick Start)](#-1-ghid-rapid-de-pornire-quick-start)
-   - [Metoda A: Rulare Completă prin Docker Compose (Recomandat)](#metoda-a-rulare-completă-prin-docker-compose-recomandat)
-   - [Metoda B: Rulare Hibridă (Postgres & RabbitMQ în Docker + App Local)](#metoda-b-rulare-hibridă-baza-și-brokerul-în-docker--aplicația-local)
-   - [Metoda C: Rulare Locală Minimală (H2 In-Memory, Fără Docker)](#metoda-c-rulare-locală-minimală-h2-in-memory-fără-docker)
-2. [Puncte de Acces, Porturi & Credențiale](#-2-puncte-de-acces-porturi--credențiale)
-3. [Cum se Utilizează și se Testează Aplicația](#-3-cum-se-utilizează-și-se-testează-aplicația)
-   - [Testare Interactivă prin Swagger UI](#31-testare-interactivă-prin-swagger-ui)
-   - [Testare End-to-End prin Colecția Postman](#32-testare-end-to-end-prin-colecția-postman)
-   - [Monitorizare Asincronă în RabbitMQ Dashboard](#33-monitorizare-asincronă-în-rabbitmq-dashboard)
-   - [Conectare Directă la Baza de Date PostgreSQL](#34-conectare-directă-la-baza-de-date-postgresql)
-4. [Ghid de Depanare (Troubleshooting & FAQ)](#-4-ghid-de-depanare-troubleshooting--faq)
-   - [Eroare Flyway: Migration Checksum Mismatch](#1-eroare-flyway-migration-checksum-mismatch)
-   - [Aplicația este în stare Restarting sau Health Starting](#2-aplicația-este-în-stare-restarting-sau-health-starting)
-   - [Porturile 8080, 5433 sau 5672 sunt deja ocupate](#3-porturile-8080-5433-sau-5672-sunt-deja-ocupate)
-5. [Rularea Testelor Automate (Unit, BDD, ArchUnit, SLA)](#-5-rularea-testelor-automate)
-6. [Arhitectură, Bounded Contexts & Reguli de Domeniu](#-6-arhitectură-bounded-contexts--reguli-de-domeniu)
-7. [Documentație Suplimentară a Proiectului](#-7-documentație-suplimentară-a-proiectului)
+Strictly aligned 1:1 with academic and enterprise specifications from **Project_OOAD.docx** and course milestones across Sprints 1–4, emphasizing the Rich Domain Model of **Sprint 2 (ADR-003)**.
 
 ---
 
-## 🚀 1. Ghid Rapid de Pornire (Quick Start)
-
-### Cerințe Preliminare
-* **Docker Desktop** instalat și pornit (cu Docker Compose v2+).
-* *(Opțional pentru rulare fără container)*: **Java 21 JDK** și **Maven 3.9+** (sau se utilizează wrapper-ul inclus `mvnw` / `mvnw.cmd`).
+## 📑 Table of Contents
+1. [Quick Start Guide](#-1-quick-start-guide)
+   - [Method A: Full Containerized Execution via Docker Compose (Recommended)](#method-a-full-containerized-execution-via-docker-compose-recommended)
+   - [Method B: Hybrid Local Development (Postgres & RabbitMQ in Docker + App Local)](#method-b-hybrid-local-development-postgres--rabbitmq-in-docker--app-local)
+   - [Method C: Standalone In-Memory Execution (H2 Database, No Docker Required)](#method-c-standalone-in-memory-execution-h2-database-no-docker-required)
+2. [Access Points, Ports & Default Credentials](#-2-access-points-ports--default-credentials)
+3. [How to Use and Test the Application](#-3-how-to-use-and-test-the-application)
+   - [Interactive Testing via Swagger UI](#31-interactive-testing-via-swagger-ui)
+   - [End-to-End Testing via Postman Collection](#32-end-to-end-testing-via-postman-collection)
+   - [Asynchronous Event Monitoring in RabbitMQ Dashboard](#33-asynchronous-event-monitoring-in-rabbitmq-dashboard)
+   - [Direct Database Inspection (PostgreSQL)](#34-direct-database-inspection-postgresql)
+4. [Troubleshooting & FAQ](#-4-troubleshooting--faq)
+   - [Flyway Error: Migration Checksum Mismatch](#1-flyway-error-migration-checksum-mismatch)
+   - [Application in Restarting or Health Starting State](#2-application-in-restarting-or-health-starting-state)
+   - [Port Conflicts (8080, 5433, or 5672 Already in Use)](#3-port-conflicts-8080-5433-or-5672-already-in-use)
+5. [Automated Test Execution (Unit, BDD, ArchUnit, SLA)](#-5-automated-test-execution)
+6. [Architecture, Bounded Contexts & Domain Invariants](#-6-architecture-bounded-contexts--domain-invariants)
+   - [Business Rules & SLA Performance Matrix](#business-rules--sla-performance-matrix-table-12)
+7. [Project Documentation & Blueprints](#-7-project-documentation--blueprints)
 
 ---
 
-### Metoda A: Rulare Completă prin Docker Compose (Recomandat)
-Această metodă construiește și pornește automat întreaga stivă: aplicația Spring Boot 3.3.5, baza de date PostgreSQL 16 și brokerul RabbitMQ 3 Management.
+## 🚀 1. Quick Start Guide
 
-1. **Deschide un terminal** (PowerShell sau Command Prompt) în rădăcina proiectului:
-   ```powershell
-   cd c:\Users\bmugu\Desktop\app
+### Prerequisites
+* **Docker & Docker Compose** (Docker Desktop on Windows/macOS or Docker Engine + Compose v2+ on Linux).
+* *(Optional for local Maven builds without containers)*: **Java 21 JDK** and **Maven 3.9+** (or use the bundled `mvnw` / `mvnw.cmd` wrapper scripts).
+
+---
+
+### Method A: Full Containerized Execution via Docker Compose (Recommended)
+This approach automatically provisions and connects the entire enterprise stack: Spring Boot 3.3.5 application, PostgreSQL 16 database, and RabbitMQ 3 Management message broker.
+
+1. **Open a terminal** in the root directory of the project:
+   ```bash
+   # Navigate to the project root directory
+   cd path/to/project-root
    ```
 
-2. **Pornește containerele cu build curat**:
-   ```powershell
+2. **Build and start the multi-container stack in detached mode**:
+   ```bash
    docker-compose up --build -d
    ```
 
-3. **Verifică starea serviciilor**:
-   ```powershell
+3. **Check container status and health**:
+   ```bash
    docker-compose ps
    ```
-   *După circa 20–30 secunde (necesare compilării, inițializării Flyway și pornirii Spring Boot), toate cele 3 containere trebuie să fie în starea `healthy`:*
+   *Within approximately 20–30 seconds (allowing for Maven compile, Flyway migrations, and Spring Boot bootup), all three containers will report `healthy`:*
    ```text
    NAME                   IMAGE                          STATUS
    supplychain-app        app-app                        Up (healthy)   0.0.0.0:8080->8080/tcp
@@ -60,231 +62,239 @@ Această metodă construiește și pornește automat întreaga stivă: aplicați
    supplychain-rabbitmq   rabbitmq:3-management-alpine   Up (healthy)   0.0.0.0:5672->5672/tcp, 0.0.0.0:15672->15672/tcp
    ```
 
-4. **Pentru a opri aplicația**:
-   ```powershell
+4. **To stop and shut down all containers**:
+   ```bash
    docker-compose down
    ```
 
 ---
 
-### Metoda B: Rulare Hibridă (Baza și Brokerul în Docker + Aplicația Local)
-Utilă pentru dezvoltare activă și debugging direct în IDE (IntelliJ IDEA / VS Code / Eclipse):
+### Method B: Hybrid Local Development (Postgres & RabbitMQ in Docker + App Local)
+Recommended for active coding and step-by-step debugging inside an IDE (IntelliJ IDEA, VS Code, or Eclipse):
 
-1. **Pornește doar infrastructura de suport (PostgreSQL și RabbitMQ)**:
-   ```powershell
+1. **Start only the backing infrastructure services**:
+   ```bash
    docker-compose up -d postgres rabbitmq
    ```
 
-2. **Pornește aplicația Spring Boot local folosind profilul `postgres`**:
-   * Pe Windows:
+2. **Run the Spring Boot application locally using the `postgres` profile**:
+   * **Windows (PowerShell / Command Prompt)**:
      ```powershell
      .\mvnw.cmd spring-boot:run -Dspring-boot.run.profiles=postgres
      ```
-   * Pe Linux / macOS:
+   * **Linux / macOS**:
      ```bash
      ./mvnw spring-boot:run -Dspring-boot.run.profiles=postgres
      ```
 
 ---
 
-### Metoda C: Rulare Locală Minimală (H2 In-Memory, Fără Docker)
-Dacă nu dorești să utilizezi Docker, aplicația deține o configurație implicită autonomă ce rulează pe baza de date în memorie **H2** (în mod de compatibilitate PostgreSQL):
+### Method C: Standalone In-Memory Execution (H2 Database, No Docker Required)
+For lightweight local verification without Docker installed, the application provides an embedded **H2 database** configuration operating in PostgreSQL compatibility mode:
 
-```powershell
-.\mvnw.cmd spring-boot:run
-```
-*Aplicația va porni instantaneu pe portul `8080`, creând tabelele automate în memoria RAM.*
+* **Windows**:
+  ```powershell
+  .\mvnw.cmd spring-boot:run
+  ```
+* **Linux / macOS**:
+  ```bash
+  ./mvnw spring-boot:run
+  ```
+*The application starts immediately on port `8080`, holding all tables and entities transiently in RAM.*
 
 ---
 
-## 🌐 2. Puncte de Acces, Porturi & Credențiale
+## 🌐 2. Access Points, Ports & Default Credentials
 
-Odată pornită aplicația (prin Docker sau local), accesează serviciile prin următoarele linkuri:
+Once the system is up and running, access all services via the following endpoints:
 
-| Serviciu | URL de Acces | Credențiale / Notă | Descriere |
+| Service / Tool | Access URL | Credentials / Notes | Purpose |
 | :--- | :--- | :--- | :--- |
-| **Swagger UI** | [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html) | *Fără autentificare* | Interfață web interactivă pentru explorarea și testarea tuturor endpoint-urilor REST |
-| **OpenAPI Docs (JSON)** | [http://localhost:8080/api-docs](http://localhost:8080/api-docs) | *Fără autentificare* | Specificația tehnică OpenAPI 3.0 pentru import în alte instrumente |
-| **RabbitMQ Management** | [http://localhost:15672](http://localhost:15672) | **User:** `guest`<br>**Parolă:** `guest` | Panou de control web pentru cozi, topicuri și mesaje asincrone |
-| **Spring Actuator Health**| [http://localhost:8080/actuator/health](http://localhost:8080/actuator/health) | *Fără autentificare* | Diagnostic de sănătate (stare conexiuni DB, RabbitMQ, DiskSpace) |
-| **Actuator Metrics** | [http://localhost:8080/actuator/metrics](http://localhost:8080/actuator/metrics) | *Fără autentificare* | Metrici JVM, trafic HTTP, pool-uri de conexiuni HikariCP |
-| **Baza de Date PostgreSQL**| `localhost:5433` *(extern)*<br>`postgres:5432` *(intern)* | **DB:** `supplychain_db`<br>**User:** `supplychain`<br>**Parolă:** `supplychain_secret` | Conectare din clienți SQL externi (DBeaver, pgAdmin, DataGrip) |
-| **RabbitMQ AMQP Broker** | `localhost:5672` | **User:** `guest`<br>**Parolă:** `guest` | Portul binar de mesagerie utilizat de Spring AMQP |
+| **Interactive Swagger UI** | [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html) | *No authentication required* | Interactive API playground to inspect and execute all REST endpoints live |
+| **OpenAPI Specification (JSON)** | [http://localhost:8080/api-docs](http://localhost:8080/api-docs) | *No authentication required* | OpenAPI 3.0 contract definition for client generation and tooling |
+| **RabbitMQ Management Dashboard** | [http://localhost:15672](http://localhost:15672) | **User:** `guest`<br>**Password:** `guest` | Web UI to monitor exchanges, queues, consumer rates, and dead-letter channels |
+| **Spring Boot Actuator Health** | [http://localhost:8080/actuator/health](http://localhost:8080/actuator/health) | *No authentication required* | Healthcheck probes (Postgres connectivity, RabbitMQ broker, disk space) |
+| **Spring Boot Actuator Metrics** | [http://localhost:8080/actuator/metrics](http://localhost:8080/actuator/metrics) | *No authentication required* | Observability metrics (JVM heap, HikariCP connection pool, HTTP request rates) |
+| **PostgreSQL Database** | `localhost:5433` *(host mapped)*<br>`postgres:5432` *(internal)* | **DB:** `supplychain_db`<br>**User:** `supplychain`<br>**Password:** `supplychain_secret` | Direct database connection for SQL clients (DBeaver, pgAdmin, DataGrip) |
+| **RabbitMQ AMQP Broker** | `localhost:5672` | **User:** `guest`<br>**Password:** `guest` | Native AMQP protocol wire port consumed by Spring AMQP listeners |
 
 ---
 
-## 🧪 3. Cum se Utilizează și se Testează Aplicația
+## 🧪 3. How to Use and Test the Application
 
-### 3.1. Testare Interactivă prin Swagger UI
-Cea mai rapidă modalitate de a testa funcționalitatea de business fără a instala aplicații terțe:
-1. Deschide în browser: **[http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)**.
-2. Vei vedea rutele grupate pe Bounded Contexts:
-   * `/api/comenzi`: Inițiere comenzi, aprobare, confirmare furnizor, expediere, recepție, anulare în cascadă a loturilor.
-   * `/api/furnizori` & `/api/inspectii`: Calificare furnizori, alocare inspectori, introducere rezultate AQL, emitere rapoarte NCR, calcul scorecard lunar.
-   * `/api/facturi` & `/api/nir`: Înregistrare factură, emitere NIR depozit, declanșare 3-Way Matching, emitere ordine de plată.
-3. Fă click pe un endpoint (ex: `POST /api/comenzi`), apasă butonul **„Try it out”**, modifică corpul JSON dorit și apasă **„Execute”**. Răspunsul HTTP și detaliile calculate de nucleul de domeniu vor apărea imediat dedesubt.
+### 3.1. Interactive Testing via Swagger UI
+The easiest way to explore and execute business workflows directly in your browser:
+1. Open **[http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)** in any modern web browser.
+2. Endpoints are organized across the three Bounded Contexts:
+   * `/api/comenzi`: Purchase order lifecycle (create, confirm, allocate physical lots, dispatch, receive, and atomic cascade cancellation).
+   * `/api/furnizori` & `/api/inspectii`: Supplier onboarding, ISO 2859-1 AQL inspection allocation, non-conformance reports (NCR), and monthly scorecard calculation.
+   * `/api/facturi` & `/api/nir`: Supplier invoice intake, warehouse goods receipt (NIR), automated 3-Way Matching, and payment order dispatch.
+3. Click on any route (e.g. `POST /api/comenzi`), click **"Try it out"**, supply or adjust the JSON request payload, and click **"Execute"**. The server's domain calculation and response will appear immediately below.
 
 ---
 
-### 3.2. Testare End-to-End prin Colecția Postman
-Proiectul include o suită completă de teste API în fișierul:
+### 3.2. End-to-End Testing via Postman Collection
+The repository includes a ready-to-run, comprehensive Postman test suite:
 📁 [`tools/postman/SupplyChain_P2P_Collection.json`](tools/postman/SupplyChain_P2P_Collection.json)
 
-**Instrucțiuni de import și rulare:**
-1. Deschide **Postman** (sau *Insomnia*).
-2. Fă click pe **Import** (colțul din stânga sus) și selectează fișierul `SupplyChain_P2P_Collection.json`.
-3. Verifică ca variabila de mediu a colecției să aibă valoarea:
+**How to import and run:**
+1. Open **Postman** (or *Insomnia*).
+2. Click **Import** in the top left and select `SupplyChain_P2P_Collection.json`.
+3. Verify that the collection environment variable is set:
    * `baseUrl` = `http://localhost:8080`
-4. Colecția este organizată în 5 directoare logice conform fluxului Procure-to-Pay:
-   * **1. Comenzi Aprovizionare (UC1 - UC8)**: Plasare comandă, confirmare furnizor, generare loturi, anulare în cascadă.
-   * **2. Gestiune Furnizori & Calitate (Q1 - Q8)**: Înregistrare furnizor, alocare inspector pe bază de matrice de competențe, verdict AQL, generare raport de neconformitate (NCR).
-   * **3. Facturi, NIR & 3-Way Matching (I1 - I4)**: Recepție NIR, înregistrare factură furnizor, confruntare automată trilaterală cu marjă de toleranță.
-   * **4. Plăți, Ordin de Plată & Stripe Webhooks (I5 - I7)**: Emitere ordin de plată, principiul Four-Eyes (aprobare dublă la sume > 10.000 EUR), simulare webhook-uri semnate Stripe (`payment_intent.succeeded` / `payment_failed`).
-   * **5. Actuator & Healthcheck**: Verificarea stării subsistemelor.
+4. The collection is arranged into 5 ordered folders reflecting real-world business scenarios:
+   * **1. Comenzi Aprovizionare (UC1 - UC8)**: Order placement, supplier confirmation, lot allocation, receipt, and cascade cancellation.
+   * **2. Gestiune Furnizori & Calitate (Q1 - Q8)**: Supplier registration, inspector assignment by qualification matrix, AQL sample verdict, and NCR issuance.
+   * **3. Facturi, NIR & 3-Way Matching (I1 - I4)**: Warehouse NIR generation, supplier invoice submission, and automated trilateral matching with tolerance margins.
+   * **4. Plăți, Ordin de Plată & Stripe Webhooks (I5 - I7)**: Payment order generation, Four-Eyes approval (> 10,000 EUR), and simulated HMAC-signed Stripe webhooks (`payment_intent.succeeded` / `payment_failed`).
+   * **5. Actuator & Healthcheck**: Probing subsystem operational health.
 
 ---
 
-### 3.3. Monitorizare Asincronă în RabbitMQ Dashboard
-1. Deschide [http://localhost:15672](http://localhost:15672) și autentifică-te cu `guest` / `guest`.
-2. Mergi la tab-ul **Queues**:
-   * `comenzi.events.queue` (recepționează evenimente din comenzi)
-   * `calitate.events.queue` (recepționează alerte calitative și blocări furnizori)
-   * `facturi.events.queue` (recepționează evenimente de reconciliere și plăți)
-   * `supplychain.events.dlq` (Dead-Letter Queue pentru mesaje eșuate)
-3. Poți inspecta în timp real modul în care evenimentele serializate din tabela de Outbox sunt preluate și dirijate către cozi.
+### 3.3. Asynchronous Event Monitoring in RabbitMQ Dashboard
+1. Open [http://localhost:15672](http://localhost:15672) and log in with credentials `guest` / `guest`.
+2. Navigate to the **Queues** tab to monitor background message routing:
+   * `comenzi.events.queue`: Receives order placement, cancellation, and goods receipt events.
+   * `calitate.events.queue`: Receives quality verdicts, supplier suspension, and inspection schedules.
+   * `facturi.events.queue`: Receives 3-Way matching completion and payment execution triggers.
+   * `supplychain.events.dlq`: Dead-Letter Queue capturing unprocessable or poisoned messages.
 
 ---
 
-### 3.4. Conectare Directă la Baza de Date PostgreSQL
-Dacă dorești să verifici tabelele persistate și istoricul de audit:
+### 3.4. Direct Database Inspection (PostgreSQL)
+Connect your preferred database client (DBeaver, pgAdmin, DataGrip, or IntelliJ Database Tool):
 * **Host**: `localhost`
 * **Port**: `5433`
 * **Database**: `supplychain_db`
 * **Username**: `supplychain`
 * **Password**: `supplychain_secret`
 
-Tabele principale de inspectat:
-* `comenzi_aprovizionare`, `linii_comanda`, `loturi`: Agregatul de comenzi.
-* `furnizori`, `inspectii_calitate`, `rapoarte_neconformitate`, `scorecarduri_lunare`: Agregatele de calitate.
-* `facturi_furnizori`, `note_intrare_receptie`, `ordine_plata`: Agregatele financiar-contabile.
-* `outbox_events`, `inbox_events`: Tabelele șabloanelor de mesagerie garantată.
-* `shared_audit_log`: Jurnalul imutabil de trasabilitate și audit operațional.
+**Primary Tables to Inspect:**
+* `comenzi_aprovizionare`, `linii_comanda`, `loturi`: Purchase order aggregate structure.
+* `furnizori`, `inspectii_calitate`, `rapoarte_neconformitate`, `scorecarduri_lunare`: Quality and supplier evaluation aggregates.
+* `facturi_furnizori`, `note_intrare_receptie`, `ordine_plata`: Financial accounting and payment aggregates.
+* `outbox_events`, `inbox_events`: Transactional Outbox and Idempotent Consumer tables.
+* `shared_audit_log`: Tamper-evident operational audit trail.
 
 ---
 
-## 🔧 4. Ghid de Depanare (Troubleshooting & FAQ)
+## 🔧 4. Troubleshooting & FAQ
 
-### 1. Eroare Flyway: Migration Checksum Mismatch
-**Simptom:** La pornire, containerul `supplychain-app` intră în `Restarting (1)` și logurile afișează:
+### 1. Flyway Error: Migration Checksum Mismatch
+**Symptom:** During startup, container `supplychain-app` fails and enters `Restarting (1)` with the following log entry:
 ```text
 Caused by: org.flywaydb.core.api.exception.FlywayValidateException: Validate failed: Migrations have failed validation
-Migration checksum mismatch for migration version 1 (sau 2, 3, 4)
+Migration checksum mismatch for migration version 1 (or 2, 3, 4)
 ```
-**Cauză:** Volumul persistent Docker (`postgres_data`) a reținut schema dintr-o versiune anterioară, iar fișierele SQL de migrare din cod au fost modificate între timp sau au diferențe de caractere sfârșit de linie (CRLF vs LF).
-**Rezolvare Rapidă:** Șterge volumul vechi și reconstruiește mediul de la zero:
-```powershell
+**Cause:** The persistent Docker volume (`postgres_data`) retains schema history from an earlier build, while local migration scripts in `src/main/resources/db/migration/` were modified or line endings changed (LF vs. CRLF).  
+**Clean Resolution:** Wipe the stale database volume and start fresh:
+```bash
 docker-compose down -v
 docker-compose up --build -d
 ```
 
 ---
 
-### 2. Aplicația este în stare Restarting sau Health Starting
-**Cum verifici exact ce s-a întâmplat:**
-Afișează ultimele loguri emise de containerul Spring Boot:
-```powershell
+### 2. Application in Restarting or Health Starting State
+**How to diagnose:**  
+Inspect real-time application logs to pinpoint any startup exceptions:
+```bash
 docker-compose logs -f app
 ```
-Dacă observi erori la conectarea către PostgreSQL sau RabbitMQ, asigură-te că aceste două containere sunt `healthy` rulând `docker-compose ps`.
+Ensure that the PostgreSQL and RabbitMQ containers are already in `healthy` status before inspecting the app by checking `docker-compose ps`.
 
 ---
 
-### 3. Porturile 8080, 5433 sau 5672 sunt deja ocupate
-Dacă ai deja o instanță locală de PostgreSQL (de regulă pe portul 5432) sau un server web pe 8080:
-* Portul PostgreSQL din `docker-compose.yml` este deja mapat pe **`5433`** pentru a preveni conflictul cu o instalare nativă de Postgres pe 5432.
-* Dacă dorești să schimbi portul aplicației, poți seta variabila de mediu înaintea rulării:
-  ```powershell
-  $env:POSTGRES_PORT=5435
-  docker-compose up -d
+### 3. Port Conflicts (8080, 5433, or 5672 Already in Use)
+If an existing service is already occupying port 8080 or port 5432:
+* PostgreSQL in `docker-compose.yml` is pre-configured on host port **`5433`** to avoid colliding with default PostgreSQL installations on 5432.
+* To override host ports dynamically, provide environment variables prior to running:
+  ```bash
+  POSTGRES_PORT=5435 docker-compose up -d
   ```
 
 ---
 
-## 🧪 5. Rularea Testelor Automate
+## 🧪 5. Automated Test Execution
 
-Proiectul dispune de o suită cuprinzătoare de teste automatizate (peste 96 de scenarii) împărțite pe mai multe niveluri:
+The codebase is backed by an automated suite of over 96 tests spanning unit, architectural, BDD, and SLA benchmarks:
 
-### Rularea tuturor testelor:
-* Pe Windows:
+### Run the full test suite:
+* **Windows (PowerShell / Command Prompt)**:
   ```powershell
   .\mvnw.cmd test
   ```
-* Pe Linux / macOS:
+* **Linux / macOS**:
   ```bash
   ./mvnw test
   ```
 
-### Categorii de Teste Incluse:
-1. **Teste de Domeniu (Definition of Done - Sprint 2)** (`src/test/java/.../unit`):
-   * `WorkflowRulesTest`: Verifică matricea tranzițiilor de stare și invarianții pe agregate.
-   * `WorkflowServicesTest`: Validează fluxurile inter-agregat și cascadarea anulării loturilor.
-   * `ComputationRulesTest`: Verifică precizia monetară deterministă (`BigDecimal` cu `HALF_UP`).
-   * `ComputationServicesTest`: Verifică formulele de calcul ale scorecard-ului OTIF și reconcilierii.
-   * `ValidationRulesTest`: Verifică aruncarea excepțiilor în constructorii Value Objects.
-   * `ValidationServicesTest`: Testează regulile de eligibilitate ale partenerilor.
-2. **Teste de Arhitectură (ArchUnit)** (`src/test/java/.../architecture`):
-   * `BoundedContextIsolationTest`: Garantează că nu există scurgeri de dependențe între cele 3 Bounded Contexts.
-   * `AggregateEncapsulationTest`: Verifică că entitățile componente au metode de mutație protejate.
-   * `LayerArchitectureTest`: Asigură decuplarea stratului de domeniu de infrastructură și baze de date.
-3. **Teste de Integrare & BDD Gherkin (Cucumber)** (`src/test/java/.../bdd`):
-   * 6 fișiere `.feature` executate automat ce validează fluxurile funcționale de business.
-4. **Teste de Performanță & SLA** (`src/test/java/.../performance`):
-   * `PerformanceAndSlaTest`: Verifică conformitatea cu timpii contractuali (calcul lead-time sub 300 ms, reconciliere 5.000 facturi sub 60 s).
+### Included Test Layers:
+1. **Domain Unit Tests (Definition of Done - Sprint 2)** (`src/test/java/.../unit`):
+   * `WorkflowRulesTest`: Enforces aggregate state machine transitions and invariants (`ComandaAprovizionare`, `Furnizor`, `FacturaFurnizor`).
+   * `WorkflowServicesTest`: Validates end-to-end multi-aggregate orchestration (cascade lot cancellation, inspection booking, 3-Way Matching).
+   * `ComputationRulesTest`: Verifies deterministic monetary math and zero roundoff loss using `BigDecimal` with `HALF_UP`.
+   * `ComputationServicesTest`: Evaluates monthly OTIF scorecard computation and trilateral reconciliation discrepancy formulas.
+   * `ValidationRulesTest`: Validates self-enforcing Value Object constructors throwing `DomainValidationException` on invalid inputs.
+   * `ValidationServicesTest`: Tests partner eligibility rules and inspector qualification checks.
+2. **Architectural Fitness Tests (ArchUnit)** (`src/test/java/.../architecture`):
+   * `BoundedContextIsolationTest`: Guarantees strict zero-leakage boundaries between Comenzi, Calitate, and Facturi.
+   * `AggregateEncapsulationTest`: Enforces package-private mutation rules on internal child entities (`Lot`, `ScorecardLunar`).
+   * `LayerArchitectureTest`: Ensures the domain layer remains strictly decoupled from Spring, JPA, and external infrastructure.
+3. **Integration & BDD Gherkin Tests (Cucumber)** (`src/test/java/.../bdd`):
+   * 6 Gherkin `.feature` specifications covering 11 acceptance scenarios executed via `BddFeaturesTest`.
+4. **Performance & SLA Benchmarks** (`src/test/java/.../performance`):
+   * `PerformanceAndSlaTest`: Proves execution compliance with contractual SLAs (lead time estimation $<300	ext{ ms}$, batch reconciliation of 5,000 invoices $<60	ext{ s}$).
 
 ---
 
-## 🏛️ 6. Arhitectură, Bounded Contexts & Reguli de Domeniu
+## 🏛️ 6. Architecture, Bounded Contexts & Domain Invariants
 
-Sistemul este împărțit în trei contexte delimitate (Bounded Contexts) independente, deservite de un nucleu comun (Shared Kernel):
+The solution is decomposed into three isolated Bounded Contexts united by a minimal Shared Kernel:
 
 ```text
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                                SHARED KERNEL                                │
 │  - Value Objects: Suma, Cantitate, CodMaterial, IdComanda, IdFurnizor, IdLot│
-│  - Mecanismul Transactional Outbox & Inbox (Evenimente de domeniu garantate)│
-│  - Jurnalizare Securizată & Audit Operațional (shared_audit_log)            │
+│  - Transactional Outbox & Idempotent Inbox Entities and Dispatchers        │
+│  - Tamper-evident Audit Logging (shared_audit_log) & Security Filters       │
 └─────────────────────────────────────────────────────────────────────────────┘
               ▲                               ▲                               ▲
               │                               │                               │
 ┌─────────────┴─────────────┐   ┌─────────────┴─────────────┐   ┌─────────────┴─────────────┐
-│      CONTEXT COMENZI      │   │     CONTEXT CALITATE      │   │      CONTEXT FACTURI      │
+│      COMENZI CONTEXT      │   │     CALITATE CONTEXT      │   │      FACTURI CONTEXT      │
 │                           │   │                           │   │                           │
-│ • Agregat:                │   │ • Agregate:               │   │ • Agregate:               │
+│ • Aggregates:             │   │ • Aggregates:             │   │ • Aggregates:             │
 │   - ComandaAprovizionare  │   │   - Furnizor              │   │   - FacturaFurnizor       │
-│   - Lot                   │   │   - InspectieCalitate(AQL)│   │   - NIR                   │
-│ • Rol:                    │   │   - InspectorCalitate     │   │   - OrdinPlata            │
-│   - Gestiune ciclu viață  │   │   - RaportNeconformitate  │   │ • Rol:                    │
-│   - Cascadare anulare lot │   │ • Rol:                    │   │   - 3-Way Matching        │
-│   - Estimare lead-time    │   │   - Eșantionare ISO 2859-1│   │   - Principiul Four-Eyes  │
-│   - Blocare optimistă     │   │   - Scorecard Lunar OTIF  │   │   - Integrare Stripe Webhk│
+│   - Lot                   │   │   - InspectieCalitate(AQL)│   │   - NIR (Receipt Note)    │
+│ • Key Features:           │   │   - InspectorCalitate     │   │   - OrdinPlata (Payment)  │
+│   - Order lifecycle       │   │   - RaportNeconformitate  │   │ • Key Features:           │
+│   - Atomic lot cancellation   │ • Key Features:           │   │   - 3-Way Matching        │
+│   - Lead time forecasting │   │   - ISO 2859-1 Sampling   │   │   - Four-Eyes Principle   │
+│   - Optimistic locking    │   │   - Weighted Scorecard    │   │   - Stripe Webhook HMAC   │
 └───────────────────────────┘   └───────────────────────────┘   └───────────────────────────┘
 ```
 
-### Matricea Regulilor de Business & SLA (Project_OOAD Tabelul 1.2)
-* **BR-PO-01**: Comenzile pot fi plasate doar către furnizori aflați în starea `ACTIV`.
-* **NFR-SLA-04**: Anularea unei comenzi declanșează atomic anularea în cascadă a tuturor loturilor asociate neintrate în depozit.
-* **BR-SQ-02**: Evaluare lunară ponderată a furnizorilor: **60% OTIF** (On-Time In-Full) + **40% Rata de Conformitate a Loturilor**.
-* **BR-SQ-04/05**: Aplicarea planului statistic de eșantionare ISO 2859-1; deschiderea automată a raportului NCR la respingerea lotului.
-* **NFR-SLA-05**: Reconciliere automată trilaterală (3-Way Matching: Comandă vs. NIR vs. Factură) cu marjă de toleranță de $\pm 1\%$ pe cantitate și $\pm 5\text{ EUR}$ pe diferențe de rotunjire TVA.
-* **NFR-SLA-06**: Principiul Four-Eyes (Patru Ochi): plățile sub 10.000 EUR sunt aprobate automat; plățile ce depășesc 10.000 EUR necesită semnătura electronică a unui al doilea ofițer financiar.
-* **ADR-010**: Verificarea criptografică a semnăturilor webhook-urilor Stripe prin header-ul `Stripe-Signature` cu toleranță de 300 secunde împotriva atacurilor de tip replay.
+### Business Rules & SLA Performance Matrix (Table 1.2)
+
+| Rule / SLA ID | Domain Specification & Rule Details | Implementation & Architectural Pattern | Automated Verification Test |
+| :--- | :--- | :--- | :--- |
+| **BR-PO-01** | Orders may only be placed with suppliers in `ACTIV` status. | Hexagonal SPI `IGestiuneFurnizoriAdapter`, 422 Unprocessable Entity | `ValidationServicesTest`, `CreeazaComandaUnitTest` |
+| **NFR-SLA-04** | Cancelling an order triggers atomic cascade cancellation of all unreceived lots. | Aggregate boundary method `ComandaAprovizionare.anuleazaComanda()` | `WorkflowServicesTest`, `CascadeCancellationIntegrationTest` |
+| **BR-SQ-02** | Monthly supplier score: **60% OTIF** (On-Time In-Full) + **40% Lot Compliance Rate**. | Deterministic domain service `CalculScorecardService.calculeaza()` | `ComputationServicesTest`, BDD `scorecard_lunar.feature` |
+| **BR-SQ-04/05** | Statistical sampling via ISO 2859-1; automatic NCR issuance on lot rejection. | State pattern in `InspectieCalitate`, automated `RaportNeconformitate` | `WorkflowRulesTest`, BDD `executa_inspectie.feature` |
+| **NFR-SLA-02** | Idempotent Goods Receipt Note (NIR) processing. | Idempotent consumer validating `NIRRepo.existaNIRPentruEvent` | `PaymentWorkflowIntegrationTest`, `IdempotentNIRTest` |
+| **NFR-SLA-05** | 3-Way Match Reconciliation with $\pm 1\%$ quantity & $\pm 5\text{ EUR}$ VAT tolerance. | `ReconciliereService.reconciliaza()` cross-matching PO vs NIR vs Invoice | `PerformanceAndSlaTest` (5,000 invoices $<60	ext{ s}$) |
+| **NFR-SLA-06** | Four-Eyes Approval Principle: auto-approval $\le 10,000	ext{ EUR}$; second approval for $> 10,000	ext{ EUR}$. | Approval state transition `OrdinPlata.aproba(UUID)` by independent user | `ControlFinanciarUnitTest`, `PaymentWorkflowIntegrationTest` |
+| **NFR-SLA-01** | Lead time forecasting SLA $<300	ext{ ms}$ over 1,000 historical records. | Strategy Pattern in `EstimareLeadTimeService` (Moving Average, Exp Smoothing, P90) | `PerformanceAndSlaTest` ($<300	ext{ ms}$) |
+| **ADR-010** | Cryptographic verification of Stripe webhooks via `Stripe-Signature` with 300s replay window. | HMAC SHA-256 signature check in `StripeBancaPlataAdapter` with audit logging | `PaymentWorkflowIntegrationTest` |
 
 ---
 
-## 📚 7. Documentație Suplimentară a Proiectului
+## 📚 7. Project Documentation & Blueprints
 
-Pentru o aprofundare completă a codului și a deciziilor arhitecturale, consultă documentele din rădăcina proiectului:
-* 📄 [`SPRINT_2_COD_CATALOG.md`](SPRINT_2_COD_CATALOG.md) — **Catalogul și Blueprint-ul Arhitectural 1:1** ce documentează individual toate cele 161 de componente (154 clase Java pure de domeniu + 7 fișiere de infrastructură), cu linkuri relative directe către fiecare fișier de pe disc.
-* 📄 [`pom.xml`](pom.xml) — Configurația Maven, versiunile dependințelor și plugin-urile de build.
-* 📄 [`docker-compose.yml`](docker-compose.yml) — Descrierea serviciilor multi-container și a rețelelor interne.
-* 📄 [`.github/workflows/ci-cd.yml`](.github/workflows/ci-cd.yml) — Pipeline-ul automatizat de integrare continuă în cloud.
+For exhaustive component catalogs, design decisions, and infrastructure blueprints, refer to:
+* 📄 [`SPRINT_2_COD_CATALOG.md`](SPRINT_2_COD_CATALOG.md) — **1:1 Architectural Blueprint & Domain Catalog** detailing all 161 components (154 Rich Domain Java classes + 7 infrastructure/tooling items) with relative navigation links and zero raw code snippets.
+* 📄 [`pom.xml`](pom.xml) — Central Maven Project Object Model configuration (Java 21, Spring Boot 3.3.5, plugins).
+* 📄 [`docker-compose.yml`](docker-compose.yml) — Multi-container service definitions, internal networking, and persistent volumes.
+* 📄 [`.github/workflows/ci-cd.yml`](.github/workflows/ci-cd.yml) — Enterprise GitHub Actions continuous integration pipeline.
