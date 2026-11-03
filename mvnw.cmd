@@ -27,6 +27,22 @@
 @REM   MVNW_VERBOSE - true: enable verbose log; others: silence the output
 @REM ----------------------------------------------------------------------------
 
+@SET "NEED_JDK21=1"
+@IF NOT "%JAVA_HOME%"=="" (
+  @IF EXIST "%JAVA_HOME%\release" (
+    @FINDSTR /M "JAVA_VERSION=.*21" "%JAVA_HOME%\release" >NUL 2>&1
+    @IF NOT ERRORLEVEL 1 @SET "NEED_JDK21=0"
+  )
+)
+@IF "%NEED_JDK21%"=="1" (
+  @FOR /D %%D IN (%USERPROFILE%\.jdks\ms-21* %USERPROFILE%\.jdks\jdk-21* "C:\Program Files\Java\jdk-21*" "C:\Program Files\Eclipse Adoptium\jdk-21*" "C:\Program Files\Microsoft\jdk-21*" "C:\Program Files\Amazon Corretto\jdk21*" "C:\Program Files\BellSoft\LibericaJDK-21*") DO @IF EXIST "%%~fD\bin\java.exe" (
+    @SET "JAVA_HOME=%%~fD"
+    @GOTO found_jdk21
+  )
+)
+:found_jdk21
+@IF NOT "%JAVA_HOME%"=="" @SET "PATH=%JAVA_HOME%\bin;%PATH%"
+
 @IF "%__MVNW_ARG0_NAME__%"=="" (SET __MVNW_ARG0_NAME__=%~nx0)
 @SET __MVNW_CMD__=
 @SET __MVNW_ERROR__=
