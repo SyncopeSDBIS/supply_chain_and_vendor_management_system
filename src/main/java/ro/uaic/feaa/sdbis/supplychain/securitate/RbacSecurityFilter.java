@@ -24,9 +24,18 @@ public class RbacSecurityFilter implements Filter {
 
     private static final Logger log = LoggerFactory.getLogger(RbacSecurityFilter.class);
 
-    private static final Set<String> COMENZI_ROLES = Set.of("ROLE_BUYER", "ROLE_ADMIN", "ROLE_WAREHOUSE_KEEPER", "ROLE_SUPPLIER");
-    private static final Set<String> CALITATE_ROLES = Set.of("ROLE_QUALITY_INSPECTOR", "ROLE_ADMIN");
-    private static final Set<String> FACTURI_ROLES = Set.of("ROLE_ACCOUNTANT", "ROLE_CFO", "ROLE_ADMIN");
+    private static final Set<String> COMENZI_ROLES = Set.of(
+            "ROLE_BUYER", "ROLE_ADMIN", "ROLE_WAREHOUSE_KEEPER", "ROLE_SUPPLIER",
+            "ROLE_REFERENT_APROVIZIONARE", "ROLE_FURNIZOR", "ROLE_MANAGER_ACHIZITII"
+    );
+    private static final Set<String> CALITATE_ROLES = Set.of(
+            "ROLE_QUALITY_INSPECTOR", "ROLE_ADMIN", "ROLE_QUALITY_MANAGER",
+            "ROLE_INSPECTOR_CALITATE", "ROLE_MANAGER_CALITATE", "ROLE_DIRECTOR_CALITATE"
+    );
+    private static final Set<String> FACTURI_ROLES = Set.of(
+            "ROLE_ACCOUNTANT", "ROLE_CFO", "ROLE_ADMIN",
+            "ROLE_CONTABIL", "ROLE_OFITER_FINANCIAR", "ROLE_DIRECTOR_FINANCIAR"
+    );
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)

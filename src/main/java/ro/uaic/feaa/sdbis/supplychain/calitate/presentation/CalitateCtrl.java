@@ -49,10 +49,51 @@ public class CalitateCtrl {
 
         try {
             Iban ibanVo = req.getIban() != null && !req.getIban().isBlank() ? new Iban(req.getIban()) : null;
-            Set<Email> emails = req.getEmail() != null && !req.getEmail().isBlank()
-                    ? Collections.singleton(new Email(req.getEmail()))
-                    : Collections.emptySet();
-            IdFurnizor id = appService.inregistreazaFurnizor(req.getCodFiscal(), req.getDenumire(), null, emails, ibanVo, Collections.emptySet(), null);
+
+            Set<Email> emails = new HashSet<>();
+            if (req.getEmail() != null && !req.getEmail().isBlank()) {
+                emails.add(new Email(req.getEmail()));
+            }
+            if (req.getEmailuri() != null) {
+                for (String em : req.getEmailuri()) {
+                    if (em != null && !em.isBlank()) {
+                        emails.add(new Email(em));
+                    }
+                }
+            }
+
+            Set<String> categorii = req.getCategorii();
+            if (categorii == null || categorii.isEmpty()) {
+                categorii = Set.of("GENERAL");
+            }
+
+            Adresa adresaVo = null;
+            if (req.getAdresa() != null) {
+                var adresaDto = req.getAdresa();
+                String strada = adresaDto.getStrada() != null && !adresaDto.getStrada().isBlank()
+                        ? adresaDto.getStrada() : "Principala";
+                String numar = adresaDto.getNumar() != null && !adresaDto.getNumar().isBlank()
+                        ? adresaDto.getNumar() : "1";
+                String localitate = adresaDto.getLocalitate() != null && !adresaDto.getLocalitate().isBlank()
+                        ? adresaDto.getLocalitate() : "Necunoscut";
+                String codPostal = adresaDto.getCodPostal() != null && !adresaDto.getCodPostal().isBlank()
+                        ? adresaDto.getCodPostal() : "000000";
+                adresaVo = new Adresa(strada, numar, localitate, codPostal);
+            }
+
+            ConditiiContractuale conditiiVo = null;
+            if (req.getTermenPlataZile() != null || (req.getMoneda() != null && !req.getMoneda().isBlank())) {
+                int termen = req.getTermenPlataZile() != null ? req.getTermenPlataZile() : 30;
+                Currency mon;
+                try {
+                    mon = Currency.getInstance(req.getMoneda() != null && !req.getMoneda().isBlank() ? req.getMoneda() : "EUR");
+                } catch (Exception ex) {
+                    mon = Currency.getInstance("EUR");
+                }
+                conditiiVo = new ConditiiContractuale(termen, mon, Collections.emptyMap());
+            }
+
+            IdFurnizor id = appService.inregistreazaFurnizor(req.getCodFiscal(), req.getDenumire(), adresaVo, emails, ibanVo, categorii, conditiiVo);
             Map<String, Object> resp = new HashMap<>();
             resp.put("furnizorId", id.getValue());
             resp.put("codFiscal", req.getCodFiscal());
@@ -70,6 +111,16 @@ public class CalitateCtrl {
         try {
             Iban ibanVo = iban != null && !iban.isBlank() ? new Iban(iban) : null;
             appService.actualizeazaProfilFurnizor(IdFurnizor.of(id), denumire, null, null, ibanVo, null, null);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/furnizori/{id}/aprobare")
+    public ResponseEntity<?> aprobaFurnizor(@PathVariable UUID id) {
+        try {
+            appService.calificaFurnizor(IdFurnizor.of(id), "APROBA", "Aprobat de Director Calitate");
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
