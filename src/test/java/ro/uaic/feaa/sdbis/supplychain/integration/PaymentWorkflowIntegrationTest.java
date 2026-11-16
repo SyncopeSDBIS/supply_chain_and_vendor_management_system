@@ -12,7 +12,6 @@ import ro.uaic.feaa.sdbis.supplychain.shared.CodMaterial;
 import ro.uaic.feaa.sdbis.supplychain.shared.IdComanda;
 import ro.uaic.feaa.sdbis.supplychain.shared.IdFurnizor;
 import ro.uaic.feaa.sdbis.supplychain.shared.IdLot;
-import ro.uaic.feaa.sdbis.supplychain.shared.OutboxRepo;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -38,9 +37,6 @@ public class PaymentWorkflowIntegrationTest {
 
     @Autowired
     private FurnizoriBlocatiRepo furnizoriBlocatiRepo;
-
-    @Autowired
-    private OutboxRepo outboxRepo;
 
     @Autowired
     private NIRRepo nirRepo;

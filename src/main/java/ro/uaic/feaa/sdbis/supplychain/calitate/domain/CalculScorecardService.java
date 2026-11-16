@@ -3,6 +3,7 @@ package ro.uaic.feaa.sdbis.supplychain.calitate.domain;
 import ro.uaic.feaa.sdbis.supplychain.calitate.domain.computation.CalitateDashboardView;
 import ro.uaic.feaa.sdbis.supplychain.calitate.domain.computation.ICalculScorecardService;
 import ro.uaic.feaa.sdbis.supplychain.shared.Perioada;
+import ro.uaic.feaa.sdbis.supplychain.shared.PerformantaLivrariVO;
 import ro.uaic.feaa.sdbis.supplychain.shared.annotation.DomainComputationService;
 
 import java.math.BigDecimal;

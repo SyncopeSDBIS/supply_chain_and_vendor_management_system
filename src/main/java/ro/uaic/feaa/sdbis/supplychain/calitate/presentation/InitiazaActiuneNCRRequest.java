@@ -8,6 +8,8 @@ import java.io.Serializable;
  * Request DTO for initiating corrective action on an NCR.
  */
 public class InitiazaActiuneNCRRequest implements Serializable {
+    private static final long serialVersionUID = 1L;
+
 
     @NotBlank(message = "Descrierea actiunii corective este obligatorie")
     @Size(min = 5, max = 500, message = "Descrierea trebuie sa contina intre 5 si 500 caractere")

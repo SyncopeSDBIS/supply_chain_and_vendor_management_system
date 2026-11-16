@@ -16,19 +16,16 @@ import ro.uaic.feaa.sdbis.supplychain.facturi.domain.FacturaRepo;
 import ro.uaic.feaa.sdbis.supplychain.facturi.domain.LinieFactura;
 import ro.uaic.feaa.sdbis.supplychain.facturi.domain.Suma;
 import ro.uaic.feaa.sdbis.supplychain.infrastructure.scheduler.BusinessSchedulers;
-import ro.uaic.feaa.sdbis.supplychain.shared.CodMaterial;
-import ro.uaic.feaa.sdbis.supplychain.shared.IdComanda;
-import ro.uaic.feaa.sdbis.supplychain.shared.IdFurnizor;
-import ro.uaic.feaa.sdbis.supplychain.shared.OutboxRepo;
-import ro.uaic.feaa.sdbis.supplychain.shared.Perioada;
+import ro.uaic.feaa.sdbis.supplychain.shared.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Currency;
+import java.util.List;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @Transactional
@@ -41,9 +38,6 @@ public class BusinessSchedulersTest {
     private ComandaRepo comandaRepo;
 
     @Autowired
-    private FurnizorRepo furnizorRepo;
-
-    @Autowired
     private InspectorRepo inspectorRepo;
 
     @Autowired
@@ -53,7 +47,7 @@ public class BusinessSchedulersTest {
     private OutboxRepo outboxRepo;
 
     @Test
-    @DisplayName("Test Schedulere: Executia tuturor celor 4 joburi programate de background")
+    @DisplayName("Test Schedulere: Executia tuturor celor 4 joburi programate de background cu verificarea outbox-ului")
     void testAllBusinessSchedulersExecution() {
         // 1. Setup date pentru timeout comenzi neconfirmate (> 48h)
         IdComanda idCmd = IdComanda.random();
@@ -81,10 +75,20 @@ public class BusinessSchedulersTest {
         factura.aproba();
         facturaRepo.add(factura);
 
+        int countBefore = outboxRepo.pollUnpublishedEvents().size();
+
         // Executa schedulerele
-        assertDoesNotThrow(() -> schedulers.verificaTimeoutConfirmareComenzi());
-        assertDoesNotThrow(() -> schedulers.calculScorecardLunarAutomat());
-        assertDoesNotThrow(() -> schedulers.verificaExpirareCertificari());
-        assertDoesNotThrow(() -> schedulers.verificaScadenteFacturi());
+        schedulers.verificaTimeoutConfirmareComenzi();
+        schedulers.calculScorecardLunarAutomat();
+        schedulers.verificaExpirareCertificari();
+        schedulers.verificaScadenteFacturi();
+        schedulers.purjareEvenimenteProcesateOutboxSiInbox();
+
+        List<DomainEvent> outboxEvents = outboxRepo.pollUnpublishedEvents();
+        assertTrue(outboxEvents.size() > countBefore, "Schedulerele trebuie sa adauge evenimente noi in Outbox.");
+        boolean hasCertEvent = outboxEvents.stream().anyMatch(e -> e.getClass().getSimpleName().contains("Certificare"));
+        boolean hasScadentaEvent = outboxEvents.stream().anyMatch(e -> e.getClass().getSimpleName().contains("Scadenta"));
+        assertTrue(hasCertEvent, "Outbox trebuie sa contina eveniment de expirare certificare.");
+        assertTrue(hasScadentaEvent, "Outbox trebuie sa contina eveniment de scadenta apropiata.");
     }
 }

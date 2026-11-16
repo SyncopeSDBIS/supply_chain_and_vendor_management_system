@@ -10,6 +10,8 @@ import java.util.Objects;
 @ValueObject
 @Embeddable
 public final class FullName implements Serializable {
+    private static final long serialVersionUID = 1L;
+
 
     @NotBlank
     @Column(name = "first_name", nullable = false)

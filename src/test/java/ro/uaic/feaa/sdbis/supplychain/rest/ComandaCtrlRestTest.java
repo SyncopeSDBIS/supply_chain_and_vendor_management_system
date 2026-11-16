@@ -10,8 +10,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 import ro.uaic.feaa.sdbis.supplychain.calitate.domain.Furnizor;
 import ro.uaic.feaa.sdbis.supplychain.calitate.domain.FurnizorRepo;
+import ro.uaic.feaa.sdbis.supplychain.calitate.domain.Iban;
 import ro.uaic.feaa.sdbis.supplychain.shared.IdFurnizor;
 
+import java.util.Set;
 import java.util.UUID;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -20,6 +22,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
+@org.springframework.test.context.TestPropertySource(properties = {
+    "security.allow-anonymous-fallback=true",
+    "security.mock-headers.enabled=true"
+})
 @DisplayName("Sprint 4 - REST API & Content Negotiation Tests (JSON & XML)")
 public class ComandaCtrlRestTest {
 
@@ -39,10 +45,11 @@ public class ComandaCtrlRestTest {
             "Furnizor Test SRL",
             null,
             null,
-            new ro.uaic.feaa.sdbis.supplychain.calitate.domain.Iban("RO98BTRL0000000000000001"),
-            java.util.Set.of("TABLA-01"),
+            new Iban("RO98BTRL0000000000000001"),
+            Set.of("TABLA-01"),
             null
         );
+        f.trimiteLaEvaluare();
         f.aproba();
         furnizorRepo.add(f);
 
@@ -85,8 +92,8 @@ public class ComandaCtrlRestTest {
             "Furnizor Candidat SRL",
             null,
             null,
-            new ro.uaic.feaa.sdbis.supplychain.calitate.domain.Iban("RO98BTRL0000000000000002"),
-            java.util.Set.of("TABLA-01"),
+            new Iban("RO98BTRL0000000000000002"),
+            Set.of("TABLA-01"),
             null
         );
         // Stare Candidat -> Neeligibil
@@ -139,5 +146,21 @@ public class ComandaCtrlRestTest {
             .andExpect(jsonPath("$.error").value("Validation Failed"))
             .andExpect(jsonPath("$.fieldErrors").exists());
     }
-}
 
+    @Test
+    @DisplayName("GET /api/comenzi - listare comenzi cu paginare")
+    void testListeazaComenzi() throws Exception {
+        mockMvc.perform(get("/api/comenzi?page=0&size=10")
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$").isArray());
+    }
+
+    @Test
+    @DisplayName("GET /api/comenzi/{id} - returneaza 404 pentru id inexistent")
+    void testObtineDetaliiComandaInexistenta() throws Exception {
+        mockMvc.perform(get("/api/comenzi/" + UUID.randomUUID())
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isNotFound());
+    }
+}

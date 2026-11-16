@@ -1,6 +1,9 @@
 package ro.uaic.feaa.sdbis.supplychain.shared;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.Objects;
@@ -9,6 +12,8 @@ import java.util.UUID;
 @Entity
 @Table(name = "shared_inbox")
 public class InboxEventEntity implements Serializable {
+    private static final long serialVersionUID = 1L;
+
 
     @Id
     @Column(name = "id", length = 128)

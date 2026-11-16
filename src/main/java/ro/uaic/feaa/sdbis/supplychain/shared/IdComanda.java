@@ -10,6 +10,8 @@ import java.util.UUID;
 @ValueObject
 @Embeddable
 public final class IdComanda implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     @Column(name = "id_val")
     private UUID value;
 

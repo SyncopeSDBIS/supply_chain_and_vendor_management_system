@@ -2,7 +2,11 @@ package ro.uaic.feaa.sdbis.supplychain.facturi.application.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRootName;
-import jakarta.xml.bind.annotation.*;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlElementWrapper;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -15,6 +19,8 @@ import java.util.UUID;
 @XmlAccessorType(XmlAccessType.FIELD)
 @JsonRootName("facturaFurnizor")
 public class FacturaFurnizorDTO implements Serializable {
+    private static final long serialVersionUID = 1L;
+
 
     @XmlElement
     @JsonProperty("idFactura")
@@ -75,6 +81,7 @@ public class FacturaFurnizorDTO implements Serializable {
     @XmlElementWrapper(name = "linii")
     @XmlElement(name = "linie")
     @JsonProperty("linii")
+    @SuppressWarnings("serial") // Collection interface List does not implement Serializable directly; runtime instance is ArrayList
     private List<LinieFacturaDTO> linii = new ArrayList<>();
 
     public FacturaFurnizorDTO() {}

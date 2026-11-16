@@ -2,7 +2,11 @@ package ro.uaic.feaa.sdbis.supplychain.comenzi.application.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRootName;
-import jakarta.xml.bind.annotation.*;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlElementWrapper;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -13,6 +17,8 @@ import java.util.UUID;
 @XmlAccessorType(XmlAccessType.FIELD)
 @JsonRootName("comandaAprovizionare")
 public class ComandaDTO implements Serializable {
+    private static final long serialVersionUID = 1L;
+
 
     @XmlElement
     @JsonProperty("id")
@@ -53,6 +59,7 @@ public class ComandaDTO implements Serializable {
     @XmlElementWrapper(name = "loturi")
     @XmlElement(name = "lot")
     @JsonProperty("loturi")
+    @SuppressWarnings("serial") // Collection interface List does not implement Serializable directly; runtime instance is ArrayList
     private List<LotDTO> loturi = new ArrayList<>();
 
     public ComandaDTO() {}

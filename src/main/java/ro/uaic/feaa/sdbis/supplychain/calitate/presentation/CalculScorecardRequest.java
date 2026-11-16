@@ -10,6 +10,8 @@ import java.io.Serializable;
  * Request DTO for calculating monthly supplier scorecard.
  */
 public class CalculScorecardRequest implements Serializable {
+    private static final long serialVersionUID = 1L;
+
 
     @Min(value = 2020, message = "Anul trebuie sa fie cel putin 2020")
     @Max(value = 2050, message = "Anul nu poate depasi 2050")

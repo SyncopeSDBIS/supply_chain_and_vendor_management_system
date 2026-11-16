@@ -12,6 +12,8 @@ import java.util.Objects;
 @ValueObject
 @Embeddable
 public final class ActiuneCorectiva implements Serializable {
+    private static final long serialVersionUID = 1L;
+
 
     @NotBlank
     @Column(name = "descriere_actiune")

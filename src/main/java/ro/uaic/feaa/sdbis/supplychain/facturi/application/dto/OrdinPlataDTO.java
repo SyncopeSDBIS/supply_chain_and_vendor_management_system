@@ -15,6 +15,8 @@ import java.util.UUID;
 @XmlAccessorType(XmlAccessType.FIELD)
 @JsonRootName("ordinPlata")
 public class OrdinPlataDTO implements Serializable {
+    private static final long serialVersionUID = 1L;
+
 
     @XmlElement
     @JsonProperty("idOrdin")

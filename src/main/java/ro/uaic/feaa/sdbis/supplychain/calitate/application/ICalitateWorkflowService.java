@@ -4,8 +4,16 @@ import ro.uaic.feaa.sdbis.supplychain.calitate.application.command.AlocaInspecto
 import ro.uaic.feaa.sdbis.supplychain.calitate.application.command.CalculScorecardCommand;
 import ro.uaic.feaa.sdbis.supplychain.calitate.application.command.IncepeInspectieCommand;
 import ro.uaic.feaa.sdbis.supplychain.calitate.application.command.InregistreazaVerdictCommand;
-import ro.uaic.feaa.sdbis.supplychain.calitate.domain.*;
-import ro.uaic.feaa.sdbis.supplychain.shared.*;
+import ro.uaic.feaa.sdbis.supplychain.calitate.domain.Adresa;
+import ro.uaic.feaa.sdbis.supplychain.calitate.domain.ConditiiContractuale;
+import ro.uaic.feaa.sdbis.supplychain.calitate.domain.Email;
+import ro.uaic.feaa.sdbis.supplychain.calitate.domain.Iban;
+import ro.uaic.feaa.sdbis.supplychain.calitate.domain.PlanAQL;
+import ro.uaic.feaa.sdbis.supplychain.shared.CodMaterial;
+import ro.uaic.feaa.sdbis.supplychain.shared.IdComanda;
+import ro.uaic.feaa.sdbis.supplychain.shared.IdFurnizor;
+import ro.uaic.feaa.sdbis.supplychain.shared.IdLot;
+import ro.uaic.feaa.sdbis.supplychain.shared.Perioada;
 
 import ro.uaic.feaa.sdbis.supplychain.shared.annotation.WorkflowService;
 

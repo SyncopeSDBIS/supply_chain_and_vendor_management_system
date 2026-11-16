@@ -11,8 +11,8 @@ import java.util.UUID;
  * Public Domain Event published when a purchase order is created.
  */
 public record ComandaCreataPublicEvent(
-        @NotNull UUID eventId,
-        @NotNull Instant occurredOn,
-        @NotNull UUID comandaId,
-        @NotNull UUID furnizorId
-) implements DomainEvent, Serializable {}
+                @NotNull UUID eventId,
+                @NotNull Instant occurredOn,
+                @NotNull UUID comandaId,
+                @NotNull UUID furnizorId) implements DomainEvent, Serializable {
+}

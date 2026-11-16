@@ -14,6 +14,8 @@ import java.util.UUID;
 @XmlAccessorType(XmlAccessType.FIELD)
 @JsonRootName("ncr")
 public class NCRDTO implements Serializable {
+    private static final long serialVersionUID = 1L;
+
 
     @XmlElement
     @JsonProperty("idNCR")

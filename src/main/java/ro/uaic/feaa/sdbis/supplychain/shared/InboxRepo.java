@@ -1,5 +1,6 @@
 package ro.uaic.feaa.sdbis.supplychain.shared;
 
+import java.time.Instant;
 import java.util.UUID;
 
 /**
@@ -12,4 +13,9 @@ public interface InboxRepo {
 
     boolean existaEveniment(String consumer, UUID eventId);
     void marcheazaProcesat(String consumer, UUID eventId);
+
+    boolean incearcaInregistrare(UUID eventId);
+    boolean incearcaInregistrare(String consumer, UUID eventId);
+
+    int purgeProcessedEventsOlderThan(Instant cutoff);
 }

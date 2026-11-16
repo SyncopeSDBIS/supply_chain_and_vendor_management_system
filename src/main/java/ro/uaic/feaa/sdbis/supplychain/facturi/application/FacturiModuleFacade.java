@@ -4,6 +4,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import ro.uaic.feaa.sdbis.supplychain.facturi.api.IFacturiModuleApi;
 import ro.uaic.feaa.sdbis.supplychain.facturi.api.dto.FacturaSummaryDTO;
+import ro.uaic.feaa.sdbis.supplychain.facturi.api.event.ScadentaApropiataPublicEvent;
 import ro.uaic.feaa.sdbis.supplychain.facturi.application.command.CreeazaOrdinPlataCommand;
 import ro.uaic.feaa.sdbis.supplychain.facturi.application.command.ReconciliereCommand;
 import ro.uaic.feaa.sdbis.supplychain.facturi.domain.FacturaFurnizor;
@@ -65,18 +66,16 @@ public class FacturiModuleFacade implements IFacturiModuleApi {
     @Override
     public int proceseazaVerificareScadenteFacturi() {
         LocalDate in3Zile = LocalDate.now().plusDays(3);
-        List<FacturaFurnizor> facturi = facturaRepo.findAll();
+        List<FacturaFurnizor> facturi = facturaRepo.findFacturiCuScadentaLa(
+            List.of(StareFactura.AprobataLaPlata, StareFactura.PartialPlatita), in3Zile
+        );
         int count = 0;
         for (FacturaFurnizor f : facturi) {
-            if ((f.getStareFactura() == StareFactura.AprobataLaPlata
-                    || f.getStareFactura() == StareFactura.PartialPlatita)
-                    && f.getDataScadenta().isEqual(in3Zile)) {
-                outboxRepo.saveEvent(new ScadentaApropiataEvent(
-                        UUID.randomUUID(), Instant.now(), f.getIdFactura(), in3Zile));
-                outboxRepo.saveEvent(new ro.uaic.feaa.sdbis.supplychain.facturi.api.event.ScadentaApropiataPublicEvent(
-                        UUID.randomUUID(), Instant.now(), f.getIdFactura(), in3Zile));
-                count++;
-            }
+            outboxRepo.saveEvent(new ScadentaApropiataEvent(
+                    UUID.randomUUID(), Instant.now(), f.getIdFactura(), in3Zile));
+            outboxRepo.saveEvent(new ScadentaApropiataPublicEvent(
+                    UUID.randomUUID(), Instant.now(), f.getIdFactura(), in3Zile));
+            count++;
         }
         return count;
     }

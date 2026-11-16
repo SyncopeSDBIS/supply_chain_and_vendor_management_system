@@ -3,6 +3,7 @@ package ro.uaic.feaa.sdbis.supplychain.comenzi.domain.event;
 import ro.uaic.feaa.sdbis.supplychain.shared.CodMaterial;
 import ro.uaic.feaa.sdbis.supplychain.shared.DomainEvent;
 import ro.uaic.feaa.sdbis.supplychain.shared.IdComanda;
+import ro.uaic.feaa.sdbis.supplychain.shared.IdFurnizor;
 import ro.uaic.feaa.sdbis.supplychain.shared.IdLot;
 
 import java.math.BigDecimal;
@@ -13,9 +14,23 @@ public record ComandaReceptionataEvent(
     UUID eventId,
     Instant occurredOn,
     IdComanda comandaId,
+    IdFurnizor furnizorId,
     IdLot lotId,
     CodMaterial material,
     BigDecimal cantitatePrimita,
     String unitateMasura,
     boolean receptieTotala
-) implements DomainEvent {}
+) implements DomainEvent {
+
+    public ComandaReceptionataEvent(
+            UUID eventId,
+            Instant occurredOn,
+            IdComanda comandaId,
+            IdLot lotId,
+            CodMaterial material,
+            BigDecimal cantitatePrimita,
+            String unitateMasura,
+            boolean receptieTotala) {
+        this(eventId, occurredOn, comandaId, null, lotId, material, cantitatePrimita, unitateMasura, receptieTotala);
+    }
+}

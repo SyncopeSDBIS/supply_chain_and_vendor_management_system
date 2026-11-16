@@ -8,11 +8,13 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.*;
 
-import java.util.Map;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@org.springframework.test.context.TestPropertySource(properties = {
+    "security.allow-anonymous-fallback=true",
+    "security.mock-headers.enabled=true"
+})
 @DisplayName("Sprint 4 - RestTemplate Endpoints Integration Tests (ADR-008, ADR-009)")
 public class RestTemplateIntegrationTest {
 

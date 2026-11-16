@@ -9,6 +9,11 @@ import java.util.Optional;
 public interface FurnizorRepo {
     void add(Furnizor f);
     Optional<Furnizor> findById(IdFurnizor id);
-    void save(Furnizor f);
+    Furnizor save(Furnizor f);
     List<Furnizor> findAll();
+    List<Furnizor> findEligibiliPentruComenzi();
+    List<Furnizor> findFurnizori(StareFurnizor stare, String categorie, int page, int size);
+    List<Furnizor> findFurnizori(StareFurnizor stare, String categorie, String search, int page, int size);
+    long countTotal();
+    long countByStare(StareFurnizor stare);
 }

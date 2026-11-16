@@ -23,5 +23,7 @@ public interface ICalitateModuleApi {
 
     int proceseazaExpirareCertificariInspectori();
 
+    UUID programeazaInspectie(UUID lotId, UUID comandaId, UUID furnizorId, String codMaterial);
+
     UUID programeazaInspectie(UUID lotId, UUID comandaId, String codMaterial);
 }

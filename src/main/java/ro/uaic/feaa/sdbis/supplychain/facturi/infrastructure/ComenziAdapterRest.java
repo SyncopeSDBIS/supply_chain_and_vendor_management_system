@@ -1,6 +1,5 @@
 package ro.uaic.feaa.sdbis.supplychain.facturi.infrastructure;
 
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import ro.uaic.feaa.sdbis.supplychain.comenzi.api.IComenziModuleApi;
 import ro.uaic.feaa.sdbis.supplychain.comenzi.api.dto.ComandaSummaryDTO;
@@ -22,7 +21,7 @@ public class ComenziAdapterRest implements IComenziAdapter {
 
     private final IComenziModuleApi comenziApi;
 
-    public ComenziAdapterRest(@Lazy IComenziModuleApi comenziApi) {
+    public ComenziAdapterRest(IComenziModuleApi comenziApi) {
         this.comenziApi = comenziApi;
     }
 

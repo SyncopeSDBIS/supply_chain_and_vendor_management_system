@@ -2,8 +2,9 @@ package ro.uaic.feaa.sdbis.supplychain.comenzi.infrastructure.listener;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 import ro.uaic.feaa.sdbis.supplychain.calitate.api.ICalitateModuleApi;
 import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.event.ComandaReceptionataEvent;
 import ro.uaic.feaa.sdbis.supplychain.shared.InboxRepo;
@@ -28,21 +29,22 @@ public class ComandaReceptieEventListener {
         this.inboxRepo = inboxRepo;
     }
 
-    @EventListener
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
     public void onComandaReceptionata(ComandaReceptionataEvent event) {
-        if (inboxRepo.existaEveniment(CONSUMER_ID, event.eventId())) {
-            log.info("[ComandaReceptieEventListener] Event {} already processed, skipping.", event.eventId());
+        if (!inboxRepo.incearcaInregistrare(CONSUMER_ID, event.eventId())) {
+            log.info("[ComandaReceptieEventListener] Event {} already claimed/processed, skipping.", event.eventId());
             return;
         }
 
         try {
+            UUID furnizorId = event.furnizorId() != null ? event.furnizorId().getValue() : null;
             UUID inspectieId = calitateApi.programeazaInspectie(
                 event.lotId().getValue(),
                 event.comandaId().getValue(),
+                furnizorId,
                 event.material().getCod()
             );
 
-            inboxRepo.marcheazaProcesat(CONSUMER_ID, event.eventId());
             log.info("[ComandaReceptieEventListener] Triggered inspection {} for lot {} from order {}",
                 inspectieId, event.lotId().getValue(), event.comandaId().getValue());
         } catch (Exception ex) {

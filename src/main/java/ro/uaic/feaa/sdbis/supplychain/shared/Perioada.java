@@ -9,6 +9,8 @@ import java.util.Objects;
 @ValueObject
 @Embeddable
 public final class Perioada implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private LocalDate dataInceput;
     private LocalDate dataFinalizare;
 
@@ -35,12 +37,12 @@ public final class Perioada implements Serializable {
     }
 
     public static Perioada lunaCurenta() {
-        LocalDate now = LocalDate.now();
+        LocalDate now = TimeProvider.today();
         return ofLuna(now.getYear(), now.getMonthValue());
     }
 
     public static Perioada zileUrmatoare(int days) {
-        LocalDate start = LocalDate.now();
+        LocalDate start = TimeProvider.today();
         return new Perioada(start, start.plusDays(days));
     }
 

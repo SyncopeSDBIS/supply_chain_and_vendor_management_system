@@ -5,13 +5,11 @@ import jakarta.persistence.PersistenceContext;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Biblioteca tehnica comuna (Infrastructure) - Figura 10 din Project_OOAD.docx.
  * Contine accesul la EntityManager pentru implementarea operatiilor CRUD de baza.
  */
-@Transactional
 public abstract class AbstractRepositoryJPA<T, ID> {
 
     @PersistenceContext
@@ -27,8 +25,11 @@ public abstract class AbstractRepositoryJPA<T, ID> {
         em.persist(entity);
     }
 
-    public void save(T entity) {
-        em.merge(entity);
+    public T save(T entity) {
+        if (!em.contains(entity)) {
+            return em.merge(entity);
+        }
+        return entity;
     }
 
     public void delete(T entity) {

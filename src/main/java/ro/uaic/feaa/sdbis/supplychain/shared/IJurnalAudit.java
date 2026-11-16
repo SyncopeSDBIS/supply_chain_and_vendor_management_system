@@ -20,4 +20,10 @@ public interface IJurnalAudit {
      * Jurnalizeaza evenimente operationale de business pentru auditabilitate.
      */
     void inregistreazaEvenimentOperational(String categorie, String referinta, String detalii);
+
+    /**
+     * Arhiveaza inregistrari vechi de audit din shared_audit_log in shared_audit_log_archive (cold-storage, OPS-01).
+     * Ruleaza in batch-uri atomice pentru evitarea blocajelor de tabela la volum mare de date.
+     */
+    int arhiveazaLoguriVechi(java.time.Instant cutoff, int batchSize);
 }

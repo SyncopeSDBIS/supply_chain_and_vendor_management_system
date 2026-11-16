@@ -2,7 +2,11 @@ package ro.uaic.feaa.sdbis.supplychain.calitate.application.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRootName;
-import jakarta.xml.bind.annotation.*;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlElementWrapper;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 import java.io.Serializable;
 import java.util.HashSet;
@@ -13,6 +17,8 @@ import java.util.UUID;
 @XmlAccessorType(XmlAccessType.FIELD)
 @JsonRootName("furnizor")
 public class FurnizorDTO implements Serializable {
+    private static final long serialVersionUID = 1L;
+
 
     @XmlElement
     @JsonProperty("id")
@@ -41,11 +47,13 @@ public class FurnizorDTO implements Serializable {
     @XmlElementWrapper(name = "emailuri")
     @XmlElement(name = "email")
     @JsonProperty("emailuri")
+    @SuppressWarnings("serial") // Collection interface Set does not implement Serializable directly; runtime instance is HashSet
     private Set<String> emailuri = new HashSet<>();
 
     @XmlElementWrapper(name = "categoriiMateriale")
     @XmlElement(name = "categorie")
     @JsonProperty("categoriiMateriale")
+    @SuppressWarnings("serial") // Collection interface Set does not implement Serializable directly; runtime instance is HashSet
     private Set<String> categoriiMateriale = new HashSet<>();
 
     @XmlElement

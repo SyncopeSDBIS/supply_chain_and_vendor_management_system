@@ -1,6 +1,22 @@
 package ro.uaic.feaa.sdbis.supplychain.facturi.domain;
 
-import jakarta.persistence.*;
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OrderColumn;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.Version;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -11,7 +27,12 @@ import ro.uaic.feaa.sdbis.supplychain.shared.annotation.AggregateRoot;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Currency;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 
 /**
  * Aggregate Root pentru Factura Furnizor (Figura 21 si 24).
@@ -20,8 +41,12 @@ import java.util.*;
  */
 @AggregateRoot
 @Entity
-@Table(name = "facturi_furnizori")
+@Table(name = "facturi_furnizori", uniqueConstraints = {
+    @UniqueConstraint(name = "uk_facturi_furnizor_serie_numar", columnNames = {"furnizor_id", "serie", "numar"})
+})
 public class FacturaFurnizor implements Serializable {
+    private static final long serialVersionUID = 1L;
+
 
     @NotNull
     @Id
@@ -57,6 +82,8 @@ public class FacturaFurnizor implements Serializable {
     @NotEmpty
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "facturi_linii", joinColumns = @JoinColumn(name = "factura_id"))
+    @OrderColumn(name = "linie_idx")
+    @SuppressWarnings("serial") // Collection interface List does not implement Serializable directly; runtime instance is ArrayList
     private List<LinieFactura> linii = new ArrayList<>();
 
     @NotNull
@@ -74,9 +101,26 @@ public class FacturaFurnizor implements Serializable {
     @Column(name = "stare_factura", nullable = false, length = 50)
     private StareFactura stareFactura;
 
+    @Column(name = "created_at")
+    private java.time.Instant createdAt = java.time.Instant.now();
+
+    @Column(name = "updated_at")
+    private java.time.Instant updatedAt = java.time.Instant.now();
+
     @Version
     @Column(name = "version", nullable = false)
     private Long version = 0L;
+
+    @PrePersist
+    protected void onPrePersist() {
+        if (createdAt == null) createdAt = java.time.Instant.now();
+        updatedAt = java.time.Instant.now();
+    }
+
+    @PreUpdate
+    protected void onPreUpdate() {
+        updatedAt = java.time.Instant.now();
+    }
 
     protected FacturaFurnizor() {}
 
@@ -110,10 +154,16 @@ public class FacturaFurnizor implements Serializable {
     }
 
     public void blocheaza(String motiv) {
+        if (this.stareFactura == StareFactura.Platita || this.stareFactura == StareFactura.Anulata) {
+            throw new IllegalStateException("Nu se poate bloca o factura in starea: " + stareFactura);
+        }
         this.stareFactura = StareFactura.Blocata;
     }
 
     public void contesta(String motiv) {
+        if (this.stareFactura == StareFactura.Platita || this.stareFactura == StareFactura.Anulata) {
+            throw new IllegalStateException("Nu se poate contesta o factura in starea: " + stareFactura);
+        }
         this.stareFactura = StareFactura.Contestata;
     }
 
@@ -132,6 +182,14 @@ public class FacturaFurnizor implements Serializable {
     }
 
     public void inregistreazaPlata(Suma suma) {
+        // FIX DDD-01: Gărzi invariante împotriva plății pe stări terminale și supra-plăților
+        if (this.stareFactura == StareFactura.Anulata || this.stareFactura == StareFactura.Platita) {
+            throw new IllegalStateException("Nu se poate inregistra o plata pe o factura in starea terminala: " + stareFactura);
+        }
+        Suma restDePlataCurent = calculeazaRestDePlata();
+        if (suma.esteMaiMareDecat(restDePlataCurent)) {
+            throw new IllegalArgumentException("Suma platii (" + suma + ") depaseste restul de plata al facturii (" + restDePlataCurent + ")");
+        }
         this.sumaPlatita = this.sumaPlatita.adauga(suma);
         Suma rest = calculeazaRestDePlata();
         if (rest.getValoare().compareTo(BigDecimal.ZERO) == 0) {
@@ -142,6 +200,9 @@ public class FacturaFurnizor implements Serializable {
     }
 
     public void anuleaza() {
+        if (this.stareFactura == StareFactura.Platita || this.stareFactura == StareFactura.PartialPlatita || this.stareFactura == StareFactura.Anulata) {
+            throw new IllegalStateException("Nu se poate anula o factura in starea: " + stareFactura);
+        }
         this.stareFactura = StareFactura.Anulata;
     }
 
@@ -167,7 +228,10 @@ public class FacturaFurnizor implements Serializable {
     public List<LinieFactura> getLinii() { return Collections.unmodifiableList(linii); }
     public ValoareFactura getValoare() { return valoare; }
     public Suma getSumaPlatita() { return sumaPlatita; }
+    public Currency getMoneda() { return sumaPlatita != null ? sumaPlatita.getMoneda() : Currency.getInstance("RON"); }
     public StareFactura getStareFactura() { return stareFactura; }
+    public java.time.Instant getCreatedAt() { return createdAt; }
+    public java.time.Instant getUpdatedAt() { return updatedAt; }
     public Long getVersion() { return version; }
 
     @Override

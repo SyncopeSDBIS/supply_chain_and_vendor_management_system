@@ -1,12 +1,15 @@
 package ro.uaic.feaa.sdbis.supplychain.calitate.presentation;
 
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 
 /**
  * Request DTO for creating a quality inspector.
  */
 public class CreeazaInspectorRequest implements Serializable {
+    private static final long serialVersionUID = 1L;
+
 
     @NotBlank(message = "Prenumele inspectorului este obligatoriu")
     @Size(min = 2, max = 50, message = "Prenumele trebuie sa contina intre 2 si 50 caractere")

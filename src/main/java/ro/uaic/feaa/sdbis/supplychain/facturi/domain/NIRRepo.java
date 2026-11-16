@@ -10,8 +10,9 @@ import java.util.UUID;
 public interface NIRRepo {
     void add(NIR n);
     Optional<NIR> findById(UUID id);
-    void save(NIR n);
+    NIR save(NIR n);
     List<NIR> findByComandaId(IdComanda id);
     boolean existaNIRPentruEvent(UUID eventId);
     List<NIR> findAll();
+    List<NIR> findNIR(IdComanda comandaId, int page, int size);
 }

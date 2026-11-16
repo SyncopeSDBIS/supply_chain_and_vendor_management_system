@@ -1,11 +1,35 @@
 package ro.uaic.feaa.sdbis.supplychain.comenzi.domain;
 
-import jakarta.persistence.*;
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderColumn;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.event.ComandaAnulataEvent;
+import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.event.ComandaConfirmataEvent;
+import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.event.ComandaExpediataEvent;
+import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.event.ComandaInchisaEvent;
 import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.event.ComandaReceptionataEvent;
+import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.event.ComandaRefuzataEvent;
+import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.event.LotCarantinatEvent;
+import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.event.LotRespinsEvent;
+import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.event.LotReturnatEvent;
 import ro.uaic.feaa.sdbis.supplychain.shared.CodMaterial;
 import ro.uaic.feaa.sdbis.supplychain.shared.IdComanda;
 import ro.uaic.feaa.sdbis.supplychain.shared.IdFurnizor;
@@ -14,18 +38,27 @@ import ro.uaic.feaa.sdbis.supplychain.shared.annotation.AggregateRoot;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  * Aggregate Root pentru Bounded Context-ul Procurement Order Management.
- * Garanteaza invarianții din Tabelul 2.1 (Lifecycle Guard, Lot Quantity Boundary, Cascading Cancellation).
+ * Garanteaza invarianții din Tabelul 2.1 (Lifecycle Guard, Lot Quantity Boundary, Cascading Cancellation, Quality Feedback).
  */
 @AggregateRoot
 @Entity
 @Table(name = "comenzi_aprovizionare")
 public class ComandaAprovizionare implements Serializable {
+    private static final long serialVersionUID = 1L;
 
+
+    // --- 1. Fields ---
     @EmbeddedId
     private IdComanda id;
 
@@ -61,6 +94,24 @@ public class ComandaAprovizionare implements Serializable {
     @Column(nullable = false)
     private StareComanda stareComanda;
 
+    @Column(name = "data_aprobare")
+    private Instant dataAprobare;
+
+    @Column(name = "aprobat_de")
+    private UUID aprobatDe;
+
+    @Column(name = "nivel_aprobare")
+    private String nivelAprobare;
+
+    @Column(name = "data_inchidere")
+    private Instant dataInchidere;
+
+    @Column(name = "created_at")
+    private Instant createdAt = Instant.now();
+
+    @Column(name = "updated_at")
+    private Instant updatedAt = Instant.now();
+
     @Version
     @Column(name = "version")
     private Long version = 0L;
@@ -68,14 +119,18 @@ public class ComandaAprovizionare implements Serializable {
     @NotEmpty
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "comenzi_linii", joinColumns = @JoinColumn(name = "comanda_id"))
+    @OrderColumn(name = "linie_idx")
+    @SuppressWarnings("serial") // Collection interface List does not implement Serializable directly; runtime instance is ArrayList
     private List<LinieComanda> linii = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JoinColumn(name = "comanda_id")
+    @OneToMany(mappedBy = "comanda", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OrderColumn(name = "lot_idx")
+    @SuppressWarnings("serial") // Collection interface List does not implement Serializable directly; runtime instance is ArrayList
     private List<Lot> loturi = new ArrayList<>();
 
-    @ElementCollection(fetch = FetchType.LAZY)
-    @CollectionTable(name = "comenzi_expedieri", joinColumns = @JoinColumn(name = "comanda_id"))
+    @OneToMany(mappedBy = "comanda", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OrderColumn(name = "expediere_idx")
+    @SuppressWarnings("serial") // Collection interface List does not implement Serializable directly; runtime instance is ArrayList
     private List<Expediere> expedieri = new ArrayList<>();
 
     @Embedded
@@ -83,6 +138,19 @@ public class ComandaAprovizionare implements Serializable {
     @AttributeOverride(name = "metoda", column = @Column(name = "estimare_metoda"))
     private EstimareLivrare estimare;
 
+    // --- 2. Lifecycle Callbacks ---
+    @PrePersist
+    protected void onPrePersist() {
+        if (createdAt == null) createdAt = Instant.now();
+        updatedAt = Instant.now();
+    }
+
+    @PreUpdate
+    protected void onPreUpdate() {
+        updatedAt = Instant.now();
+    }
+
+    // --- 3. Constructors ---
     protected ComandaAprovizionare() {}
 
     public ComandaAprovizionare(IdComanda id, String numarComanda, IdFurnizor furnizorId, UUID cumparatorId,
@@ -102,6 +170,7 @@ public class ComandaAprovizionare implements Serializable {
         this.stareComanda = StareComanda.Solicitat;
     }
 
+    // --- 4. Domain Operations & Lifecycle Transitions ---
     public void trimiteLaFurnizor() {
         validaStarePermiteOperatia(StareComanda.Solicitat);
     }
@@ -119,15 +188,25 @@ public class ComandaAprovizionare implements Serializable {
         }
     }
 
-    public void confirma(LocalDate dataPromisa) {
+    public void aproba(UUID utilizatorId, String nivel) {
         validaStarePermiteOperatia(StareComanda.Solicitat);
-        this.dataLivrarePromisa = Objects.requireNonNull(dataPromisa, "dataLivrarePromisa cannot be null");
-        this.stareComanda = StareComanda.Confirmat;
+        this.stareComanda = StareComanda.Aprobat;
+        this.aprobatDe = utilizatorId;
+        this.dataAprobare = Instant.now();
+        this.nivelAprobare = nivel;
     }
 
-    public void refuza() {
-        validaStarePermiteOperatia(StareComanda.Solicitat);
+    public ComandaConfirmataEvent confirma(LocalDate dataPromisa) {
+        validaStarePermiteOperatia(StareComanda.Aprobat);
+        this.dataLivrarePromisa = Objects.requireNonNull(dataPromisa, "dataLivrarePromisa cannot be null");
+        this.stareComanda = StareComanda.Confirmat;
+        return new ComandaConfirmataEvent(UUID.randomUUID(), Instant.now(), this.id, dataPromisa);
+    }
+
+    public ComandaRefuzataEvent refuza() {
+        validaStarePermiteOperatia(StareComanda.Solicitat, StareComanda.Aprobat);
         this.stareComanda = StareComanda.Refuzat;
+        return new ComandaRefuzataEvent(UUID.randomUUID(), Instant.now(), this.id);
     }
 
     public IdLot planificaLot(String codLot, CodMaterial material, Cantitate cantitate, LocalDate productie, LocalDate expirare) {
@@ -135,18 +214,21 @@ public class ComandaAprovizionare implements Serializable {
         validaCantitateLot(material, cantitate);
         IdLot newId = IdLot.random();
         Lot lot = new Lot(newId, codLot, material, cantitate, productie, expirare);
+        lot.ataseazaComanda(this);
         this.loturi.add(lot);
         return newId;
     }
 
-    public void inregistreazaExpediere(String transportator, String awb, Set<IdLot> loturiExpediate) {
+    public ComandaExpediataEvent inregistreazaExpediere(String transportator, String awb, Set<IdLot> loturiExpediate) {
         validaStarePermiteOperatia(StareComanda.Confirmat, StareComanda.InTranzit, StareComanda.ReceptionatPartial);
         for (IdLot lotId : loturiExpediate) {
             Lot lot = gasesteLot(lotId);
             lot.expediaza();
         }
-        this.expedieri.add(new Expediere(transportator, awb, LocalDate.now(), loturiExpediate));
+        Expediere exp = new Expediere(this, transportator, awb, LocalDate.now(), loturiExpediate);
+        this.expedieri.add(exp);
         this.stareComanda = StareComanda.InTranzit;
+        return new ComandaExpediataEvent(UUID.randomUUID(), Instant.now(), this.id, transportator, awb, loturiExpediate);
     }
 
     public ComandaReceptionataEvent inregistreazaReceptie(IdLot lotId, Cantitate primit) {
@@ -163,8 +245,9 @@ public class ComandaAprovizionare implements Serializable {
 
         return new ComandaReceptionataEvent(
             UUID.randomUUID(),
-            java.time.Instant.now(),
+            Instant.now(),
             this.id,
+            this.furnizorId,
             lotId,
             lot.getMaterial(),
             primit.getValoare(),
@@ -173,28 +256,45 @@ public class ComandaAprovizionare implements Serializable {
         );
     }
 
-    public void plaseazaLotInCarantina(IdLot lotId) {
+    public LotCarantinatEvent plaseazaLotInCarantina(IdLot lotId) {
         Lot lot = gasesteLot(lotId);
         lot.plaseazaInCarantina();
+        sincronizeazaStareCalitate();
+        return new LotCarantinatEvent(UUID.randomUUID(), Instant.now(), this.id, lotId);
     }
 
-    public void aplicaVerdictInspectie(IdLot lotId, RezultatCalitateLot rezultat) {
+    public LotRespinsEvent aplicaVerdictInspectie(IdLot lotId, RezultatCalitateLot rezultat) {
         Lot lot = gasesteLot(lotId);
         if (rezultat == RezultatCalitateLot.Conform || rezultat == RezultatCalitateLot.Scutit) {
             lot.elibereazaInStoc();
+            sincronizeazaStareCalitate();
+            return null;
         } else {
             lot.respinge();
+            sincronizeazaStareCalitate();
+            return new LotRespinsEvent(UUID.randomUUID(), Instant.now(), this.id, lotId, "Neconformitate calitate inspectie AQL");
         }
     }
 
-    public void returneazaLotFurnizorului(IdLot lotId) {
+    public LotReturnatEvent returneazaLotFurnizorului(IdLot lotId) {
         Lot lot = gasesteLot(lotId);
         lot.returneazaFurnizorului();
+        sincronizeazaStareCalitate();
+        return new LotReturnatEvent(UUID.randomUUID(), Instant.now(), this.id, lotId);
+    }
+
+    public ComandaInchisaEvent inchideComanda() {
+        validaStarePermiteOperatia(StareComanda.Receptionat);
+        this.stareComanda = StareComanda.Inchis;
+        this.dataInchidere = Instant.now();
+        return new ComandaInchisaEvent(UUID.randomUUID(), Instant.now(), this.id);
     }
 
     public ComandaAnulataEvent anuleazaComanda() {
-        if (this.stareComanda == StareComanda.Receptionat || this.stareComanda == StareComanda.Anulat) {
-            throw new IllegalStateException("Cannot cancel an order in state: " + stareComanda);
+        if (this.stareComanda == StareComanda.Receptionat
+                || this.stareComanda == StareComanda.Inchis
+                || this.stareComanda == StareComanda.Anulat) {
+            throw new IllegalStateException("Cannot cancel an order in terminal state: " + stareComanda);
         }
 
         List<IdLot> loturiAnulate = new ArrayList<>();
@@ -208,7 +308,7 @@ public class ComandaAprovizionare implements Serializable {
 
         return new ComandaAnulataEvent(
             UUID.randomUUID(),
-            java.time.Instant.now(),
+            Instant.now(),
             this.id,
             loturiAnulate
         );
@@ -217,7 +317,10 @@ public class ComandaAprovizionare implements Serializable {
     public Cantitate calculeazaCantitatePrimita(CodMaterial material) {
         Cantitate total = null;
         for (Lot lot : loturi) {
-            if (lot.getMaterial().equals(material)) {
+            if (lot.getMaterial().equals(material)
+                    && lot.getStareLot() != StareLot.Respins
+                    && lot.getStareLot() != StareLot.Returnat
+                    && lot.getStareLot() != StareLot.Anulat) {
                 if (total == null) {
                     total = lot.getCantitatePrimita();
                 } else {
@@ -276,7 +379,7 @@ public class ComandaAprovizionare implements Serializable {
         this.estimare = Objects.requireNonNull(e, "EstimareLivrare cannot be null");
     }
 
-    // Invarianti Privati (Tabelul 2.1)
+    // --- 5. Private Invariant Guards & Helpers ---
     private void validaStarePermiteOperatia(StareComanda... permise) {
         for (StareComanda p : permise) {
             if (this.stareComanda == p) return;
@@ -292,7 +395,10 @@ public class ComandaAprovizionare implements Serializable {
 
         BigDecimal planificatTotal = BigDecimal.ZERO;
         for (Lot lot : loturi) {
-            if (lot.getMaterial().equals(material) && lot.getStareLot() != StareLot.Anulat) {
+            if (lot.getMaterial().equals(material)
+                    && lot.getStareLot() != StareLot.Anulat
+                    && lot.getStareLot() != StareLot.Respins
+                    && lot.getStareLot() != StareLot.Returnat) {
                 planificatTotal = planificatTotal.add(lot.getCantitate().getValoare());
             }
         }
@@ -309,6 +415,13 @@ public class ComandaAprovizionare implements Serializable {
             .orElseThrow(() -> new IllegalArgumentException("Lot not found on this order: " + lotId));
     }
 
+    private void sincronizeazaStareCalitate() {
+        if (this.stareComanda == StareComanda.Receptionat && !esteAcoperitaIntegral()) {
+            this.stareComanda = StareComanda.ReceptionatPartial;
+        }
+    }
+
+    // --- 6. Getters ---
     public IdComanda getId() { return id; }
     public String getNumarComanda() { return numarComanda; }
     public IdFurnizor getFurnizorId() { return furnizorId; }
@@ -318,13 +431,19 @@ public class ComandaAprovizionare implements Serializable {
     public LocalDate getDataLivrarePromisa() { return dataLivrarePromisa; }
     public String getDepozit() { return depozit; }
     public StareComanda getStareComanda() { return stareComanda; }
+    public Instant getDataAprobare() { return dataAprobare; }
+    public UUID getAprobatDe() { return aprobatDe; }
+    public String getNivelAprobare() { return nivelAprobare; }
+    public Instant getDataInchidere() { return dataInchidere; }
     public List<LinieComanda> getLinii() { return Collections.unmodifiableList(linii); }
     public List<Lot> getLoturi() { return Collections.unmodifiableList(loturi); }
     public List<Expediere> getExpedieri() { return Collections.unmodifiableList(expedieri); }
     public EstimareLivrare getEstimare() { return estimare; }
-
+    public Instant getCreatedAt() { return createdAt; }
+    public Instant getUpdatedAt() { return updatedAt; }
     public Long getVersion() { return version; }
 
+    // --- 7. Identity & Presentation ---
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

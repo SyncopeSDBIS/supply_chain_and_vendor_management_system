@@ -1,8 +1,19 @@
 package ro.uaic.feaa.sdbis.supplychain.calitate.domain;
 
-import jakarta.persistence.*;
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.Version;
 import jakarta.validation.constraints.NotNull;
 import ro.uaic.feaa.sdbis.supplychain.shared.Perioada;
+import ro.uaic.feaa.sdbis.supplychain.shared.PerformantaLivrariVO;
 import ro.uaic.feaa.sdbis.supplychain.shared.annotation.DomainEntity;
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -14,8 +25,21 @@ import java.util.UUID;
  */
 @DomainEntity
 @Entity
-@Table(name = "calitate_scorecards")
+@Table(
+    name = "calitate_scorecards",
+    uniqueConstraints = @UniqueConstraint(name = "uq_scorecards_furnizor_perioada", columnNames = {"furnizor_id", "data_inceput", "data_finalizare"})
+)
 public class ScorecardLunar implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "furnizor_id")
+    private Furnizor furnizor;
+
+    @Version
+    @Column(name = "version")
+    private Long version;
 
     @NotNull
     @Id
@@ -67,12 +91,21 @@ public class ScorecardLunar implements Serializable {
         return scor.calificativ();
     }
 
+    void ataseazaFurnizor(Furnizor furnizor) {
+        this.furnizor = furnizor;
+    }
+
+    public Furnizor getFurnizor() {
+        return furnizor;
+    }
+
     public UUID getId() { return id; }
     public Perioada getLuna() { return luna; }
     public BigDecimal getOtif() { return otif; }
     public BigDecimal getRataRespingere() { return rataRespingere; }
     public BigDecimal getConformitatePret() { return conformitatePret; }
     public Scor getScor() { return scor; }
+    public Long getVersion() { return version; }
 
     @Override
     public boolean equals(Object o) {

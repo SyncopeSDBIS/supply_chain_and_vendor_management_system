@@ -1,6 +1,11 @@
 package ro.uaic.feaa.sdbis.supplychain.facturi.presentation;
 
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
+import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.UUID;
 
@@ -8,6 +13,8 @@ import java.util.UUID;
  * Request DTO for supplier invoice registration with declarative Bean Validation constraints.
  */
 public class InregistreazaFacturaRequest implements Serializable {
+    private static final long serialVersionUID = 1L;
+
 
     @NotBlank(message = "Seria facturii este obligatorie")
     @Size(min = 1, max = 20, message = "Seria facturii trebuie sa contina intre 1 si 20 caractere")
@@ -44,6 +51,9 @@ public class InregistreazaFacturaRequest implements Serializable {
 
     @PositiveOrZero(message = "Pretul unitar trebuie sa fie pozitiv sau zero")
     private double pretUnitar;
+
+    @PositiveOrZero(message = "Cota TVA trebuie sa fie pozitiva sau zero")
+    private Double cotaTva = 0.19;
 
     public InregistreazaFacturaRequest() {}
 
@@ -95,5 +105,8 @@ public class InregistreazaFacturaRequest implements Serializable {
 
     public double getPretUnitar() { return pretUnitar; }
     public void setPretUnitar(double pretUnitar) { this.pretUnitar = pretUnitar; }
+
+    public Double getCotaTva() { return cotaTva; }
+    public void setCotaTva(Double cotaTva) { this.cotaTva = cotaTva; }
 }
 

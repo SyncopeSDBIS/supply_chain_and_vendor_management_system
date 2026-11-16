@@ -1,11 +1,14 @@
 package ro.uaic.feaa.sdbis.supplychain.calitate.domain.factory;
 
-import ro.uaic.feaa.sdbis.supplychain.calitate.domain.*;
+import ro.uaic.feaa.sdbis.supplychain.calitate.domain.Adresa;
+import ro.uaic.feaa.sdbis.supplychain.calitate.domain.ConditiiContractuale;
+import ro.uaic.feaa.sdbis.supplychain.calitate.domain.Email;
+import ro.uaic.feaa.sdbis.supplychain.calitate.domain.Furnizor;
+import ro.uaic.feaa.sdbis.supplychain.calitate.domain.Iban;
 import ro.uaic.feaa.sdbis.supplychain.shared.IdFurnizor;
 import ro.uaic.feaa.sdbis.supplychain.shared.annotation.DomainFactory;
 import ro.uaic.feaa.sdbis.supplychain.shared.exception.DomainValidationException;
 
-import java.util.Objects;
 import java.util.Set;
 
 /**

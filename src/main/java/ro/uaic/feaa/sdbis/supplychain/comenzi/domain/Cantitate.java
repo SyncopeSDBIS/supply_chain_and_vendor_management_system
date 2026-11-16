@@ -9,6 +9,8 @@ import java.util.Objects;
 @ValueObject
 @Embeddable
 public final class Cantitate implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private BigDecimal valoare;
     private String unitateMasura;
 

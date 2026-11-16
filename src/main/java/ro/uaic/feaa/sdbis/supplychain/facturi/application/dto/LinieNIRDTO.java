@@ -14,6 +14,8 @@ import java.math.BigDecimal;
 @XmlAccessorType(XmlAccessType.FIELD)
 @JsonRootName("linieNIR")
 public class LinieNIRDTO implements Serializable {
+    private static final long serialVersionUID = 1L;
+
 
     @XmlElement
     @JsonProperty("materialCod")

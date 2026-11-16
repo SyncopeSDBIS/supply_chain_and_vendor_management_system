@@ -125,7 +125,7 @@ jobs:
         run: chmod +x mvnw
 
       - name: Execute Integration, REST, BDD & SLA Tests
-        run: ./mvnw test -B -Dtest="ro.uaic.feaa.sdbis.supplychain.integration.**.*Test,ro.uaic.feaa.sdbis.supplychain.rest.**.*Test,ro.uaic.feaa.sdbis.supplychain.bdd.**.*Test,ro.uaic.feaa.sdbis.supplychain.performance.**.*Test"
+        run: ./mvnw test -B -Dtest="ro.uaic.feaa.sdbis.supplychain.integration.**.*Test,ro.uaic.feaa.sdbis.supplychain.rest.**.*Test,ro.uaic.feaa.sdbis.supplychain.bdd.**.*Test,ro.uaic.feaa.sdbis.supplychain.performance.**.*Test,ro.uaic.feaa.sdbis.supplychain.securitate.**.*Test,ro.uaic.feaa.sdbis.supplychain.shared.**.*Test"
 
   # ============================================================================
   # JOB 5: QUALITY GATE & PACKAGE ARTIFACT (DevSecOps)

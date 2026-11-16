@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import ro.uaic.feaa.sdbis.supplychain.calitate.api.event.FurnizorBlocatPublicEvent;
 import ro.uaic.feaa.sdbis.supplychain.comenzi.api.event.ComandaAnulataPublicEvent;
 import ro.uaic.feaa.sdbis.supplychain.comenzi.api.event.ComandaReceptionataPublicEvent;
+import ro.uaic.feaa.sdbis.supplychain.comenzi.api.event.LotReturnatPublicEvent;
 import ro.uaic.feaa.sdbis.supplychain.facturi.application.FacturaApplicationService;
 import ro.uaic.feaa.sdbis.supplychain.facturi.application.command.GenereazaNIRCommand;
 import ro.uaic.feaa.sdbis.supplychain.facturi.domain.LinieNIR;
@@ -18,10 +19,9 @@ import java.time.LocalDate;
 import java.util.Collections;
 
 /**
- * Event Listener asincron pentru Bounded Context Facturi si Plati (Figura 1 Context Map).
- * - La ComandaReceptionataPublicEvent -> genereaza NIR cu garantie de idempotenta (ADR-009).
- * - La ComandaAnulataPublicEvent -> anuleaza / blocheaza facturile comenzii.
- * - La FurnizorBlocatPublicEvent -> blocheaza platile catre furnizor.
+ * Event Listener asincron / decuplat in Bounded Context Facturi (Figura 13).
+ * Asculta evenimentele publice din Comenzi si Calitate si declanseaza operatiuni idempotente
+ * precum generarea automata a NIR-ului sau blocarea platilor.
  */
 @Component
 public class FacturaEventListener {
@@ -39,8 +39,8 @@ public class FacturaEventListener {
 
     @EventListener
     public void onComandaReceptionata(ComandaReceptionataPublicEvent event) {
-        if (inboxRepo.existaEveniment(CONSUMER_ID, event.eventId())) {
-            log.info("[FacturaEventListener] Event {} already processed, skipping (Idempotent Inbox).", event.eventId());
+        if (!inboxRepo.incearcaInregistrare(CONSUMER_ID, event.eventId())) {
+            log.info("[FacturaEventListener] Event {} already claimed/processed, skipping (Idempotent Inbox).", event.eventId());
             return;
         }
 
@@ -60,7 +60,6 @@ public class FacturaEventListener {
             );
 
             facturaAppService.genereazaNIR(cmd);
-            inboxRepo.marcheazaProcesat(CONSUMER_ID, event.eventId());
             log.info("[FacturaEventListener] Successfully generated NIR {} for order {}", numarNIR, event.comandaId().getValue());
         } catch (Exception ex) {
             log.error("[FacturaEventListener] Error generating NIR for event {}: {}", event.eventId(), ex.getMessage(), ex);
@@ -69,11 +68,10 @@ public class FacturaEventListener {
 
     @EventListener
     public void onComandaAnulata(ComandaAnulataPublicEvent event) {
-        if (inboxRepo.existaEveniment(CONSUMER_ID, event.eventId())) return;
+        if (!inboxRepo.incearcaInregistrare(CONSUMER_ID, event.eventId())) return;
 
         try {
             facturaAppService.blocheazaFacturiComandaAnulata(IdComanda.of(event.comandaId()));
-            inboxRepo.marcheazaProcesat(CONSUMER_ID, event.eventId());
             log.info("[FacturaEventListener] Cancelled invoices for cancelled order {}", event.comandaId());
         } catch (Exception ex) {
             log.error("[FacturaEventListener] Error cancelling invoices for order {}: {}", event.comandaId(), ex.getMessage(), ex);
@@ -82,14 +80,25 @@ public class FacturaEventListener {
 
     @EventListener
     public void onFurnizorBlocat(FurnizorBlocatPublicEvent event) {
-        if (inboxRepo.existaEveniment(CONSUMER_ID, event.eventId())) return;
+        if (!inboxRepo.incearcaInregistrare(CONSUMER_ID, event.eventId())) return;
 
         try {
             facturaAppService.blocheazaPlatiFurnizor(IdFurnizor.of(event.furnizorId()));
-            inboxRepo.marcheazaProcesat(CONSUMER_ID, event.eventId());
             log.info("[FacturaEventListener] Blocked payments for blocked supplier {}", event.furnizorId());
         } catch (Exception ex) {
             log.error("[FacturaEventListener] Error blocking payments for supplier {}: {}", event.furnizorId(), ex.getMessage(), ex);
+        }
+    }
+
+    @EventListener
+    public void onLotReturnat(LotReturnatPublicEvent event) {
+        if (!inboxRepo.incearcaInregistrare(CONSUMER_ID, event.eventId())) return;
+
+        try {
+            log.info("[FacturaEventListener] Lot {} returned to supplier {} for order {}. Flagging for credit/debit adjustment.",
+                event.lotId(), event.furnizorId(), event.comandaId());
+        } catch (Exception ex) {
+            log.error("[FacturaEventListener] Error processing lot returned {}: {}", event.eventId(), ex.getMessage(), ex);
         }
     }
 }

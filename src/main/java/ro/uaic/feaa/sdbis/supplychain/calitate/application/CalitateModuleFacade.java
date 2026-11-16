@@ -1,18 +1,28 @@
 package ro.uaic.feaa.sdbis.supplychain.calitate.application;
 
-import org.springframework.context.annotation.Lazy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import ro.uaic.feaa.sdbis.supplychain.calitate.api.ICalitateModuleApi;
 import ro.uaic.feaa.sdbis.supplychain.calitate.api.dto.FurnizorSummaryDTO;
+import ro.uaic.feaa.sdbis.supplychain.calitate.api.event.CertificareInspectorExpiraPublicEvent;
+import ro.uaic.feaa.sdbis.supplychain.calitate.api.event.FurnizorBlocatPublicEvent;
 import ro.uaic.feaa.sdbis.supplychain.calitate.application.command.CalculScorecardCommand;
 import ro.uaic.feaa.sdbis.supplychain.calitate.domain.Furnizor;
 import ro.uaic.feaa.sdbis.supplychain.calitate.domain.FurnizorRepo;
+import ro.uaic.feaa.sdbis.supplychain.calitate.domain.InspectieRepo;
 import ro.uaic.feaa.sdbis.supplychain.calitate.domain.InspectorCalitate;
 import ro.uaic.feaa.sdbis.supplychain.calitate.domain.InspectorRepo;
+import ro.uaic.feaa.sdbis.supplychain.calitate.domain.PlanAQL;
 import ro.uaic.feaa.sdbis.supplychain.calitate.domain.StareFurnizor;
 import ro.uaic.feaa.sdbis.supplychain.calitate.domain.event.CertificareInspectorExpiraEvent;
+import ro.uaic.feaa.sdbis.supplychain.calitate.domain.event.FurnizorBlocatEvent;
+import ro.uaic.feaa.sdbis.supplychain.shared.CodMaterial;
+import ro.uaic.feaa.sdbis.supplychain.shared.IFurnizorComandaAdapter;
+import ro.uaic.feaa.sdbis.supplychain.shared.IdComanda;
 import ro.uaic.feaa.sdbis.supplychain.shared.IdFurnizor;
+import ro.uaic.feaa.sdbis.supplychain.shared.IdLot;
 import ro.uaic.feaa.sdbis.supplychain.shared.OutboxRepo;
 import ro.uaic.feaa.sdbis.supplychain.shared.Perioada;
 
@@ -27,22 +37,29 @@ import java.util.UUID;
  * Enterprise Facade implementing the public ICalitateModuleApi contract.
  */
 @Component
-@Transactional
 public class CalitateModuleFacade implements ICalitateModuleApi {
+
+    private static final Logger log = LoggerFactory.getLogger(CalitateModuleFacade.class);
 
     private final FurnizorRepo furnizorRepo;
     private final InspectorRepo inspectorRepo;
+    private final InspectieRepo inspectieRepo;
     private final CalitateApplicationService calitateAppService;
     private final OutboxRepo outboxRepo;
+    private final Optional<IFurnizorComandaAdapter> furnizorComandaAdapter;
 
     public CalitateModuleFacade(FurnizorRepo furnizorRepo,
                                 InspectorRepo inspectorRepo,
-                                @Lazy CalitateApplicationService calitateAppService,
-                                OutboxRepo outboxRepo) {
+                                InspectieRepo inspectieRepo,
+                                CalitateApplicationService calitateAppService,
+                                OutboxRepo outboxRepo,
+                                Optional<IFurnizorComandaAdapter> furnizorComandaAdapter) {
         this.furnizorRepo = furnizorRepo;
         this.inspectorRepo = inspectorRepo;
+        this.inspectieRepo = inspectieRepo;
         this.calitateAppService = calitateAppService;
         this.outboxRepo = outboxRepo;
+        this.furnizorComandaAdapter = furnizorComandaAdapter;
     }
 
     @Override
@@ -68,12 +85,13 @@ public class CalitateModuleFacade implements ICalitateModuleApi {
     }
 
     @Override
+    @Transactional
     public void blocheazaFurnizor(UUID furnizorId, String motiv) {
         furnizorRepo.findById(IdFurnizor.of(furnizorId)).ifPresent(f -> {
-            ro.uaic.feaa.sdbis.supplychain.calitate.domain.event.FurnizorBlocatEvent evt = f.blocheaza(motiv);
+            FurnizorBlocatEvent evt = f.blocheaza(motiv);
             furnizorRepo.save(f);
             outboxRepo.saveEvent(evt);
-            outboxRepo.saveEvent(new ro.uaic.feaa.sdbis.supplychain.calitate.api.event.FurnizorBlocatPublicEvent(
+            outboxRepo.saveEvent(new FurnizorBlocatPublicEvent(
                 UUID.randomUUID(), evt.occurredOn(), furnizorId, motiv
             ));
         });
@@ -85,26 +103,28 @@ public class CalitateModuleFacade implements ICalitateModuleApi {
         LocalDate primaZi = azi.withDayOfMonth(1);
         Perioada luna = new Perioada(primaZi, azi);
 
-        List<Furnizor> furnizori = furnizorRepo.findAll();
+        List<Furnizor> furnizori = furnizorRepo.findEligibiliPentruComenzi();
         int count = 0;
         for (Furnizor f : furnizori) {
-            if (f.esteEligibilPentruComenzi()) {
-                try {
-                    calitateAppService.calculeazaScorecardLunar(new CalculScorecardCommand(
-                        f.getIdFurnizor(), luna, BigDecimal.valueOf(2.0)
-                    ));
-                    count++;
-                } catch (Exception ignored) {
-                }
+            try {
+                BigDecimal rataRespingere = inspectieRepo.calculeazaRataRespingere(f.getIdFurnizor(), primaZi, azi);
+                calitateAppService.calculeazaScorecardLunar(new CalculScorecardCommand(
+                    f.getIdFurnizor(), luna, rataRespingere
+                ));
+                count++;
+            } catch (Exception ex) {
+                log.error("[Scorecard Lunar Automat] Eroare la calcularea scorecard-ului pentru furnizorul {} pe perioada {}: {}",
+                        f.getIdFurnizor().getValue(), luna, ex.getMessage(), ex);
             }
         }
         return count;
     }
 
     @Override
+    @Transactional
     public int proceseazaExpirareCertificariInspectori() {
         LocalDate in15Zile = LocalDate.now().plusDays(15);
-        List<InspectorCalitate> inspectori = inspectorRepo.findAll();
+        List<InspectorCalitate> inspectori = inspectorRepo.findAllWithDetails();
         int count = 0;
         for (InspectorCalitate insp : inspectori) {
             insp.getCertificari().forEach(cert -> {
@@ -112,7 +132,7 @@ public class CalitateModuleFacade implements ICalitateModuleApi {
                     outboxRepo.saveEvent(new CertificareInspectorExpiraEvent(
                         UUID.randomUUID(), Instant.now(), insp.getIdInspector(), cert.getDenumire(), cert.getDataExpirare()
                     ));
-                    outboxRepo.saveEvent(new ro.uaic.feaa.sdbis.supplychain.calitate.api.event.CertificareInspectorExpiraPublicEvent(
+                    outboxRepo.saveEvent(new CertificareInspectorExpiraPublicEvent(
                         UUID.randomUUID(), Instant.now(), insp.getIdInspector(), cert.getDenumire(), cert.getDataExpirare()
                     ));
                 }
@@ -123,18 +143,42 @@ public class CalitateModuleFacade implements ICalitateModuleApi {
     }
 
     @Override
-    public UUID programeazaInspectie(UUID lotId, UUID comandaId, String codMaterial) {
+    public UUID programeazaInspectie(UUID lotId, UUID comandaId, UUID furnizorId, String codMaterial) {
         LocalDate azi = LocalDate.now();
         Perioada perioadaInspectie = new Perioada(azi, azi.plusDays(3));
-        ro.uaic.feaa.sdbis.supplychain.calitate.domain.PlanAQL plan = ro.uaic.feaa.sdbis.supplychain.calitate.domain.PlanAQL.standard(2.5, 30, 2);
+        PlanAQL plan = PlanAQL.standard(2.5, 30, 2);
+        IdFurnizor furnizor = furnizorId != null ? IdFurnizor.of(furnizorId) : resolveFurnizorForComanda(comandaId);
         return calitateAppService.programeazaInspectie(
-            ro.uaic.feaa.sdbis.supplychain.shared.IdLot.of(lotId),
-            ro.uaic.feaa.sdbis.supplychain.shared.IdComanda.of(comandaId),
-            IdFurnizor.random(),
-            ro.uaic.feaa.sdbis.supplychain.shared.CodMaterial.of(codMaterial),
+            IdLot.of(lotId),
+            IdComanda.of(comandaId),
+            furnizor,
+            CodMaterial.of(codMaterial),
             plan,
             perioadaInspectie
         );
+    }
+
+    @Override
+    public UUID programeazaInspectie(UUID lotId, UUID comandaId, String codMaterial) {
+        return programeazaInspectie(lotId, comandaId, null, codMaterial);
+    }
+
+    private IdFurnizor resolveFurnizorForComanda(UUID comandaId) {
+        if (comandaId != null && furnizorComandaAdapter != null && furnizorComandaAdapter.isPresent()) {
+            Optional<IdFurnizor> resolved = furnizorComandaAdapter.get().gasesteFurnizorComanda(IdComanda.of(comandaId));
+            if (resolved.isPresent()) {
+                return resolved.get();
+            }
+        }
+        return resolveFurnizorFallback();
+    }
+
+    private IdFurnizor resolveFurnizorFallback() {
+        return furnizorRepo.findEligibiliPentruComenzi().stream()
+                .findFirst()
+                .map(Furnizor::getId)
+                .orElseThrow(() -> new IllegalStateException(
+                        "Nu exista niciun furnizor eligibil in sistem pentru asocierea inspectiei de calitate"));
     }
 
     private FurnizorSummaryDTO mapToDTO(Furnizor f) {

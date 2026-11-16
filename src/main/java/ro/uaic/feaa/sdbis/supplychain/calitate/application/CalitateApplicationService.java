@@ -1,20 +1,57 @@
 package ro.uaic.feaa.sdbis.supplychain.calitate.application;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import ro.uaic.feaa.sdbis.supplychain.calitate.application.command.*;
-import ro.uaic.feaa.sdbis.supplychain.calitate.domain.*;
+import ro.uaic.feaa.sdbis.supplychain.calitate.api.event.FurnizorBlocatPublicEvent;
+import ro.uaic.feaa.sdbis.supplychain.calitate.api.event.FurnizorSuspendatPublicEvent;
+import ro.uaic.feaa.sdbis.supplychain.calitate.api.event.VerdictInspectiePublicEvent;
+import ro.uaic.feaa.sdbis.supplychain.calitate.application.command.AlocaInspectorCommand;
+import ro.uaic.feaa.sdbis.supplychain.calitate.application.command.CalculScorecardCommand;
+import ro.uaic.feaa.sdbis.supplychain.calitate.application.command.IncepeInspectieCommand;
+import ro.uaic.feaa.sdbis.supplychain.calitate.application.command.InregistreazaVerdictCommand;
+import ro.uaic.feaa.sdbis.supplychain.calitate.domain.ActiuneCorectiva;
+import ro.uaic.feaa.sdbis.supplychain.calitate.domain.Adresa;
+import ro.uaic.feaa.sdbis.supplychain.calitate.domain.AlocareInspectorService;
+import ro.uaic.feaa.sdbis.supplychain.calitate.domain.CalculScorecardService;
+import ro.uaic.feaa.sdbis.supplychain.calitate.domain.Certificare;
+import ro.uaic.feaa.sdbis.supplychain.calitate.domain.ConditiiContractuale;
+import ro.uaic.feaa.sdbis.supplychain.calitate.domain.Email;
+import ro.uaic.feaa.sdbis.supplychain.calitate.domain.FullName;
+import ro.uaic.feaa.sdbis.supplychain.calitate.domain.Furnizor;
+import ro.uaic.feaa.sdbis.supplychain.calitate.domain.FurnizorRepo;
+import ro.uaic.feaa.sdbis.supplychain.calitate.domain.Iban;
+import ro.uaic.feaa.sdbis.supplychain.calitate.domain.InspectieCalitate;
+import ro.uaic.feaa.sdbis.supplychain.calitate.domain.InspectieRepo;
+import ro.uaic.feaa.sdbis.supplychain.calitate.domain.InspectorCalitate;
+import ro.uaic.feaa.sdbis.supplychain.calitate.domain.InspectorRepo;
+import ro.uaic.feaa.sdbis.supplychain.calitate.domain.NCRRepo;
+import ro.uaic.feaa.sdbis.supplychain.calitate.domain.PlanAQL;
+import ro.uaic.feaa.sdbis.supplychain.calitate.domain.RaportNeconformitate;
+import ro.uaic.feaa.sdbis.supplychain.calitate.domain.ScorecardLunar;
+import ro.uaic.feaa.sdbis.supplychain.calitate.domain.Verdict;
 import ro.uaic.feaa.sdbis.supplychain.calitate.domain.event.FurnizorBlocatEvent;
 import ro.uaic.feaa.sdbis.supplychain.calitate.domain.event.FurnizorSuspendatEvent;
 import ro.uaic.feaa.sdbis.supplychain.calitate.domain.event.InspectieProgramataEvent;
 import ro.uaic.feaa.sdbis.supplychain.calitate.domain.event.NCREscaladatEvent;
 import ro.uaic.feaa.sdbis.supplychain.calitate.domain.event.VerdictInspectieEvent;
-import ro.uaic.feaa.sdbis.supplychain.shared.*;
+import ro.uaic.feaa.sdbis.supplychain.shared.CodMaterial;
+import ro.uaic.feaa.sdbis.supplychain.shared.IJurnalAudit;
+import ro.uaic.feaa.sdbis.supplychain.shared.IPerformantaLivrariAdapter;
+import ro.uaic.feaa.sdbis.supplychain.shared.IdComanda;
+import ro.uaic.feaa.sdbis.supplychain.shared.IdFurnizor;
+import ro.uaic.feaa.sdbis.supplychain.shared.IdLot;
+import ro.uaic.feaa.sdbis.supplychain.shared.InboxRepo;
+import ro.uaic.feaa.sdbis.supplychain.shared.OutboxRepo;
+import ro.uaic.feaa.sdbis.supplychain.shared.Perioada;
+import ro.uaic.feaa.sdbis.supplychain.shared.PerformantaLivrariVO;
 import ro.uaic.feaa.sdbis.supplychain.shared.annotation.ApplicationService;
 
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -77,21 +114,21 @@ public class CalitateApplicationService implements ICalitateWorkflowService {
     public void calificaFurnizor(IdFurnizor id, String decizie, String motiv) {
         Furnizor f = furnizorRepo.findById(id)
             .orElseThrow(() -> new NoSuchElementException("Furnizorul nu a fost gasit: " + id.getValue()));
-        
+
         switch (decizie.toUpperCase()) {
             case "EVALUARE" -> f.trimiteLaEvaluare();
             case "APROBA" -> f.aproba();
             case "SUSPENDA" -> {
                 f.suspenda(motiv);
                 outboxRepo.saveEvent(new FurnizorSuspendatEvent(UUID.randomUUID(), Instant.now(), id, motiv));
-                outboxRepo.saveEvent(new ro.uaic.feaa.sdbis.supplychain.calitate.api.event.FurnizorSuspendatPublicEvent(
+                outboxRepo.saveEvent(new FurnizorSuspendatPublicEvent(
                     UUID.randomUUID(), Instant.now(), id, motiv
                 ));
             }
             case "BLOCHEA" -> {
                 FurnizorBlocatEvent evt = f.blocheaza(motiv);
                 outboxRepo.saveEvent(evt);
-                outboxRepo.saveEvent(new ro.uaic.feaa.sdbis.supplychain.calitate.api.event.FurnizorBlocatPublicEvent(
+                outboxRepo.saveEvent(new FurnizorBlocatPublicEvent(
                     UUID.randomUUID(), evt.occurredOn(), id.getValue(), motiv
                 ));
             }
@@ -99,6 +136,31 @@ public class CalitateApplicationService implements ICalitateWorkflowService {
         }
         furnizorRepo.save(f);
         jurnalAudit.inregistreazaAcces("CALIFICA_FURNIZOR", "Furnizor: " + id.getValue() + " Decizie: " + decizie);
+    }
+
+    public void blocheazaFurnizor(IdFurnizor id, String motiv) {
+        Furnizor f = furnizorRepo.findById(id)
+            .orElseThrow(() -> new NoSuchElementException("Furnizorul nu a fost gasit: " + id.getValue()));
+        FurnizorBlocatEvent event = f.blocheaza(motiv);
+        furnizorRepo.save(f);
+        outboxRepo.saveEvent(event);
+        outboxRepo.saveEvent(new FurnizorBlocatPublicEvent(
+            UUID.randomUUID(), event.occurredOn(), id.getValue(), motiv
+        ));
+        jurnalAudit.inregistreazaAcces("BLOCHEAZA_FURNIZOR", "Furnizor: " + id.getValue() + " Motiv: " + motiv);
+    }
+
+    public void suspendaFurnizor(IdFurnizor id, String motiv) {
+        Furnizor f = furnizorRepo.findById(id)
+            .orElseThrow(() -> new NoSuchElementException("Furnizorul nu a fost gasit: " + id.getValue()));
+        f.suspenda(motiv);
+        furnizorRepo.save(f);
+        Instant now = Instant.now();
+        outboxRepo.saveEvent(new FurnizorSuspendatEvent(UUID.randomUUID(), now, id, motiv));
+        outboxRepo.saveEvent(new FurnizorSuspendatPublicEvent(
+            UUID.randomUUID(), now, id, motiv
+        ));
+        jurnalAudit.inregistreazaAcces("SUSPENDA_FURNIZOR", "Furnizor: " + id.getValue() + " Motiv: " + motiv);
     }
 
     public UUID creeazaInspector(String firstName, String lastName) {
@@ -171,12 +233,12 @@ public class CalitateApplicationService implements ICalitateWorkflowService {
 
         if (suspEvent != null) {
             outboxRepo.saveEvent(suspEvent);
-            outboxRepo.saveEvent(new ro.uaic.feaa.sdbis.supplychain.calitate.api.event.FurnizorSuspendatPublicEvent(
+            outboxRepo.saveEvent(new FurnizorSuspendatPublicEvent(
                 UUID.randomUUID(), suspEvent.occurredOn(), suspEvent.furnizorId(), suspEvent.motiv()
             ));
         }
         outboxRepo.saveEvent(event);
-        outboxRepo.saveEvent(new ro.uaic.feaa.sdbis.supplychain.calitate.api.event.VerdictInspectiePublicEvent(
+        outboxRepo.saveEvent(new VerdictInspectiePublicEvent(
             UUID.randomUUID(),
             event.occurredOn(),
             ins.getIdInspectie(),
@@ -231,6 +293,7 @@ public class CalitateApplicationService implements ICalitateWorkflowService {
         outboxRepo.saveEvent(evt);
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void calculeazaScorecardLunar(CalculScorecardCommand cmd) {
         Furnizor furn = furnizorRepo.findById(cmd.furnizorId())
             .orElseThrow(() -> new NoSuchElementException("Furnizor not found: " + cmd.furnizorId()));

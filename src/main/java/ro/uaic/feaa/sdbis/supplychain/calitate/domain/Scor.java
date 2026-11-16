@@ -14,6 +14,8 @@ import java.util.Objects;
 @ValueObject
 @Embeddable
 public final class Scor implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private BigDecimal valoare;
 
     protected Scor() {}

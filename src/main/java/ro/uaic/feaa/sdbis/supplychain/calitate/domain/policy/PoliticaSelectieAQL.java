@@ -4,9 +4,6 @@ import ro.uaic.feaa.sdbis.supplychain.calitate.domain.Calificativ;
 import ro.uaic.feaa.sdbis.supplychain.calitate.domain.PlanAQL;
 import ro.uaic.feaa.sdbis.supplychain.shared.annotation.DomainPolicy;
 
-import java.math.BigDecimal;
-import java.util.Objects;
-
 /**
  * Politica de selectie a regimului de inspectie si planului AQL conform ISO 2859-1 (Other Business Rules - ADR-003).
  * Adapteaza severitatea inspectiei in functie de calificativul furnizorului si marimea lotului.

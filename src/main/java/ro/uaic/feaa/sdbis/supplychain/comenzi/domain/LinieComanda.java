@@ -14,6 +14,8 @@ import java.util.Objects;
 @ValueObject
 @Embeddable
 public class LinieComanda implements Serializable {
+    private static final long serialVersionUID = 1L;
+
 
     @NotNull
     @Embedded

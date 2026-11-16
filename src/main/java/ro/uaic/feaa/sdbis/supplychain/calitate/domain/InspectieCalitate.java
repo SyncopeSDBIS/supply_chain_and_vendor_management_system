@@ -1,8 +1,17 @@
 package ro.uaic.feaa.sdbis.supplychain.calitate.domain;
 
-import jakarta.persistence.*;
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import jakarta.validation.constraints.NotNull;
-import ro.uaic.feaa.sdbis.supplychain.calitate.domain.event.InspectieProgramataEvent;
 import ro.uaic.feaa.sdbis.supplychain.calitate.domain.event.VerdictInspectieEvent;
 import ro.uaic.feaa.sdbis.supplychain.shared.CodMaterial;
 import ro.uaic.feaa.sdbis.supplychain.shared.IdComanda;
@@ -23,6 +32,8 @@ import java.util.UUID;
 @Entity
 @Table(name = "calitate_inspectii")
 public class InspectieCalitate implements Serializable {
+    private static final long serialVersionUID = 1L;
+
 
     @NotNull
     @Id
@@ -75,9 +86,29 @@ public class InspectieCalitate implements Serializable {
     @Column(name = "verdict", length = 50)
     private Verdict verdict;
 
+    @Column(name = "defecte_gasite")
+    private Integer defecteGasite;
+
+    @Column(name = "created_at")
+    private Instant createdAt = Instant.now();
+
+    @Column(name = "updated_at")
+    private Instant updatedAt = Instant.now();
+
     @Version
     @Column(name = "version", nullable = false)
     private Long version = 0L;
+
+    @PrePersist
+    protected void onPrePersist() {
+        if (createdAt == null) createdAt = Instant.now();
+        updatedAt = Instant.now();
+    }
+
+    @PreUpdate
+    protected void onPreUpdate() {
+        updatedAt = Instant.now();
+    }
 
     protected InspectieCalitate() {}
 
@@ -117,6 +148,7 @@ public class InspectieCalitate implements Serializable {
         if (this.stareInspectie != StareInspectie.InDesfasurare) {
             throw new IllegalStateException("Verdictul se poate inregistra doar cand inspectia este InDesfasurare");
         }
+        this.defecteGasite = defecteGasite;
         this.verdict = this.plan.decide(defecteGasite);
         if (this.verdict == Verdict.Conforma) {
             this.stareInspectie = StareInspectie.Conforma;
@@ -137,10 +169,19 @@ public class InspectieCalitate implements Serializable {
     }
 
     public void inchide() {
+        if (this.stareInspectie != StareInspectie.Conforma && this.stareInspectie != StareInspectie.Neconforma && this.stareInspectie != StareInspectie.InReinspectie) {
+            throw new IllegalStateException("Inspectia nu poate fi inchisa din starea: " + stareInspectie);
+        }
         this.stareInspectie = StareInspectie.Inchisa;
     }
 
     public void anuleaza() {
+        if (this.stareInspectie == StareInspectie.Conforma
+                || this.stareInspectie == StareInspectie.Neconforma
+                || this.stareInspectie == StareInspectie.Inchisa
+                || this.stareInspectie == StareInspectie.Anulata) {
+            throw new IllegalStateException("Inspectia finalizata, inchisa sau deja anulata nu poate fi anulata. Stare: " + stareInspectie);
+        }
         this.stareInspectie = StareInspectie.Anulata;
     }
 
@@ -154,6 +195,9 @@ public class InspectieCalitate implements Serializable {
     public UUID getInspectorId() { return inspectorId; }
     public StareInspectie getStareInspectie() { return stareInspectie; }
     public Verdict getVerdict() { return verdict; }
+    public Integer getDefecteGasite() { return defecteGasite; }
+    public Instant getCreatedAt() { return createdAt; }
+    public Instant getUpdatedAt() { return updatedAt; }
     public Long getVersion() { return version; }
 
     @Override

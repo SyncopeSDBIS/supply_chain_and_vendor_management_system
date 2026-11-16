@@ -22,6 +22,8 @@ public class ReconciliereComputationService implements IReconciliereComputationS
             return BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
         }
 
+        valideazaConsistentaValutara(facturi);
+
         BigDecimal restTotal = BigDecimal.ZERO;
         for (FacturaFurnizor f : facturi) {
             if (f.getStareFactura() != StareFactura.Anulata && f.getStareFactura() != StareFactura.Platita) {
@@ -36,6 +38,8 @@ public class ReconciliereComputationService implements IReconciliereComputationS
         if (facturi == null || facturi.isEmpty()) {
             return new PlatiSummaryView(BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, 0, 0, 0);
         }
+
+        valideazaConsistentaValutara(facturi);
 
         BigDecimal totalFacturat = BigDecimal.ZERO;
         BigDecimal totalAchitat = BigDecimal.ZERO;
@@ -71,6 +75,23 @@ public class ReconciliereComputationService implements IReconciliereComputationS
             achitateIntegral,
             restante
         );
+    }
+
+    private void valideazaConsistentaValutara(List<FacturaFurnizor> facturi) {
+        java.util.Currency monedaBaza = null;
+        for (FacturaFurnizor f : facturi) {
+            if (f.getStareFactura() == StareFactura.Anulata) {
+                continue;
+            }
+            java.util.Currency m = f.getMoneda();
+            if (monedaBaza == null) {
+                monedaBaza = m;
+            } else if (!monedaBaza.equals(m)) {
+                throw new IllegalArgumentException("Incompatibilitate valutara: Facturile contin monede diferite (" +
+                        monedaBaza.getCurrencyCode() + " vs " + m.getCurrencyCode() + "). " +
+                        "Agregarea financiara directa fara conversie valutara este interzisa.");
+            }
+        }
     }
 
     @Override

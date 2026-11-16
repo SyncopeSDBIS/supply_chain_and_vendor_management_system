@@ -12,6 +12,8 @@ import java.util.Objects;
 @ValueObject
 @Embeddable
 public final class EstimareLivrare implements Serializable {
+    private static final long serialVersionUID = 1L;
+
 
     @NotNull
     @Column(name = "data_estimata")

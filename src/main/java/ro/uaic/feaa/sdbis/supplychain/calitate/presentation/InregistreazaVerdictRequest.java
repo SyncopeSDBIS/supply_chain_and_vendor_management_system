@@ -7,6 +7,8 @@ import java.io.Serializable;
  * Request DTO for recording inspection verdicts.
  */
 public class InregistreazaVerdictRequest implements Serializable {
+    private static final long serialVersionUID = 1L;
+
 
     @PositiveOrZero(message = "Numarul defectelor gasite trebuie sa fie mai mare sau egal cu zero")
     private int defecteGasite;

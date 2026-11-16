@@ -12,6 +12,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@org.springframework.test.context.TestPropertySource(properties = {
+    "security.mock-headers.enabled=true",
+    "security.allow-anonymous-fallback=false"
+})
 @DisplayName("DevSecOps - Zero-Trust Role Based Access Control (RBAC) Tests")
 public class RbacSecurityTest {
 
@@ -36,6 +40,9 @@ public class RbacSecurityTest {
             .andExpect(status().isForbidden());
     }
 
+    @Autowired
+    private RbacSecurityFilter rbacSecurityFilter;
+
     @Test
     @DisplayName("RBAC: Accountant accesand modulul facturi este autorizat")
     void testAccountantCanAccessInvoices() throws Exception {
@@ -52,5 +59,22 @@ public class RbacSecurityTest {
                 .header("X-User-Role", "ROLE_ADMIN")
                 .header("X-User-Id", "admin-user"))
             .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("RBAC Hardened: Mock headers sunt respinse cand mockHeadersEnabled este false")
+    void testMockHeadersRejectedWhenDisabled() throws Exception {
+        try {
+            rbacSecurityFilter.setMockHeadersEnabled(false);
+            rbacSecurityFilter.setAllowAnonymousFallback(false);
+
+            mockMvc.perform(get("/api/facturi/scadente")
+                    .header("X-User-Role", "ROLE_ADMIN")
+                    .header("X-User-Id", "admin-user"))
+                .andExpect(status().isUnauthorized());
+        } finally {
+            rbacSecurityFilter.setMockHeadersEnabled(true);
+            rbacSecurityFilter.setAllowAnonymousFallback(true);
+        }
     }
 }

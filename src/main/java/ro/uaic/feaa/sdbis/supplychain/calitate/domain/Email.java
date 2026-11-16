@@ -8,6 +8,8 @@ import java.util.Objects;
 @ValueObject
 @Embeddable
 public final class Email implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private String email;
 
     protected Email() {}

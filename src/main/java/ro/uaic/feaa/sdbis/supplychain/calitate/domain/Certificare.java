@@ -13,6 +13,8 @@ import java.util.Objects;
 @ValueObject
 @Embeddable
 public final class Certificare implements Serializable {
+    private static final long serialVersionUID = 1L;
+
 
     @NotBlank
     @Column(name = "denumire", nullable = false)

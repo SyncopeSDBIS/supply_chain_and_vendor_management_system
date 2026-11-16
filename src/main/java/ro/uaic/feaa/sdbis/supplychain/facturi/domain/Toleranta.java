@@ -17,6 +17,8 @@ import java.util.Objects;
 @ValueObject
 @Embeddable
 public final class Toleranta implements Serializable {
+    private static final long serialVersionUID = 1L;
+
 
     private static final BigDecimal SUTA = BigDecimal.valueOf(100);
     private static final BigDecimal DEFAULT_PROCENT = BigDecimal.valueOf(2.0);

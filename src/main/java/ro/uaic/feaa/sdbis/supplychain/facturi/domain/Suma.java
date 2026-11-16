@@ -11,6 +11,8 @@ import java.util.Objects;
 @ValueObject
 @Embeddable
 public final class Suma implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private BigDecimal valoare;
     private Currency moneda;
 
@@ -34,6 +36,19 @@ public final class Suma implements Serializable {
 
     public static Suma zero(Currency moneda) {
         return new Suma(BigDecimal.ZERO, moneda);
+    }
+
+    public Suma convertesteIn(Currency targetMoneda, BigDecimal cursValutar) {
+        Objects.requireNonNull(targetMoneda, "targetMoneda cannot be null");
+        Objects.requireNonNull(cursValutar, "cursValutar cannot be null");
+        if (cursValutar.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Cursul valutar trebuie sa fie strict pozitiv");
+        }
+        if (this.moneda.equals(targetMoneda)) {
+            return this;
+        }
+        BigDecimal valoareConvertita = this.valoare.multiply(cursValutar).setScale(2, RoundingMode.HALF_UP);
+        return new Suma(valoareConvertita, targetMoneda);
     }
 
     public Suma adauga(Suma alta) {

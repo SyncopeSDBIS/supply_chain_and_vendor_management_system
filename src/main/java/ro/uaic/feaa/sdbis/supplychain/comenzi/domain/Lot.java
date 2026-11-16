@@ -1,6 +1,16 @@
 package ro.uaic.feaa.sdbis.supplychain.comenzi.domain;
 
-import jakarta.persistence.*;
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -19,6 +29,12 @@ import java.util.Objects;
 @Entity
 @Table(name = "comenzi_loturi")
 public class Lot implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "comanda_id")
+    private ComandaAprovizionare comanda;
 
     @NotNull
     @EmbeddedId
@@ -72,6 +88,14 @@ public class Lot implements Serializable {
         this.stareLot = StareLot.Planificat;
     }
 
+    void ataseazaComanda(ComandaAprovizionare comanda) {
+        this.comanda = comanda;
+    }
+
+    public ComandaAprovizionare getComanda() {
+        return comanda;
+    }
+
     // Metode de tranzitie package-private (~)
     void expediaza() {
         if (this.stareLot != StareLot.Planificat) {
@@ -82,11 +106,21 @@ public class Lot implements Serializable {
 
     void receptioneaza(Cantitate primit) {
         Objects.requireNonNull(primit, "cantitate primita cannot be null");
+        if (this.stareLot == StareLot.EliberatInStoc || this.stareLot == StareLot.Respins
+                || this.stareLot == StareLot.Returnat || this.stareLot == StareLot.Anulat) {
+            throw new IllegalStateException("Tranzitie invalida: Lotul nu poate fi receptionat din starea terminala " + stareLot);
+        }
+        if (this.stareLot != StareLot.Expediat && this.stareLot != StareLot.Planificat && this.stareLot != StareLot.SositInDepozit) {
+            throw new IllegalStateException("Tranzitie invalida: Lotul trebuie sa fie in starea Expediat sau Planificat pentru receptie. Stare curenta: " + stareLot);
+        }
         this.cantitatePrimita = this.cantitatePrimita.adauga(primit);
         this.stareLot = StareLot.SositInDepozit;
     }
 
     void plaseazaInCarantina() {
+        if (this.stareLot != StareLot.SositInDepozit) {
+            throw new IllegalStateException("Lot must be SositInDepozit to be quarantined. Current: " + stareLot);
+        }
         this.stareLot = StareLot.InCarantina;
     }
 

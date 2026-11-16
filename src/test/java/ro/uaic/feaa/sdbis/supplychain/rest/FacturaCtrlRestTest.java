@@ -21,6 +21,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
+@org.springframework.test.context.TestPropertySource(properties = {
+    "security.allow-anonymous-fallback=true",
+    "security.mock-headers.enabled=true"
+})
 @DisplayName("Sprint 4 - Facturi & Reconciliere REST Controller Tests (I1..I8)")
 public class FacturaCtrlRestTest {
 
@@ -126,5 +130,29 @@ public class FacturaCtrlRestTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(payload))
             .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("GET /api/facturi - listare facturi cu paginare")
+    void testListeazaFacturi() throws Exception {
+        mockMvc.perform(get("/api/facturi?page=0&size=10"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$").isArray());
+    }
+
+    @Test
+    @DisplayName("GET /api/nir - listare note intrare receptie")
+    void testListeazaNIR() throws Exception {
+        mockMvc.perform(get("/api/nir"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$").isArray());
+    }
+
+    @Test
+    @DisplayName("GET /api/ordine-plata - listare ordine de plata")
+    void testListeazaOrdinePlata() throws Exception {
+        mockMvc.perform(get("/api/ordine-plata"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$").isArray());
     }
 }

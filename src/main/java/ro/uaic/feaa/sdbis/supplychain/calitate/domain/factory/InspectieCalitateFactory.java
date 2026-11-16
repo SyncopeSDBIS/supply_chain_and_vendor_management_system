@@ -10,7 +10,6 @@ import ro.uaic.feaa.sdbis.supplychain.shared.Perioada;
 import ro.uaic.feaa.sdbis.supplychain.shared.annotation.DomainFactory;
 import ro.uaic.feaa.sdbis.supplychain.shared.exception.DomainValidationException;
 
-import java.util.Objects;
 import java.util.UUID;
 
 /**

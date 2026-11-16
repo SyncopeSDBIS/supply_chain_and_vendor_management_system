@@ -5,8 +5,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
-import ro.uaic.feaa.sdbis.supplychain.calitate.domain.InspectieRepo;
+import ro.uaic.feaa.sdbis.supplychain.calitate.domain.Furnizor;
+import ro.uaic.feaa.sdbis.supplychain.calitate.domain.FurnizorRepo;
+import ro.uaic.feaa.sdbis.supplychain.calitate.domain.Iban;
 import ro.uaic.feaa.sdbis.supplychain.comenzi.application.ComandaApplicationService;
+import ro.uaic.feaa.sdbis.supplychain.comenzi.application.command.ConfirmaComandaCommand;
 import ro.uaic.feaa.sdbis.supplychain.comenzi.application.command.CreeazaComandaCommand;
 import ro.uaic.feaa.sdbis.supplychain.comenzi.application.command.InregistreazaExpediereCommand;
 import ro.uaic.feaa.sdbis.supplychain.comenzi.application.command.InregistreazaReceptieCommand;
@@ -21,7 +24,6 @@ import ro.uaic.feaa.sdbis.supplychain.shared.IdComanda;
 import ro.uaic.feaa.sdbis.supplychain.shared.IdFurnizor;
 import ro.uaic.feaa.sdbis.supplychain.shared.IdLot;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
@@ -43,18 +45,15 @@ public class OutboxAndMessagingIntegrationTest {
     private NIRRepo nirRepo;
 
     @Autowired
-    private InspectieRepo inspectieRepo;
-
-    @Autowired
-    private ro.uaic.feaa.sdbis.supplychain.calitate.domain.FurnizorRepo furnizorRepo;
+    private FurnizorRepo furnizorRepo;
 
     @Test
     @DisplayName("Test EDA: Receptia comenzii genereaza NIR si Inspectie prin Outbox Dispatcher cu garantie de Idempotenta")
     void testEventDrivenReceptionAndIdempotency() {
         IdFurnizor furnizorId = IdFurnizor.random();
-        ro.uaic.feaa.sdbis.supplychain.calitate.domain.Furnizor f = new ro.uaic.feaa.sdbis.supplychain.calitate.domain.Furnizor(
+        Furnizor f = new Furnizor(
             furnizorId, "RO" + (System.currentTimeMillis() % 10000000), "Furnizor Test EDA",
-            null, Collections.emptySet(), new ro.uaic.feaa.sdbis.supplychain.calitate.domain.Iban("RO49AAAA1B31007593840000"),
+            null, Collections.emptySet(), new Iban("RO49AAAA1B31007593840000"),
             Collections.singleton("METALE"), null
         );
         f.trimiteLaEvaluare();
@@ -78,8 +77,11 @@ public class OutboxAndMessagingIntegrationTest {
 
         IdComanda comandaId = comandaAppService.creeazaComanda(createCmd);
 
-        // Confirma comanda de catre furnizor (tranzitie Solicitat -> Confirmat)
-        comandaAppService.confirmaComanda(new ro.uaic.feaa.sdbis.supplychain.comenzi.application.command.ConfirmaComandaCommand(
+        // Aproba comanda conform politicilor (tranzitie Solicitat -> Aprobat)
+        comandaAppService.valideazaSiAproba(comandaId);
+
+        // Confirma comanda de catre furnizor (tranzitie Aprobat -> Confirmat)
+        comandaAppService.confirmaComanda(new ConfirmaComandaCommand(
             comandaId, LocalDate.now().plusDays(7)
         ));
 

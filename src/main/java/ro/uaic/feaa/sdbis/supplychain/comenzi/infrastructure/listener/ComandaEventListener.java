@@ -2,8 +2,9 @@ package ro.uaic.feaa.sdbis.supplychain.comenzi.infrastructure.listener;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 import ro.uaic.feaa.sdbis.supplychain.calitate.api.event.VerdictInspectiePublicEvent;
 import ro.uaic.feaa.sdbis.supplychain.comenzi.application.ComandaApplicationService;
 import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.RezultatCalitateLot;
@@ -28,10 +29,10 @@ public class ComandaEventListener {
         this.inboxRepo = inboxRepo;
     }
 
-    @EventListener
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
     public void onVerdictInspectie(VerdictInspectiePublicEvent event) {
-        if (inboxRepo.existaEveniment(CONSUMER_ID, event.eventId())) {
-            log.info("[ComandaEventListener] Event {} already processed, skipping (Idempotent Inbox).", event.eventId());
+        if (!inboxRepo.incearcaInregistrare(CONSUMER_ID, event.eventId())) {
+            log.info("[ComandaEventListener] Event {} already claimed/processed, skipping (Idempotent Inbox).", event.eventId());
             return;
         }
 
@@ -41,7 +42,6 @@ public class ComandaEventListener {
                 : RezultatCalitateLot.Neconform;
 
             comandaAppService.aplicaVerdictInspectie(event.comandaId(), event.lotId(), rezultat);
-            inboxRepo.marcheazaProcesat(CONSUMER_ID, event.eventId());
             log.info("[ComandaEventListener] Applied quality inspection verdict {} on lot {} of order {}",
                 rezultat, event.lotId().getValue(), event.comandaId().getValue());
         } catch (Exception ex) {

@@ -1,20 +1,57 @@
 package ro.uaic.feaa.sdbis.supplychain.facturi.application;
 
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import ro.uaic.feaa.sdbis.supplychain.facturi.application.command.*;
-import ro.uaic.feaa.sdbis.supplychain.facturi.domain.*;
-import ro.uaic.feaa.sdbis.supplychain.facturi.domain.event.PlataExecutataEvent;
-import ro.uaic.feaa.sdbis.supplychain.shared.*;
-
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
+import ro.uaic.feaa.sdbis.supplychain.facturi.api.event.PlataExecutataPublicEvent;
+import ro.uaic.feaa.sdbis.supplychain.facturi.application.command.AprobaOrdinCommand;
+import ro.uaic.feaa.sdbis.supplychain.facturi.application.command.ContabilizeazaNIRCommand;
+import ro.uaic.feaa.sdbis.supplychain.facturi.application.command.ContestaFacturaCommand;
+import ro.uaic.feaa.sdbis.supplychain.facturi.application.command.CreeazaOrdinPlataCommand;
+import ro.uaic.feaa.sdbis.supplychain.facturi.application.command.GenereazaNIRCommand;
+import ro.uaic.feaa.sdbis.supplychain.facturi.application.command.InregistreazaExecutiePlataCommand;
+import ro.uaic.feaa.sdbis.supplychain.facturi.application.command.InregistreazaFacturaCommand;
+import ro.uaic.feaa.sdbis.supplychain.facturi.application.command.ReconciliereCommand;
+import ro.uaic.feaa.sdbis.supplychain.facturi.application.command.RespingereBancaCommand;
+import ro.uaic.feaa.sdbis.supplychain.facturi.application.command.StorneazaNIRCommand;
+import ro.uaic.feaa.sdbis.supplychain.facturi.application.command.TransmiteOrdinCommand;
+import ro.uaic.feaa.sdbis.supplychain.facturi.domain.ComandaSummaryVO;
+import ro.uaic.feaa.sdbis.supplychain.facturi.domain.FacturaFurnizor;
+import ro.uaic.feaa.sdbis.supplychain.facturi.domain.FacturaRepo;
+import ro.uaic.feaa.sdbis.supplychain.facturi.domain.FurnizoriBlocatiRepo;
+import ro.uaic.feaa.sdbis.supplychain.facturi.domain.IBancaPlataProvider;
+import ro.uaic.feaa.sdbis.supplychain.facturi.domain.IComenziAdapter;
+import ro.uaic.feaa.sdbis.supplychain.facturi.domain.NIR;
+import ro.uaic.feaa.sdbis.supplychain.facturi.domain.NIRRepo;
+import ro.uaic.feaa.sdbis.supplychain.facturi.domain.OrdinPlata;
+import ro.uaic.feaa.sdbis.supplychain.facturi.domain.OrdinPlataRepo;
+import ro.uaic.feaa.sdbis.supplychain.facturi.domain.ReconciliereService;
+import ro.uaic.feaa.sdbis.supplychain.facturi.domain.RezultatReconciliere;
+import ro.uaic.feaa.sdbis.supplychain.facturi.domain.StareFactura;
+import ro.uaic.feaa.sdbis.supplychain.facturi.domain.StareNIR;
+import ro.uaic.feaa.sdbis.supplychain.facturi.domain.StareOrdinPlata;
+import ro.uaic.feaa.sdbis.supplychain.facturi.domain.Suma;
+import ro.uaic.feaa.sdbis.supplychain.facturi.domain.Toleranta;
+import ro.uaic.feaa.sdbis.supplychain.facturi.domain.event.PlataExecutataEvent;
+import ro.uaic.feaa.sdbis.supplychain.shared.IJurnalAudit;
+import ro.uaic.feaa.sdbis.supplychain.shared.IdComanda;
+import ro.uaic.feaa.sdbis.supplychain.shared.IdFurnizor;
+import ro.uaic.feaa.sdbis.supplychain.shared.InboxRepo;
+import ro.uaic.feaa.sdbis.supplychain.shared.OutboxRepo;
 import ro.uaic.feaa.sdbis.supplychain.shared.annotation.ApplicationService;
 
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 @Service
-@Transactional
 @ApplicationService
 public class FacturaApplicationService implements IFacturaWorkflowService {
 
@@ -28,6 +65,7 @@ public class FacturaApplicationService implements IFacturaWorkflowService {
     private final IJurnalAudit jurnalAudit;
     private final ReconciliereService reconciliereService;
     private final IBancaPlataProvider bancaProvider;
+    private final TransactionTemplate transactionTemplate;
 
     public FacturaApplicationService(FacturaRepo facturaRepo,
                                      NIRRepo nirRepo,
@@ -38,7 +76,8 @@ public class FacturaApplicationService implements IFacturaWorkflowService {
                                      IComenziAdapter comenziAdapter,
                                      IJurnalAudit jurnalAudit,
                                      ReconciliereService reconciliereService,
-                                     IBancaPlataProvider bancaProvider) {
+                                     IBancaPlataProvider bancaProvider,
+                                     @Autowired(required = false) TransactionTemplate transactionTemplate) {
         this.facturaRepo = facturaRepo;
         this.nirRepo = nirRepo;
         this.ordinRepo = ordinRepo;
@@ -49,8 +88,10 @@ public class FacturaApplicationService implements IFacturaWorkflowService {
         this.jurnalAudit = jurnalAudit;
         this.reconciliereService = reconciliereService;
         this.bancaProvider = bancaProvider;
+        this.transactionTemplate = transactionTemplate;
     }
 
+    @Transactional
     public UUID inregistreazaFactura(InregistreazaFacturaCommand cmd) {
         UUID id = UUID.randomUUID();
         FacturaFurnizor f = new FacturaFurnizor(
@@ -62,6 +103,7 @@ public class FacturaApplicationService implements IFacturaWorkflowService {
         return id;
     }
 
+    @Transactional
     public void contestaFactura(UUID facturaId, String motiv) {
         FacturaFurnizor f = facturaRepo.findById(facturaId)
             .orElseThrow(() -> new NoSuchElementException("Factura nu a fost gasita: " + facturaId));
@@ -70,6 +112,7 @@ public class FacturaApplicationService implements IFacturaWorkflowService {
         jurnalAudit.inregistreazaAcces("CONTESTA_FACTURA", "Factura: " + facturaId + " Motiv: " + motiv);
     }
 
+    @Transactional
     public void genereazaNIR(GenereazaNIRCommand cmd) {
         if (nirRepo.existaNIRPentruEvent(cmd.eventSursaId())) {
             return;
@@ -80,6 +123,7 @@ public class FacturaApplicationService implements IFacturaWorkflowService {
         jurnalAudit.inregistreazaAcces("GENEREAZA_NIR", "NIR: " + cmd.numarNIR());
     }
 
+    @Transactional
     public void contabilizeazaNIR(UUID nirId) {
         NIR n = nirRepo.findById(nirId)
             .orElseThrow(() -> new NoSuchElementException("NIR nu a fost gasit: " + nirId));
@@ -88,6 +132,7 @@ public class FacturaApplicationService implements IFacturaWorkflowService {
         jurnalAudit.inregistreazaAcces("CONTABILIZEAZA_NIR", "NIR: " + nirId);
     }
 
+    @Transactional
     public void storneazaNIR(UUID nirId, String motiv) {
         NIR n = nirRepo.findById(nirId)
             .orElseThrow(() -> new NoSuchElementException("NIR nu a fost gasit: " + nirId));
@@ -96,36 +141,92 @@ public class FacturaApplicationService implements IFacturaWorkflowService {
         jurnalAudit.inregistreazaAcces("STORNEAZA_NIR", "NIR: " + nirId + " Motiv: " + motiv);
     }
 
+    @Transactional
     public void reconcilieazaFactura(ReconciliereCommand cmd) {
         FacturaFurnizor f = facturaRepo.findById(cmd.facturaId())
             .orElseThrow(() -> new NoSuchElementException("Factura nu a fost gasita: " + cmd.facturaId()));
 
-        List<NIR> niruri = nirRepo.findByComandaId(f.getComandaId());
-        if (niruri.isEmpty()) {
-            throw new IllegalStateException("Nu exista niciun NIR generat pentru comanda " + f.getComandaId());
+        List<NIR> listaNiruri = new ArrayList<>();
+        if (cmd.nirIds() != null && !cmd.nirIds().isEmpty()) {
+            for (UUID nid : cmd.nirIds()) {
+                NIR n = nirRepo.findById(nid)
+                    .orElseThrow(() -> new NoSuchElementException("NIR-ul nu a fost gasit: " + nid));
+                if (!n.getComandaId().equals(f.getComandaId())) {
+                    throw new IllegalArgumentException("NIR-ul " + nid + " nu apartine comenzii " + f.getComandaId());
+                }
+                listaNiruri.add(n);
+            }
+        } else if (cmd.nirId() != null) {
+            NIR n = nirRepo.findById(cmd.nirId())
+                .orElseThrow(() -> new NoSuchElementException("NIR-ul nu a fost gasit: " + cmd.nirId()));
+            if (!n.getComandaId().equals(f.getComandaId())) {
+                throw new IllegalArgumentException("NIR-ul " + cmd.nirId() + " nu apartine comenzii " + f.getComandaId());
+            }
+            listaNiruri.add(n);
+        } else {
+            List<NIR> niruri = nirRepo.findByComandaId(f.getComandaId());
+            if (niruri.isEmpty()) {
+                throw new IllegalStateException("Nu exista niciun NIR generat pentru comanda " + f.getComandaId());
+            }
+            List<NIR> activeNiruri = niruri.stream()
+                .filter(n -> n.getStareNIR() != StareNIR.Reconciliat &&
+                             n.getStareNIR() != StareNIR.Contabilizat &&
+                             n.getStareNIR() != StareNIR.Stornat)
+                .toList();
+            if (activeNiruri.isEmpty()) {
+                listaNiruri.add(niruri.get(0));
+            } else {
+                listaNiruri.addAll(activeNiruri);
+            }
         }
-        NIR nir = niruri.get(0);
+
+        // FIX TEST-01: Protectie impotriva facturarii duplicate pe acelasi NIR
+        for (NIR nir : listaNiruri) {
+            if (nir.getStareNIR() == StareNIR.Reconciliat || nir.getStareNIR() == StareNIR.Contabilizat) {
+                List<FacturaFurnizor> facturiExistente = facturaRepo.findByComandaId(f.getComandaId());
+                boolean hasActiveApprovedInvoice = facturiExistente.stream()
+                    .anyMatch(fe -> !fe.getIdFactura().equals(f.getIdFactura()) &&
+                            (fe.getStareFactura() == StareFactura.AprobataLaPlata ||
+                             fe.getStareFactura() == StareFactura.Platita ||
+                             fe.getStareFactura() == StareFactura.PartialPlatita));
+                if (hasActiveApprovedInvoice) {
+                    f.blocheaza("NIR-ul " + nir.getNumarNIR() + " a fost deja reconciliat si facturat.");
+                    facturaRepo.save(f);
+                    throw new IllegalStateException("Factura duplicata: NIR-ul pentru comanda " + f.getComandaId() +
+                            " a fost deja reconciliat si aprobat anterior.");
+                }
+            }
+        }
 
         ComandaSummaryVO comanda = comenziAdapter.obtineDateComanda(f.getComandaId());
 
         f.trimiteLaVerificare();
-        nir.trimiteLaReconciliere();
+        for (NIR nir : listaNiruri) {
+            nir.trimiteLaReconciliere();
+        }
 
-        RezultatReconciliere res = reconciliereService.reconciliaza(f, nir, comanda, Toleranta.standard());
+        RezultatReconciliere res = reconciliereService.reconciliaza(f, listaNiruri, comanda, Toleranta.standard());
 
         if (res.aprobata()) {
             f.aproba();
-            nir.reconciliaza();
+            for (NIR nir : listaNiruri) {
+                nir.reconciliaza();
+            }
         } else {
             f.blocheaza(String.join("; ", res.diferente()));
-            nir.marcheazaDiscrepante();
+            for (NIR nir : listaNiruri) {
+                nir.marcheazaDiscrepante();
+            }
         }
 
         facturaRepo.save(f);
-        nirRepo.save(nir);
-        jurnalAudit.inregistreazaAcces("RECONCILIERE_FACTURA", "Factura: " + cmd.facturaId() + " -> " + (res.aprobata() ? "Aprobata" : "Blocata"));
+        for (NIR nir : listaNiruri) {
+            nirRepo.save(nir);
+        }
+        jurnalAudit.inregistreazaAcces("RECONCILIERE_FACTURA", "Factura: " + cmd.facturaId() + " -> " + (res.aprobata() ? "Aprobata" : "Blocata") + " (NIR-uri: " + listaNiruri.size() + ")");
     }
 
+    @Transactional
     public UUID creeazaOrdinPlata(CreeazaOrdinPlataCommand cmd) {
         FacturaFurnizor f = facturaRepo.findById(cmd.facturaId())
             .orElseThrow(() -> new NoSuchElementException("Factura nu a fost gasita: " + cmd.facturaId()));
@@ -140,18 +241,22 @@ public class FacturaApplicationService implements IFacturaWorkflowService {
         return ordin.getIdOrdin();
     }
 
+    @Transactional
     public void contestaFactura(ContestaFacturaCommand cmd) {
         contestaFactura(cmd.facturaId(), cmd.motiv());
     }
 
+    @Transactional
     public void contabilizeazaNIR(ContabilizeazaNIRCommand cmd) {
         contabilizeazaNIR(cmd.nirId());
     }
 
+    @Transactional
     public void storneazaNIR(StorneazaNIRCommand cmd) {
         storneazaNIR(cmd.nirId(), cmd.motiv());
     }
 
+    @Transactional
     public void aprobaOrdin(UUID ordinId, UUID aprobatorId) {
         OrdinPlata ordin = ordinRepo.findById(ordinId)
             .orElseThrow(() -> new NoSuchElementException("Ordinul nu a fost gasit: " + ordinId));
@@ -159,11 +264,41 @@ public class FacturaApplicationService implements IFacturaWorkflowService {
         ordinRepo.save(ordin);
     }
 
+    @Transactional
     public void aprobaOrdin(AprobaOrdinCommand cmd) {
         aprobaOrdin(cmd.ordinId(), cmd.aprobatorId());
     }
 
     public void transmiteOrdin(TransmiteOrdinCommand cmd) {
+        AtomicBoolean furnizorBlocat = new AtomicBoolean(false);
+        // Pasul 1 (Tranzactionat scurt): validare, aprobare <=10k si marcare 'transmiteLaBanca'
+        OrdinPlata ordin = (transactionTemplate != null)
+                ? transactionTemplate.execute(status -> pregatesteSiMarcheazaTransmitere(cmd, furnizorBlocat))
+                : pregatesteSiMarcheazaTransmitere(cmd, furnizorBlocat);
+
+        if (furnizorBlocat.get()) {
+            throw new IllegalStateException("Furnizorul este blocat. Ordinul a fost anulat!");
+        }
+
+        // Pasul 2 (NON-TRANZACTIONAT in productie): Conexiunea JDBC HikariCP este eliberata in pool in timpul apelului extern Stripe!
+        boolean transmis = bancaProvider.transmiteOrdinPlata(ordin, cmd.ibanFurnizor());
+
+        // Pasul 3 (Tranzactionat scurt): Daca gateway-ul a respins transmiterea, marcare 'respingeDeBanca'
+        if (!transmis) {
+            if (transactionTemplate != null) {
+                transactionTemplate.executeWithoutResult(status -> {
+                    OrdinPlata o = ordinRepo.findById(cmd.ordinId()).orElse(ordin);
+                    o.respingeDeBanca("Eroare transmitere gateway bancar");
+                    ordinRepo.save(o);
+                });
+            } else {
+                ordin.respingeDeBanca("Eroare transmitere gateway bancar");
+                ordinRepo.save(ordin);
+            }
+        }
+    }
+
+    private OrdinPlata pregatesteSiMarcheazaTransmitere(TransmiteOrdinCommand cmd, AtomicBoolean furnizorBlocat) {
         OrdinPlata ordin = ordinRepo.findById(cmd.ordinId())
             .orElseThrow(() -> new NoSuchElementException("Ordinul nu a fost gasit: " + cmd.ordinId()));
 
@@ -173,7 +308,8 @@ public class FacturaApplicationService implements IFacturaWorkflowService {
         if (furnizoriBlocatiRepo.esteBlocat(f.getFurnizorId())) {
             ordin.anuleaza();
             ordinRepo.save(ordin);
-            throw new IllegalStateException("Furnizorul este blocat. Ordinul a fost anulat!");
+            furnizorBlocat.set(true);
+            return ordin;
         }
 
         // Daca ordinul are suma <= 10.000 EUR si este in starea Creat, Ofiterul Financiar il autorizeaza automat
@@ -188,10 +324,10 @@ public class FacturaApplicationService implements IFacturaWorkflowService {
 
         ordin.transmiteLaBanca();
         ordinRepo.save(ordin);
-
-        bancaProvider.transmiteOrdinPlata(ordin, cmd.ibanFurnizor());
+        return ordin;
     }
 
+    @Transactional
     public void inregistreazaExecutiePlata(UUID ordinId) {
         OrdinPlata ordin = ordinRepo.findById(ordinId)
             .orElseThrow(() -> new NoSuchElementException("Ordinul nu a fost gasit: " + ordinId));
@@ -208,7 +344,7 @@ public class FacturaApplicationService implements IFacturaWorkflowService {
         facturaRepo.save(f);
 
         outboxRepo.saveEvent(event);
-        outboxRepo.saveEvent(new ro.uaic.feaa.sdbis.supplychain.facturi.api.event.PlataExecutataPublicEvent(
+        outboxRepo.saveEvent(new PlataExecutataPublicEvent(
             UUID.randomUUID(),
             event.occurredOn(),
             event.ordinId(),
@@ -219,10 +355,12 @@ public class FacturaApplicationService implements IFacturaWorkflowService {
         jurnalAudit.inregistreazaAcces("EXECUTIE_PLATA", "Ordin: " + ordinId + " executat cu succes");
     }
 
+    @Transactional
     public void inregistreazaExecutiePlata(InregistreazaExecutiePlataCommand cmd) {
         inregistreazaExecutiePlata(cmd.ordinId());
     }
 
+    @Transactional
     public void respingeDeBanca(RespingereBancaCommand cmd) {
         OrdinPlata ordin = ordinRepo.findById(cmd.ordinId())
             .orElseThrow(() -> new NoSuchElementException("Ordinul nu a fost gasit: " + cmd.ordinId()));
@@ -235,10 +373,9 @@ public class FacturaApplicationService implements IFacturaWorkflowService {
         jurnalAudit.inregistreazaAcces("RESPINGERE_BANCA", "Ordin: " + cmd.ordinId() + " motiv: " + cmd.motiv());
     }
 
+    @Transactional
     public void blocheazaFacturiComandaAnulata(IdComanda comandaId) {
-        List<FacturaFurnizor> facturi = facturaRepo.findAll().stream()
-            .filter(f -> f.getComandaId().equals(comandaId))
-            .toList();
+        List<FacturaFurnizor> facturi = facturaRepo.findByComandaId(comandaId);
         for (FacturaFurnizor f : facturi) {
             f.anuleaza();
             facturaRepo.save(f);
@@ -246,12 +383,14 @@ public class FacturaApplicationService implements IFacturaWorkflowService {
         jurnalAudit.inregistreazaAcces("ANULARE_FACTURI_COMANDA_ANULATA", "Comanda: " + comandaId.getValue() + " (facturi anulate: " + facturi.size() + ")");
     }
 
+    @Transactional
     public void blocheazaPlatiFurnizor(IdFurnizor furnizorId) {
         furnizoriBlocatiRepo.adauga(furnizorId);
         jurnalAudit.inregistreazaAcces("BLOCARE_PLATI_FURNIZOR", "Furnizor: " + furnizorId);
     }
 
     @Override
+    @Transactional
     public void inregistreazaPlataFactura(UUID facturaId, Suma suma) {
         FacturaFurnizor f = facturaRepo.findById(facturaId)
             .orElseThrow(() -> new NoSuchElementException("Factura nu a fost gasita: " + facturaId));

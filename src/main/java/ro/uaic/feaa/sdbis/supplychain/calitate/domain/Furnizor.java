@@ -1,6 +1,23 @@
 package ro.uaic.feaa.sdbis.supplychain.calitate.domain;
 
-import jakarta.persistence.*;
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderColumn;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -14,12 +31,20 @@ import ro.uaic.feaa.sdbis.supplychain.shared.annotation.AggregateRoot;
 
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 
 @AggregateRoot
 @Entity
 @Table(name = "calitate_furnizori")
 public class Furnizor implements Serializable {
+    private static final long serialVersionUID = 1L;
+
 
     @NotNull
     @EmbeddedId
@@ -41,6 +66,7 @@ public class Furnizor implements Serializable {
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "calitate_furnizori_emailuri", joinColumns = @JoinColumn(name = "furnizor_id"))
     @AttributeOverride(name = "email", column = @Column(name = "email", nullable = false, length = 255))
+    @SuppressWarnings("serial") // Collection interface Set does not implement Serializable; runtime instance is HashSet
     private Set<Email> emailuri = new HashSet<>();
 
     @NotNull
@@ -52,6 +78,7 @@ public class Furnizor implements Serializable {
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "calitate_furnizori_categorii", joinColumns = @JoinColumn(name = "furnizor_id"))
     @Column(name = "categorie", nullable = false, length = 100)
+    @SuppressWarnings("serial") // Collection interface Set does not implement Serializable directly; runtime instance is HashSet
     private Set<String> categoriiMateriale = new HashSet<>();
 
     @Embedded
@@ -59,6 +86,8 @@ public class Furnizor implements Serializable {
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "furnizor_preturi_negociate", joinColumns = @JoinColumn(name = "furnizor_id_val"))
+    @OrderColumn(name = "pret_idx")
+    @SuppressWarnings("serial") // Collection interface List does not implement Serializable directly; runtime instance is ArrayList
     private List<PretNegociat> preturiNegociate = new ArrayList<>();
 
     @NotNull
@@ -66,17 +95,35 @@ public class Furnizor implements Serializable {
     @Column(name = "stare_furnizor", nullable = false, length = 50)
     private StareFurnizor stareFurnizor;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JoinColumn(name = "furnizor_id")
+    @OneToMany(mappedBy = "furnizor", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OrderColumn(name = "scorecard_idx")
+    @SuppressWarnings("serial") // Collection interface List does not implement Serializable directly; runtime instance is ArrayList
     private List<ScorecardLunar> scorecarduri = new ArrayList<>();
 
     @Min(0)
     @Column(name = "inspectii_neconforme_consecutive", nullable = false)
     private int inspectiiNeconformeConsecutive = 0;
 
+    @Column(name = "created_at")
+    private java.time.Instant createdAt = java.time.Instant.now();
+
+    @Column(name = "updated_at")
+    private java.time.Instant updatedAt = java.time.Instant.now();
+
     @Version
     @Column(name = "version", nullable = false)
     private Long version = 0L;
+
+    @PrePersist
+    protected void onPrePersist() {
+        if (createdAt == null) createdAt = java.time.Instant.now();
+        updatedAt = java.time.Instant.now();
+    }
+
+    @PreUpdate
+    protected void onPreUpdate() {
+        updatedAt = java.time.Instant.now();
+    }
 
     protected Furnizor() {}
 
@@ -121,12 +168,19 @@ public class Furnizor implements Serializable {
     }
 
     public void aproba() {
+        if (this.stareFurnizor != StareFurnizor.InEvaluare && this.stareFurnizor != StareFurnizor.Conditionat) {
+            throw new IllegalStateException("Only InEvaluare or Conditionat can be approved. Current: " + stareFurnizor);
+        }
         this.stareFurnizor = StareFurnizor.Aprobat;
         this.inspectiiNeconformeConsecutive = 0;
     }
 
     public void aplicaScorecard(ScorecardLunar s) {
+        if (this.stareFurnizor == StareFurnizor.Blocat) {
+            throw new IllegalStateException("Nu se pot aplica evaluari periodice unui furnizor aflat in starea Blocat.");
+        }
         validaScorecardUnicPeLuna(s.getLuna());
+        s.ataseazaFurnizor(this);
         scorecarduri.add(s);
         Calificativ c = s.calificativ();
 
@@ -154,6 +208,9 @@ public class Furnizor implements Serializable {
     }
 
     public void suspenda(String motiv) {
+        if (this.stareFurnizor == StareFurnizor.Blocat) {
+            throw new IllegalStateException("Un furnizor blocat nu poate fi trecut in starea Suspendat.");
+        }
         this.stareFurnizor = StareFurnizor.Suspendat;
     }
 
@@ -167,9 +224,14 @@ public class Furnizor implements Serializable {
     }
 
     public int calculeazaLuniConsecutiveBSauMaiBun() {
+        if (scorecarduri == null || scorecarduri.isEmpty()) {
+            return 0;
+        }
+        List<ScorecardLunar> sortate = new ArrayList<>(scorecarduri);
+        sortate.sort((s1, s2) -> s1.getLuna().getDataInceput().compareTo(s2.getLuna().getDataInceput()));
         int count = 0;
-        for (int i = scorecarduri.size() - 1; i >= 0; i--) {
-            Calificativ c = scorecarduri.get(i).calificativ();
+        for (int i = sortate.size() - 1; i >= 0; i--) {
+            Calificativ c = sortate.get(i).calificativ();
             if (c == Calificativ.A || c == Calificativ.B) {
                 count++;
             } else {
@@ -200,6 +262,8 @@ public class Furnizor implements Serializable {
     public StareFurnizor getStareFurnizor() { return stareFurnizor; }
     public List<ScorecardLunar> getScorecarduri() { return Collections.unmodifiableList(scorecarduri); }
     public int getInspectiiNeconformeConsecutive() { return inspectiiNeconformeConsecutive; }
+    public java.time.Instant getCreatedAt() { return createdAt; }
+    public java.time.Instant getUpdatedAt() { return updatedAt; }
     public Long getVersion() { return version; }
 
     @Override

@@ -1,6 +1,5 @@
 package ro.uaic.feaa.sdbis.supplychain.comenzi.infrastructure;
 
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import ro.uaic.feaa.sdbis.supplychain.calitate.api.ICalitateModuleApi;
 import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.IGestiuneFurnizoriAdapter;
@@ -15,7 +14,7 @@ public class GestiuneFurnizoriAdapterRest implements IGestiuneFurnizoriAdapter {
 
     private final ICalitateModuleApi calitateApi;
 
-    public GestiuneFurnizoriAdapterRest(@Lazy ICalitateModuleApi calitateApi) {
+    public GestiuneFurnizoriAdapterRest(ICalitateModuleApi calitateApi) {
         this.calitateApi = calitateApi;
     }
 

@@ -17,6 +17,8 @@ import java.util.Objects;
 @ValueObject
 @Embeddable
 public final class PlanAQL implements Serializable {
+    private static final long serialVersionUID = 1L;
+
 
     @NotNull
     @DecimalMin("0.01")

@@ -41,7 +41,7 @@ public class StripeBancaPlataAdapter implements IBancaPlataProvider {
         String bankTransferRef;
 
         try {
-            if (stripeProperties.getApiKey() != null && !stripeProperties.getApiKey().contains("mock")) {
+            if (!stripeProperties.isSimulationMode()) {
                 PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
                         .setAmount(amountInCents)
                         .setCurrency(currency)
@@ -54,12 +54,16 @@ public class StripeBancaPlataAdapter implements IBancaPlataProvider {
                 PaymentIntent intent = PaymentIntent.create(params);
                 bankTransferRef = intent.getId();
             } else {
-                bankTransferRef = "pi_mock_" + UUID.randomUUID().toString().replace("-", "").substring(0, 16);
+                bankTransferRef = "pi_sandbox_" + UUID.randomUUID().toString().replace("-", "").substring(0, 16);
             }
         } catch (StripeException e) {
-            log.warn("[Stripe Sandbox Fallback] API call threw exception: {}. Generating mock transaction reference.", e.getMessage());
-            bankTransferRef = "pi_mock_" + UUID.randomUUID().toString().replace("-", "").substring(0, 16);
+            log.error("[Stripe Gateway Error] Transmitere plata esuata pentru ordinul {}: {}", ordin.getIdOrdin(), e.getMessage());
+            jurnalAudit.inregistreazaAcces("TRANSMITERE_BANCA_STRIPE_ESUATA",
+                    "Ordin: " + ordin.getIdOrdin() + " | Factura: " + ordin.getFacturaId() + " | Eroare: " + e.getMessage());
+            return false;
         }
+
+        ordin.ataseazaReferintaBancara(bankTransferRef);
 
         log.info("[Stripe Sandbox] Transmitting payment order {} | Sum: {} {} | Dest IBAN: {} | Bank Ref: {}",
                 ordin.getIdOrdin(), ordin.getSuma().getValoare(), ordin.getSuma().getMoneda(), ibanDestinatar, bankTransferRef);

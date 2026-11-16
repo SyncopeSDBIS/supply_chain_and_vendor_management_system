@@ -33,7 +33,10 @@ public class WorkflowServicesTest {
         );
         assertEquals(StareComanda.Solicitat, comanda.getStareComanda());
 
-        // 2. Confirmare furnizor
+        // 2. Aprobare operationala si confirmare furnizor
+        comanda.aproba(UUID.randomUUID(), "MANAGER_DEPARTAMENT");
+        assertEquals(StareComanda.Aprobat, comanda.getStareComanda());
+
         comanda.confirma(LocalDate.now().plusDays(10));
         assertEquals(StareComanda.Confirmat, comanda.getStareComanda());
 
@@ -52,6 +55,10 @@ public class WorkflowServicesTest {
         comanda.inregistreazaReceptie(lot2, Cantitate.of(100.0, "MP"));
         assertEquals(StareComanda.Receptionat, comanda.getStareComanda());
         assertTrue(comanda.esteAcoperitaIntegral());
+
+        // 6. Inchidere comanda dupa reconciliere
+        comanda.inchideComanda();
+        assertEquals(StareComanda.Inchis, comanda.getStareComanda());
     }
 
     @Test

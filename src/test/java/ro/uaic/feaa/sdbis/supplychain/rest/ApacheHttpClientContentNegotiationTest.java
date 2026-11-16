@@ -4,7 +4,6 @@ import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
@@ -13,13 +12,16 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@org.springframework.test.context.TestPropertySource(properties = {
+    "security.allow-anonymous-fallback=true",
+    "security.mock-headers.enabled=true"
+})
 @DisplayName("Sprint 4 - Apache HttpClient 5 Dual Content-Negotiation Tests (JSON + XML) (ADR-007, ADR-008)")
 public class ApacheHttpClientContentNegotiationTest {
 
@@ -37,13 +39,14 @@ public class ApacheHttpClientContentNegotiationTest {
             HttpGet request = new HttpGet(getBaseUrl() + "/facturi/scadente");
             request.addHeader("Accept", "application/json");
 
-            try (CloseableHttpResponse response = client.execute(request)) {
+            client.execute(request, response -> {
                 assertEquals(200, response.getCode());
                 String contentType = response.getHeader("Content-Type").getValue();
                 assertTrue(contentType.contains("application/json"), "Content-Type trebuie sa fie application/json, a fost: " + contentType);
                 String body = EntityUtils.toString(response.getEntity());
                 assertNotNull(body);
-            }
+                return null;
+            });
         }
     }
 
@@ -53,11 +56,12 @@ public class ApacheHttpClientContentNegotiationTest {
         try (CloseableHttpClient client = HttpClients.createDefault()) {
             HttpGet request = new HttpGet(getBaseUrl() + "/facturi/scadente?format=xml");
 
-            try (CloseableHttpResponse response = client.execute(request)) {
+            client.execute(request, response -> {
                 assertEquals(200, response.getCode());
                 String contentType = response.getHeader("Content-Type").getValue();
                 assertTrue(contentType.contains("xml"), "Content-Type trebuie sa suporte XML prin ?format=xml, a fost: " + contentType);
-            }
+                return null;
+            });
         }
     }
 
@@ -81,12 +85,13 @@ public class ApacheHttpClientContentNegotiationTest {
                     new BasicNameValuePair("pretUnitar", "120.0")
             )));
 
-            try (CloseableHttpResponse response = client.execute(post)) {
+            client.execute(post, response -> {
                 assertEquals(201, response.getCode());
                 String body = EntityUtils.toString(response.getEntity());
                 assertTrue(body.contains("facturaId"));
                 assertTrue(body.contains("Inregistrata"));
-            }
+                return null;
+            });
         }
     }
 }

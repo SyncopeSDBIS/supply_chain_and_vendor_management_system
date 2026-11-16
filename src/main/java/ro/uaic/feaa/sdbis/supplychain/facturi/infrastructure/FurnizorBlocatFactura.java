@@ -12,6 +12,8 @@ import java.util.UUID;
 @Entity
 @Table(name = "facturi_furnizori_blocati")
 public class FurnizorBlocatFactura implements Serializable {
+    private static final long serialVersionUID = 1L;
+
 
     @Id
     @Column(name = "furnizor_id", nullable = false)

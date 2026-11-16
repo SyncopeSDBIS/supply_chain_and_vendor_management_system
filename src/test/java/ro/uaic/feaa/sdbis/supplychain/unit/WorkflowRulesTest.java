@@ -9,7 +9,6 @@ import ro.uaic.feaa.sdbis.supplychain.shared.IdComanda;
 import ro.uaic.feaa.sdbis.supplychain.shared.IdFurnizor;
 import ro.uaic.feaa.sdbis.supplychain.shared.IdLot;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.UUID;
@@ -29,25 +28,29 @@ public class WorkflowRulesTest {
             LocalDate.now(), LocalDate.now().plusDays(20), "DEP-A", Collections.singletonList(linie)
         );
 
+        comanda.aproba(UUID.randomUUID(), "RESPONSABIL_ACHIZITII");
         comanda.confirma(LocalDate.now().plusDays(15));
         IdLot lot1 = comanda.planificaLot("LOT-01", mat, Cantitate.of(40.0, "TO"), LocalDate.now(), LocalDate.now().plusYears(1));
         IdLot lot2 = comanda.planificaLot("LOT-02", mat, Cantitate.of(60.0, "TO"), LocalDate.now(), LocalDate.now().plusYears(1));
 
-        // lot1 is received
+        // lot1 is received -> comanda devine ReceptionatPartial
         comanda.inregistreazaExpediere("DHL", "AWB123", Collections.singleton(lot1));
         comanda.inregistreazaReceptie(lot1, Cantitate.of(40.0, "TO"));
         assertEquals(StareComanda.ReceptionatPartial, comanda.getStareComanda());
 
-        // Cancel order: lot2 (Planificat) must become Anulat, while lot1 (SositInDepozit) remains unchanged
+        // Cascading Cancellation: lot1 remains SositInDepozit, lot2 is cancelled, comanda devine Anulat
         ComandaAnulataEvent event = comanda.anuleazaComanda();
         assertNotNull(event);
         assertEquals(StareComanda.Anulat, comanda.getStareComanda());
 
         Lot l1 = comanda.getLoturi().stream().filter(l -> l.getIdLot().equals(lot1)).findFirst().get();
         Lot l2 = comanda.getLoturi().stream().filter(l -> l.getIdLot().equals(lot2)).findFirst().get();
-
         assertEquals(StareLot.SositInDepozit, l1.getStareLot(), "Received lot must remain SositInDepozit");
         assertEquals(StareLot.Anulat, l2.getStareLot(), "Unreceived lot must be Anulat");
+
+        // FIX DDD-05: Comanda in stare terminala (Anulat) nu mai poate fi anulata din nou
+        assertThrows(IllegalStateException.class, comanda::anuleazaComanda,
+                "Comanda deja anulata nu mai poate fi anulata");
     }
 
     @Test
@@ -60,6 +63,7 @@ public class WorkflowRulesTest {
             LocalDate.now(), LocalDate.now().plusDays(10), "DEP-B", Collections.singletonList(linie)
         );
 
+        comanda.aproba(UUID.randomUUID(), "RESPONSABIL_ACHIZITII");
         comanda.confirma(LocalDate.now().plusDays(8));
         IdLot lot = comanda.planificaLot("LOT-L1", mat, Cantitate.of(100.0, "MC"), LocalDate.now(), LocalDate.now().plusYears(2));
         comanda.inregistreazaExpediere("FAN", "AWB999", Collections.singleton(lot));

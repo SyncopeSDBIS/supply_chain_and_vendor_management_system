@@ -12,11 +12,18 @@ import ro.uaic.feaa.sdbis.supplychain.shared.IdFurnizor;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Spring Data JPA Repository pentru agregatul ComandaAprovizionare (Sprint 3 - Cerinta Standard).
+ */
 @Repository
 public interface SpringDataComandaRepository extends JpaRepository<ComandaAprovizionare, IdComanda> {
+
     Optional<ComandaAprovizionare> findByNumarComanda(String numarComanda);
+
+    List<ComandaAprovizionare> findByFurnizorId(IdFurnizor furnizorId);
+
     List<ComandaAprovizionare> findByStareComanda(StareComanda stareComanda);
 
-    @Query("SELECT c FROM ComandaAprovizionare c WHERE c.furnizorId = :fid AND c.stareComanda = :stare")
-    List<ComandaAprovizionare> findByFurnizorAndStare(@Param("fid") IdFurnizor furnizorId, @Param("stare") StareComanda stare);
+    @Query("SELECT c FROM ComandaAprovizionare c WHERE c.furnizorId = :furnizorId AND c.stareComanda = :stare")
+    List<ComandaAprovizionare> findByFurnizorAndStare(@Param("furnizorId") IdFurnizor furnizorId, @Param("stare") StareComanda stare);
 }

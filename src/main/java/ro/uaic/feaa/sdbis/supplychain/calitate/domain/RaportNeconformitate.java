@@ -1,6 +1,16 @@
 package ro.uaic.feaa.sdbis.supplychain.calitate.domain;
 
-import jakarta.persistence.*;
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import jakarta.validation.constraints.NotNull;
 import ro.uaic.feaa.sdbis.supplychain.calitate.domain.event.NCREscaladatEvent;
 import ro.uaic.feaa.sdbis.supplychain.shared.IdFurnizor;
@@ -16,6 +26,8 @@ import java.util.UUID;
 @Entity
 @Table(name = "calitate_ncr")
 public class RaportNeconformitate implements Serializable {
+    private static final long serialVersionUID = 1L;
+
 
     @NotNull
     @Id
@@ -50,9 +62,26 @@ public class RaportNeconformitate implements Serializable {
     @Column(name = "stare_ncr", nullable = false, length = 50)
     private StareNCR stareNCR;
 
+    @Column(name = "created_at")
+    private java.time.Instant createdAt = java.time.Instant.now();
+
+    @Column(name = "updated_at")
+    private java.time.Instant updatedAt = java.time.Instant.now();
+
     @Version
     @Column(name = "version", nullable = false)
     private Long version = 0L;
+
+    @PrePersist
+    protected void onPrePersist() {
+        if (createdAt == null) createdAt = java.time.Instant.now();
+        updatedAt = java.time.Instant.now();
+    }
+
+    @PreUpdate
+    protected void onPreUpdate() {
+        updatedAt = java.time.Instant.now();
+    }
 
     protected RaportNeconformitate() {}
 
@@ -65,24 +94,39 @@ public class RaportNeconformitate implements Serializable {
     }
 
     public void analizeazaCauza(String cauza) {
+        if (this.stareNCR != StareNCR.Deschis) {
+            throw new IllegalStateException("Tranzitie invalida: analizeazaCauza este permisa doar din starea Deschis. Stare curenta: " + stareNCR);
+        }
         this.cauzaRadacina = Objects.requireNonNull(cauza, "cauza cannot be null");
         this.stareNCR = StareNCR.InAnalizaCauzei;
     }
 
     public void initiazaActiuneCorectiva(ActiuneCorectiva a) {
+        if (this.stareNCR != StareNCR.InAnalizaCauzei) {
+            throw new IllegalStateException("Tranzitie invalida: initiazaActiuneCorectiva este permisa doar din starea InAnalizaCauzei. Stare curenta: " + stareNCR);
+        }
         this.actiuneCorectiva = Objects.requireNonNull(a, "actiuneCorectiva cannot be null");
         this.stareNCR = StareNCR.ActiuneCorectivaInCurs;
     }
 
     public void verifica() {
+        if (this.stareNCR != StareNCR.ActiuneCorectivaInCurs) {
+            throw new IllegalStateException("Tranzitie invalida: verifica este permisa doar din starea ActiuneCorectivaInCurs. Stare curenta: " + stareNCR);
+        }
         this.stareNCR = StareNCR.Verificat;
     }
 
     public void inchide() {
+        if (this.stareNCR != StareNCR.Verificat) {
+            throw new IllegalStateException("Tranzitie invalida: inchide este permisa doar din starea Verificat. Stare curenta: " + stareNCR);
+        }
         this.stareNCR = StareNCR.Inchis;
     }
 
     public NCREscaladatEvent escaladeaza() {
+        if (this.stareNCR != StareNCR.Deschis && this.stareNCR != StareNCR.InAnalizaCauzei && this.stareNCR != StareNCR.ActiuneCorectivaInCurs) {
+            throw new IllegalStateException("Tranzitie invalida: escaladeaza este permisa doar din starea Deschis, InAnalizaCauzei sau ActiuneCorectivaInCurs. Stare curenta: " + stareNCR);
+        }
         this.stareNCR = StareNCR.Escaladat;
         return new NCREscaladatEvent(UUID.randomUUID(), Instant.now(), this.idNCR, this.furnizorId);
     }
@@ -94,6 +138,8 @@ public class RaportNeconformitate implements Serializable {
     public String getCauzaRadacina() { return cauzaRadacina; }
     public ActiuneCorectiva getActiuneCorectiva() { return actiuneCorectiva; }
     public StareNCR getStareNCR() { return stareNCR; }
+    public java.time.Instant getCreatedAt() { return createdAt; }
+    public java.time.Instant getUpdatedAt() { return updatedAt; }
     public Long getVersion() { return version; }
 
     @Override

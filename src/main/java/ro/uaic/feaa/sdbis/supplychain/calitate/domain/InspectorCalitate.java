@@ -1,6 +1,19 @@
 package ro.uaic.feaa.sdbis.supplychain.calitate.domain;
 
-import jakarta.persistence.*;
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OrderColumn;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import jakarta.validation.constraints.NotNull;
 import ro.uaic.feaa.sdbis.supplychain.shared.Perioada;
 import ro.uaic.feaa.sdbis.supplychain.shared.annotation.AggregateRoot;
@@ -15,6 +28,8 @@ import java.util.UUID;
 @Entity
 @Table(name = "calitate_inspectori")
 public class InspectorCalitate implements Serializable {
+    private static final long serialVersionUID = 1L;
+
 
     @NotNull
     @Id
@@ -27,17 +42,38 @@ public class InspectorCalitate implements Serializable {
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "calitate_inspectori_certificari", joinColumns = @JoinColumn(name = "inspector_id"))
+    @OrderColumn(name = "cert_idx")
+    @SuppressWarnings("serial") // Collection interface List does not implement Serializable directly; runtime instance is ArrayList
     private List<Certificare> certificari = new ArrayList<>();
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "calitate_inspectori_disponibilitate", joinColumns = @JoinColumn(name = "inspector_id"))
     @AttributeOverride(name = "dataInceput", column = @Column(name = "data_inceput", nullable = false))
     @AttributeOverride(name = "dataFinalizare", column = @Column(name = "data_finalizare", nullable = false))
+    @OrderColumn(name = "disp_idx")
+    @SuppressWarnings("serial") // Collection interface List does not implement Serializable directly; runtime instance is ArrayList
     private List<Perioada> disponibilitate = new ArrayList<>();
+
+    @Column(name = "created_at")
+    private java.time.Instant createdAt = java.time.Instant.now();
+
+    @Column(name = "updated_at")
+    private java.time.Instant updatedAt = java.time.Instant.now();
 
     @Version
     @Column(name = "version", nullable = false)
     private Long version = 0L;
+
+    @PrePersist
+    protected void onPrePersist() {
+        if (createdAt == null) createdAt = java.time.Instant.now();
+        updatedAt = java.time.Instant.now();
+    }
+
+    @PreUpdate
+    protected void onPreUpdate() {
+        updatedAt = java.time.Instant.now();
+    }
 
     protected InspectorCalitate() {}
 
@@ -65,6 +101,8 @@ public class InspectorCalitate implements Serializable {
     public List<Certificare> getCertificari() { return Collections.unmodifiableList(certificari); }
     public List<Perioada> getDisponibilitate() { return Collections.unmodifiableList(disponibilitate); }
     public Long getVersion() { return version; }
+    public java.time.Instant getCreatedAt() { return createdAt; }
+    public java.time.Instant getUpdatedAt() { return updatedAt; }
 
     @Override
     public boolean equals(Object o) {

@@ -2,12 +2,15 @@ package ro.uaic.feaa.sdbis.supplychain.comenzi.application.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import jakarta.xml.bind.annotation.*;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlElementWrapper;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -17,6 +20,8 @@ import java.util.UUID;
 @XmlRootElement(name = "creeazaComandaRequest")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class CreeazaComandaRequest implements Serializable {
+    private static final long serialVersionUID = 1L;
+
 
     @NotBlank(message = "Numarul de comanda este obligatoriu")
     @Size(min = 3, max = 100, message = "Numarul de comanda trebuie sa aiba intre 3 si 100 caractere")
@@ -54,7 +59,8 @@ public class CreeazaComandaRequest implements Serializable {
     @XmlElementWrapper(name = "linii")
     @XmlElement(name = "linie")
     @JsonProperty("linii")
-    private List<LinieComandaDTO> linii = new ArrayList<>();
+    @SuppressWarnings("serial") // Collection interface List does not implement Serializable directly; runtime instance is ArrayList
+    private List<LinieComandaRequestDTO> linii = new ArrayList<>();
 
     public CreeazaComandaRequest() {}
 
@@ -76,6 +82,6 @@ public class CreeazaComandaRequest implements Serializable {
     public String getDepozit() { return depozit; }
     public void setDepozit(String depozit) { this.depozit = depozit; }
 
-    public List<LinieComandaDTO> getLinii() { return linii; }
-    public void setLinii(List<LinieComandaDTO> linii) { this.linii = linii; }
+    public List<LinieComandaRequestDTO> getLinii() { return linii; }
+    public void setLinii(List<LinieComandaRequestDTO> linii) { this.linii = linii; }
 }

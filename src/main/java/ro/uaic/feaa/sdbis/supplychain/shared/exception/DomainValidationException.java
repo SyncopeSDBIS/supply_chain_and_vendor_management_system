@@ -4,6 +4,8 @@ package ro.uaic.feaa.sdbis.supplychain.shared.exception;
  * Exceptie pentru incalcarea regulilor de validare a domeniului (ADR-003).
  */
 public class DomainValidationException extends RuntimeException {
+    private static final long serialVersionUID = 1L;
+
 
     private final String codEroare;
 

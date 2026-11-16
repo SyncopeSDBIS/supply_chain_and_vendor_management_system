@@ -4,9 +4,9 @@ services:
     container_name: supplychain-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: supplychain_db
-      POSTGRES_USER: supplychain
-      POSTGRES_PASSWORD: supplychain_secret
+      POSTGRES_DB: ${POSTGRES_DB:-supplychain_db}
+      POSTGRES_USER: ${POSTGRES_USER:-supplychain}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-supplychain_secret_change_in_prod}
     ports:
       - "${POSTGRES_PORT:-5433}:5432"
     volumes:
@@ -22,8 +22,10 @@ services:
     container_name: supplychain-rabbitmq
     restart: unless-stopped
     environment:
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-guest}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-guest_secret_change_in_prod}
+      RABBITMQ_VM_MEMORY_HIGH_WATERMARK: "0.6"
+      RABBITMQ_DISK_FREE_LIMIT: "2GB"
     ports:
       - "5672:5672"
       - "15672:15672"
@@ -50,16 +52,23 @@ services:
       - "8080:8080"
     environment:
       SPRING_PROFILES_ACTIVE: postgres
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/supplychain_db
-      SPRING_DATASOURCE_USERNAME: supplychain
-      SPRING_DATASOURCE_PASSWORD: supplychain_secret
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-supplychain_db}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-supplychain}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-supplychain_secret_change_in_prod}
       SPRING_JPA_HIBERNATE_DDL_AUTO: validate
       SPRING_FLYWAY_ENABLED: "true"
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_PORT: 5672
-      STRIPE_API_KEY: sk_test_mock_supplychain_key
-      STRIPE_WEBHOOK_SECRET: whsec_mock_supplychain_secret
-      STRIPE_CONNECT_ACCOUNT_ID: acct_mock_p2p
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USER:-guest}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-guest_secret_change_in_prod}
+      SPRING_RABBITMQ_LISTENER_SIMPLE_AUTO_STARTUP: "true"
+      STRIPE_API_KEY: ${STRIPE_API_KEY:-sk_test_mock_supplychain_key}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-whsec_mock_supplychain_secret}
+      STRIPE_CONNECT_ACCOUNT_ID: ${STRIPE_CONNECT_ACCOUNT_ID:-acct_mock_p2p}
+      JWT_SECRET: ${JWT_SECRET:-supplychain-secure-256-bit-hex-or-base64-random-token-secret-production-quality-2026}
+      SECURITY_MOCK_HEADERS_ENABLED: "false"
+      SECURITY_ALLOW_ANONYMOUS_FALLBACK: "false"
+      SECURITY_SEED_DEFAULT_USERS: "false"
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8080/actuator/health || exit 1"]
       interval: 30s

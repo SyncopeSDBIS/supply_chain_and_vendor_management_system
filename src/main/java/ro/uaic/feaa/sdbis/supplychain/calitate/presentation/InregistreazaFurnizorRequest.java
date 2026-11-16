@@ -1,6 +1,9 @@
 package ro.uaic.feaa.sdbis.supplychain.calitate.presentation;
 
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.List;
@@ -10,6 +13,8 @@ import java.util.Set;
  * Request DTO for supplier registration with declarative validation constraints.
  */
 public class InregistreazaFurnizorRequest implements Serializable {
+    private static final long serialVersionUID = 1L;
+
 
     @NotBlank(message = "Codul fiscal este obligatoriu")
     @Size(min = 2, max = 30, message = "Codul fiscal trebuie sa aiba intre 2 si 30 caractere")
@@ -25,8 +30,10 @@ public class InregistreazaFurnizorRequest implements Serializable {
     @Email(message = "Formatul adresei de email este invalid")
     private String email;
 
+    @SuppressWarnings("serial") // Collection interface List does not implement Serializable directly; runtime instance is ArrayList
     private List<String> emailuri;
 
+    @SuppressWarnings("serial") // Collection interface Set does not implement Serializable directly; runtime instance is HashSet
     private Set<String> categorii = new HashSet<>();
 
     private AdresaDTO adresa;
@@ -36,6 +43,7 @@ public class InregistreazaFurnizorRequest implements Serializable {
     private String moneda;
 
     public static class AdresaDTO implements Serializable {
+        private static final long serialVersionUID = 1L;
         private String strada;
         private String numar;
         private String localitate;

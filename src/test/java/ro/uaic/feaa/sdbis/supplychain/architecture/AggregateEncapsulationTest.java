@@ -6,6 +6,9 @@ import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchRule;
 import ro.uaic.feaa.sdbis.supplychain.comenzi.domain.Lot;
 import ro.uaic.feaa.sdbis.supplychain.facturi.domain.OrdinPlata;
+import ro.uaic.feaa.sdbis.supplychain.facturi.domain.Suma;
+
+import java.util.UUID;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.constructors;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
@@ -33,7 +36,7 @@ public class AggregateEncapsulationTest {
     static final ArchRule ordin_plata_business_constructor_must_be_package_private =
         constructors()
             .that().areDeclaredIn(OrdinPlata.class)
-            .and().haveRawParameterTypes(java.util.UUID.class, ro.uaic.feaa.sdbis.supplychain.facturi.domain.Suma.class, java.util.UUID.class)
+            .and().haveRawParameterTypes(UUID.class, Suma.class, UUID.class)
             .should().bePackagePrivate()
             .because("OrdinPlata must only be instantiated by FacturaFurnizor.creeazaOrdinPlata() (Control Financiar ADR-002).");
 }

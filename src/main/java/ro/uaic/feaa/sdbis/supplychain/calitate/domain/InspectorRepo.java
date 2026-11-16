@@ -9,6 +9,7 @@ import java.util.UUID;
 public interface InspectorRepo {
     void add(InspectorCalitate i);
     Optional<InspectorCalitate> findById(UUID id);
-    void save(InspectorCalitate i);
+    InspectorCalitate save(InspectorCalitate i);
     List<InspectorCalitate> findAll();
+    List<InspectorCalitate> findAllWithDetails();
 }

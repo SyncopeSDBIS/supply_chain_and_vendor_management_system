@@ -13,6 +13,8 @@ import java.util.UUID;
 @XmlRootElement(name = "lot")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class LotDTO implements Serializable {
+    private static final long serialVersionUID = 1L;
+
 
     @XmlElement
     @JsonProperty("idLot")

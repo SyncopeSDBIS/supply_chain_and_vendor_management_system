@@ -18,6 +18,8 @@ import java.util.Objects;
 @ValueObject
 @Embeddable
 public class ConditiiContractuale implements Serializable {
+    private static final long serialVersionUID = 1L;
+
 
     @Min(0)
     @Column(name = "termen_plata_zile")
@@ -28,7 +30,7 @@ public class ConditiiContractuale implements Serializable {
     private Currency moneda;
 
     @Transient
-    private Map<CodMaterial, BigDecimal> preturiNegociate = new HashMap<>();
+    private transient Map<CodMaterial, BigDecimal> preturiNegociate = new HashMap<>();
 
     protected ConditiiContractuale() {}
 

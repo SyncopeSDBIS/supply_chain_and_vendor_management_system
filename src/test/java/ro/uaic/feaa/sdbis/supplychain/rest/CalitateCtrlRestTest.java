@@ -14,6 +14,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
+@org.springframework.test.context.TestPropertySource(properties = {
+    "security.allow-anonymous-fallback=true",
+    "security.mock-headers.enabled=true"
+})
 @DisplayName("Sprint 4 - Calitate REST Controller Tests (Q1..Q9)")
 public class CalitateCtrlRestTest {
 
@@ -57,5 +61,37 @@ public class CalitateCtrlRestTest {
     void testMonitorizareFurnizori() throws Exception {
         mockMvc.perform(get("/api/furnizori/rapoarte/monitorizare"))
             .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("GET /api/furnizori - listare paginata a furnizorilor")
+    void testListeazaFurnizori() throws Exception {
+        mockMvc.perform(get("/api/furnizori?page=0&size=10"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$").isArray());
+    }
+
+    @Test
+    @DisplayName("GET /api/inspectori - listare inspectori calitate")
+    void testListeazaInspectori() throws Exception {
+        mockMvc.perform(get("/api/inspectori"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$").isArray());
+    }
+
+    @Test
+    @DisplayName("GET /api/inspectii - listare inspectii calitate")
+    void testListeazaInspectii() throws Exception {
+        mockMvc.perform(get("/api/inspectii"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$").isArray());
+    }
+
+    @Test
+    @DisplayName("GET /api/ncr - listare rapoarte neconformitate")
+    void testListeazaNCR() throws Exception {
+        mockMvc.perform(get("/api/ncr"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$").isArray());
     }
 }

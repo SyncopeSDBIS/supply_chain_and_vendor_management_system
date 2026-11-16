@@ -107,6 +107,7 @@ public class ComputationServicesTest {
 
         assertEquals(0.0, comandaComputationService.calculProcentLivrare(comanda));
 
+        comanda.aproba(UUID.randomUUID(), "RESPONSABIL_ACHIZITII");
         comanda.confirma(LocalDate.now().plusDays(5));
         IdLot lot = comanda.planificaLot("LOT-01", CodMaterial.of("MAT-01"), Cantitate.of(100.0, "KG"), LocalDate.now(), LocalDate.now().plusYears(1));
         comanda.inregistreazaExpediere("TR", "AWB", Set.of(lot));

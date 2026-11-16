@@ -11,6 +11,8 @@ import java.math.BigDecimal;
 @XmlRootElement(name = "linieSumar")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class LinieSumarDTO implements Serializable {
+    private static final long serialVersionUID = 1L;
+
 
     @XmlElement
     @JsonProperty("material")

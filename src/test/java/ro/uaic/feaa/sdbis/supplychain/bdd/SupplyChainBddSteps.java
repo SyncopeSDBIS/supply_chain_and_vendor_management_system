@@ -143,6 +143,7 @@ public class SupplyChainBddSteps {
         LinieComanda linie = new LinieComanda(mat, Cantitate.of(100.0, "TO"), PretUnitar.of(100.0, "EUR"));
         this.comanda = ComandaFactory.creeaza("CMD-CAS", IdFurnizor.random(), UUID.randomUUID(),
                 LocalDate.now(), LocalDate.now().plusDays(10), "DEP-1", List.of(linie));
+        comanda.aproba(UUID.randomUUID(), "MANAGER_DEPARTAMENT");
         comanda.confirma(LocalDate.now().plusDays(8));
 
         this.idLot1 = comanda.planificaLot("LOT-1", mat, Cantitate.of(40.0, "TO"), LocalDate.now(), LocalDate.now().plusYears(1));
@@ -266,6 +267,7 @@ public class SupplyChainBddSteps {
         LinieComanda linie = new LinieComanda(mat, Cantitate.of(100.0, "TO"), PretUnitar.of(100.0, "EUR"));
         this.comanda = ComandaFactory.creeaza("CMD-INSP", IdFurnizor.random(), UUID.randomUUID(),
                 LocalDate.now(), LocalDate.now().plusDays(10), "DEP-1", List.of(linie));
+        comanda.aproba(UUID.randomUUID(), "MANAGER_DEPARTAMENT");
         comanda.confirma(LocalDate.now().plusDays(8));
         this.idLot1 = comanda.planificaLot("LOT-INSP", mat, Cantitate.of(100.0, "TO"), LocalDate.now(), LocalDate.now().plusYears(1));
         comanda.inregistreazaExpediere("DPD", "AWB-INSP", Set.of(idLot1));
