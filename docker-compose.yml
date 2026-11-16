@@ -24,8 +24,6 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-guest}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-guest_secret_change_in_prod}
-      RABBITMQ_VM_MEMORY_HIGH_WATERMARK: "0.6"
-      RABBITMQ_DISK_FREE_LIMIT: "2GB"
     ports:
       - "5672:5672"
       - "15672:15672"
@@ -36,6 +34,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 20s
 
   app:
     build:
