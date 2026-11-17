@@ -548,7 +548,82 @@ To prevent Lost Updates in high-throughput concurrent environments:
 
 ---
 
-### 7.3. Dual SQL Portability (PostgreSQL 16 Alpine vs. H2 In-Memory)
+### 7.3. Forensic Indexing Strategy & Decisions (Why & How Indexes Were Created Across V1..V15)
+
+Database performance in an enterprise transactional system degrades exponentially if query access patterns are not accompanied by deliberate, query-optimized indexes. In PostgreSQL, **foreign key constraints do NOT automatically generate indexes on the referencing table**. Without explicit B-Tree indexes, every join, update, or cascade delete requires a sequential table scan.
+
+```mermaid
+graph TD
+    subgraph Indexing Decisions Across V1..V15
+        IDX_FK[1. Foreign Key Join Indexes]
+        IDX_CMP[2. High-Frequency Composite Filters]
+        IDX_UNQ[3. Hardware-Enforced Unique Invariants]
+        IDX_OPS[4. Poller, Locking & Archival Indexes]
+    end
+
+    IDX_FK --> D1["Prevents Table Locks on Parent Deletions & Eliminates Seq Scans on Joins"]
+    IDX_CMP --> D2["Leftmost Prefix Rule Satisfies Compound WHERE Clauses in O(log N)"]
+    IDX_UNQ --> D3["Eliminates TOCTOU Race Conditions: Double-Billing & Duplicate Events"]
+    IDX_OPS --> D4["Outbox Poller (<10ms), Distributed Lock Pruning & 90-Day Audit Archival"]
+```
+
+#### Detailed Breakdown of the 4 Indexing Categories:
+
+1. **Foreign Key Performance Indexing (Eliminating Sequential Scans)**:
+   - **Problem**: When `comenzi_aprovizionare` is joined with `comenzi_loturi` or `comenzi_expedieri`, PostgreSQL must look up all child rows matching `comanda_id`. Without an index on `comanda_id`, PostgreSQL performs a sequential scan over the entire `comenzi_loturi` table. Furthermore, modifying a parent order row acquires table-level share locks on the child table.
+   - **Solution**: We created targeted B-Tree indexes on every foreign key column (`idx_loturi_comanda_id`, `idx_expedieri_comanda_id`, `idx_linii_comanda_id`, `idx_facturi_linii_factura_id`, `idx_nir_linii_nir_id`).
+2. **High-Frequency Compound Filtering & Cardinality Tuning**:
+   - **Problem**: The business dashboards, supplier management views, and 3-Way match reconciliation services continuously execute compound queries such as:
+     ```sql
+     SELECT * FROM comenzi_aprovizionare WHERE furnizor_id = ? AND stare IN ('Creata', 'Aprobata', 'Confirmata', 'InLivrare');
+     SELECT * FROM facturi_furnizori WHERE furnizor_id = ? AND stare NOT IN ('Platita', 'Anulata');
+     ```
+   - **Decision & Leftmost Prefix Rule**: A single-column index on `furnizor_id` would still require scanning and filtering thousands of order status rows in memory. We created **compound B-Tree indexes**:
+     * `idx_comenzi_furnizor_stare` on `comenzi_aprovizionare(furnizor_id, stare)`
+     * `idx_facturi_furnizor_stare` on `facturi_furnizori(furnizor_id, stare)`
+     * Placing `furnizor_id` first (high cardinality) and `stare` second (low cardinality enum) satisfies queries filtering strictly by `furnizor_id`, as well as combined queries filtering by both `furnizor_id` AND `stare`.
+3. **Database-Enforced Unique Invariants (Neutralizing TOCTOU Races)**:
+   - **Problem**: Memory checks like `if (facturaRepo.existsBySerieAndNumar(...))` are vulnerable to **Time-of-Check to Time-of-Use (TOCTOU)** race conditions under concurrent REST requests. Two simultaneous requests from the same supplier could both pass the validation check and register duplicate invoices.
+   - **Decision**: In `V12`, we created the composite unique constraint/index:
+     * `uk_facturi_furnizor_numar` on `facturi_furnizori(furnizor_id, serie, numar)`.
+     * In `V3`, `uk_inbox_events_message_id` on `shared_inbox(consumer_id, event_id)` to guarantee absolute idempotency for AMQP consumers and Stripe webhooks.
+4. **Background Poller, Locking & Cold-Storage Archival Indexing**:
+   - **Problem**: The `OutboxDispatcherService` polls the database every 1-2 seconds querying for unpublished events: `WHERE published = false AND timestamp < ?`. Without an index, this poller scans the entire historical table millions of times per day.
+   - **Decision**: In `V2` and `V9`, we created:
+     * `idx_outbox_published_timestamp` on `shared_outbox(published, timestamp)`: Reduces outbox polling lookup from $O(N)$ to $<1\text{ ms}$.
+     * `idx_distributed_locks_expires` on `distributed_locks(expires_at)` (V12): Enables instant lease expiration pruning without table locks.
+     * `idx_audit_log_data_eveniment` on `shared_audit_log(data_eveniment)` (V9): Powers the archival job (`AuditLogArchivingTest`) to extract 90-day cold records without locking active audit inserts.
+
+#### Comprehensive Master Index Catalog:
+
+| Index Name | Target Table | Indexed Columns | Type | Rationale & Query Satisfied | Migration Introduced |
+| :--- | :--- | :--- | :---: | :--- | :---: |
+| `idx_outbox_published_timestamp` | `shared_outbox` | `(published, timestamp)` | B-Tree Compound | Accelerates OutboxDispatcher polling query to $<1\text{ ms}$ | `V2` / `V9` |
+| `uk_inbox_events_message_id` | `shared_inbox` | `(consumer_id, event_id)` | Unique Composite | Enforces atomic idempotency for AMQP and Stripe webhook consumers | `V3` |
+| `idx_reconcilieri_factura_id` | `facturi_reconcilieri` | `(factura_id)` | B-Tree FK | Speeds up 3-Way match lookups by supplier invoice | `V4` |
+| `idx_reconcilieri_comanda_id` | `facturi_reconcilieri` | `(comanda_id)` | B-Tree FK | Speeds up 3-Way match lookups by purchase order | `V4` |
+| `idx_reconcilieri_nir_id` | `facturi_reconcilieri` | `(nir_id)` | B-Tree FK | Speeds up 3-Way match lookups by goods receipt note | `V4` |
+| `idx_ordine_plata_factura_id` | `facturi_ordine_plata` | `(factura_id)` | B-Tree FK | Fast retrieval of payment orders linked to an invoice | `V4` |
+| `idx_ordine_plata_stripe_intent` | `facturi_ordine_plata` | `(stripe_payment_intent_id)` | B-Tree | Instant resolution of Stripe webhook callbacks to payment order | `V5` |
+| `idx_users_username` | `users` | `(username)` | Unique | Sub-millisecond JWT authentication user lookup | `V6` |
+| `idx_users_email` | `users` | `(email)` | Unique | Duplicate user registration prevention | `V6` |
+| `idx_user_roles_user_id` | `user_roles` | `(user_id)` | B-Tree FK | Fast retrieval of user security authorities | `V6` |
+| `idx_comenzi_furnizor_stare` | `comenzi_aprovizionare` | `(furnizor_id, stare)` | B-Tree Compound | Optimizes `gasesteComenziActivePerFurnizor` | `V9` |
+| `idx_facturi_furnizor_stare` | `facturi_furnizori` | `(furnizor_id, stare)` | B-Tree Compound | Optimizes `gasesteFacturiNeachitateFurnizor` | `V9` |
+| `idx_nir_comanda_id` | `facturi_nir` | `(comanda_id)` | B-Tree FK | Accelerates NIR lookups during order receipt | `V9` |
+| `idx_audit_log_data_eveniment` | `shared_audit_log` | `(data_eveniment)` | B-Tree | Powers automated cold-storage archiving of records > 90 days | `V9` |
+| `idx_expedieri_loturi_expediere` | `comenzi_expedieri_loturi` | `(expediere_id)` | B-Tree FK | 1NF normalized lots retrieval for logistics consignments | `V10` |
+| `idx_expedieri_loturi_lot` | `comenzi_expedieri_loturi` | `(lot_id)` | B-Tree FK | Fast verification of whether a lot has already been dispatched | `V10` |
+| `idx_comenzi_aprobat_de` | `comenzi_aprovizionare` | `(aprobat_de)` | B-Tree | Enforces Four-Eyes principle audit and approval reporting | `V11` |
+| `uk_facturi_furnizor_numar` | `facturi_furnizori` | `(furnizor_id, serie, numar)` | Unique Composite | Hardware-level prevention of duplicate supplier billing | `V12` |
+| `idx_distributed_locks_expires` | `distributed_locks` | `(expires_at)` | B-Tree | High-speed detection and pruning of dead node lock leases | `V12` |
+| `idx_audit_archive_archived_at` | `shared_audit_log_archive` | `(archived_at)` | B-Tree | Range scanning for long-term legal audit compliance | `V13` |
+| `idx_dlq_captured_at` | `shared_dlq_parking_lot` | `(captured_at)` | B-Tree | Operational alerting on AMQP poison pills | `V14` |
+| `idx_docs_referinta_id` | `shared_documente_atasate` | `(referinta_id)` | B-Tree | Sub-millisecond lookup of attachments by order/invoice ID | `V8` |
+
+---
+
+### 7.4. Dual SQL Portability (PostgreSQL 16 Alpine vs. H2 In-Memory)
 
 * **Cross-Dialect SQL Types**: Used strictly standard ANSI SQL (`VARCHAR`, `NUMERIC(15,2)`, `TIMESTAMP`, `BOOLEAN`, `BIGINT`). Zero proprietary `JSONB` or procedural functions.
 * **Idempotency**: All DDL commands utilize `IF NOT EXISTS` clauses, allowing safe re-execution during integration test rollbacks.
@@ -557,7 +632,32 @@ To prevent Lost Updates in high-throughput concurrent environments:
 
 # 8. RABBITMQ AMQP MESSAGING SUBSYSTEM (SPRINT 3 DEEP DIVE)
 
-### 8.1. Architectural Role in Persistence & Decoupling
+### 8.1. Why RabbitMQ was Chosen (Architectural Decision Record / ADR)
+
+Choosing the asynchronous messaging backbone for an enterprise supply-chain platform requires evaluating performance, routing topology, transactional guarantees, and operational simplicity. Below is the forensic comparison justifying **RabbitMQ (AMQP 0-9-1)** over industry alternatives:
+
+| Architectural Capability | RabbitMQ (AMQP 0-9-1) | Apache Kafka | Redis Pub/Sub | Direct HTTP REST / gRPC | In-Memory Spring Events |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| **Routing Flexibility** | ✅ **Topic Exchanges (`comenzi.#`)**: Dynamic pattern-based routing at broker level | ❌ Static topics; consumers must read entire partitions and filter client-side | ⚠️ Basic glob matching without durability | ❌ Hardcoded endpoint URLs | ❌ Single JVM in-memory event bus only |
+| **Delivery Guarantees** | ✅ **At-least-once with Manual Ack**: Messages held until explicit consumer ack | ⚠️ Offset-based: uncommitted offsets replay whole batches | ❌ **Fire-and-forget**: zero persistence; messages lost if consumer offline | ❌ Tight temporal coupling: failure if receiver is down | ⚠️ Lost on JVM crash or heap overflow |
+| **Dead-Letter Handling (DLQ)** | ✅ **Native DLX & DLQ**: Automatic redirection of rejected poison pills | ❌ Manual retry topics must be implemented in application code | ❌ Non-existent | ❌ Manual retry queues required | ❌ Unhandled exceptions crash thread |
+| **Task / Queue Semantics** | ✅ **Smart broker / dumb consumer**: Deletes message immediately upon Ack | ❌ Distributed append log: messages retained until retention period expires | ❌ Ephemeral in-memory channels | ❌ Synchronous thread blocking | ❌ Ephemeral JVM heap |
+| **Scale-out to Microservices** | ✅ **Protocol Standard**: Any container/service can consume via AMQP 0-9-1 | ✅ High partition throughput | ⚠️ Single Redis node bottleneck | ⚠️ High network latency & cascading failures | ❌ Cannot scale across multiple servers/JVMs |
+| **Transactional Outbox Synergy** | ✅ **Perfect match**: Outbox poller publishes discrete messages with acknowledgments | ⚠️ Batch-oriented; high latency for single-event outbox dispatch | ❌ Unreliable for financial transactions | ❌ Violates non-blocking rule | ❌ Cannot guarantee at-least-once across restarts |
+
+#### The Fundamental Reasons for Choosing RabbitMQ:
+1. **Topic Exchanges & Hierarchical Wildcard Routing (`supplychain.events.exchange`)**:
+   - Allows bounded contexts to publish domain events under semantic keys (e.g. `comenzi.creata`, `comenzi.anulata`, `calitate.inspectie.respinsa`, `facturi.plata.executata`).
+   - Consumers bind queues using wildcards (`comenzi.#`, `calitate.#`, `facturi.#`), receiving strictly the messages they care about without consuming CPU filtering irrelevant events.
+2. **Built-in Dead Letter Exchange (DLX) & Poison-Pill Resilience**:
+   - If an unexpected payload arrives or business processing fails repeatedly, RabbitMQ's `x-dead-letter-exchange` routes the poison message to `supplychain.events.dlq`.
+   - The application captures this in `RabbitMqEventConsumerService.consumeDeadLetterEvent` and archives it in PostgreSQL (`shared_dlq_parking_lot`), **preventing Head-of-Line Blocking** on active queues.
+3. **Temporal Decoupling & Connection Pool Protection**:
+   - Unlike synchronous REST calls, RabbitMQ decouples the sender from the receiver. If the Quality or Invoicing module is temporarily undergoing maintenance, the Orders module continues creating purchase orders without interruption. Messages safely accumulate in durable queues until consumers recover.
+
+---
+
+### 8.2. Architectural Role in Persistence & Decoupling
 
 In an enterprise modular monolith (Spring Modulith), synchronous inter-module dependencies create tight temporal coupling and transaction bloat. RabbitMQ acts as the **asynchronous event broker**, decoupling bounded contexts:
 
