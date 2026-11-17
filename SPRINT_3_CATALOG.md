@@ -7,11 +7,12 @@
 ### BLUEPRINT METADATA
 * **Academic Reference**: **Theme_2: Course_5 – Data Access Components Implementation (Sprint 3.MSD)**
 * **Core Pillars**:
-  1. **Persistence Model Implementation** (JPA `@Entity`, `@Inheritance`, `@Version`, Value Objects `@Convert`, `@Enumerated`, Aggregate `@OneToMany` cascades).
-  2. **Repository Services Implementation** (Dual Strategy: Spring Data `JpaRepository` with custom `@Query` + Bonus Complete JPA DAOs via `EntityManager` injection).
-  3. **Business Rules & Lifecycle Audit** (Service/Factory integration, `@EntityListeners` with `@PrePersist`, `@PreUpdate`, `@PreRemove`).
-  4. **Database Schema Governance** (Deterministic Flyway Migrations `V1`..`V15`, PostgreSQL 16 Alpine / H2 In-Memory portability).
-  5. **Distributed Messaging & Fintech Reliability** (Transactional Outbox/Inbox AMQP RabbitMQ, HikariCP connection-safe Stripe payment integration).
+  1. **Persistence Model Implementation** (JPA `@Entity`, `@Table`, `@Version`, Value Objects `@Convert`, `@Enumerated`, `@ElementCollection`, `@CollectionTable`, and Aggregate `@OneToMany` cascades).
+  2. **Architectural Decisions on Inheritance & Fetching** (Omission of `@Inheritance` in favor of DDD Composition/Strategy, universal `FetchType.LAZY` to prevent heap exhaustion and Cartesian products, Two-Step Fetching eliminating N+1 queries).
+  3. **Repository Services Implementation** (Dual Strategy: Spring Data `JpaRepository` with custom `@Query` + Bonus Complete JPA DAOs via `EntityManager` injection inheriting from `AbstractRepositoryJPA`).
+  4. **Business Rules & Lifecycle Audit** (Service/Factory integration, `@EntityListeners` with `@PrePersist`, `@PreUpdate`, `@PreRemove`, `META-INF/orm.xml`).
+  5. **Database Schema Governance** (Deterministic Flyway Migrations `V1`..`V15`, PostgreSQL 16 Alpine / H2 In-Memory portability).
+  6. **Distributed Messaging & Fintech Reliability** (Transactional Outbox/Inbox AMQP RabbitMQ, HikariCP connection-safe Stripe payment integration).
 * **Root Package**: `ro.uaic.feaa.sdbis.supplychain`
 * **Test Verification**: **198 Automated Tests Running & Passing (100% BUILD SUCCESS)**
 * **Language**: Technical English (Authoritative Enterprise Architecture & Forensic Standard)
@@ -20,7 +21,7 @@
 
 # 1. PHYSICAL NAVIGATION TREE (SPRINT 3 CODEBASE)
 
-The following tree maps **every physical Java source file, configuration descriptor, SQL migration, and JUnit test** participating in the Sprint 3 data access, persistence, and messaging infrastructure:
+The following tree maps **every physical Java source file, configuration descriptor, SQL migration script, and JUnit test** participating in the Sprint 3 data access, persistence, and messaging infrastructure:
 
 ```text
 c:\Users\bmugu\Desktop\app
@@ -180,9 +181,10 @@ The table below proves complete, 1:1 coverage of every theoretical and practical
 
 | Syllabus Requirement (Sprint 3.MSD) | Architectural Concept | Concrete Project Implementation | Source Code Hyperlink |
 | :--- | :--- | :--- | :--- |
-| **JPA Entities (`@Entity`, `@Inheritance`, `@Version`)** | Root & Child Relational Entities | Relational mapping of domain aggregates with optimistic concurrency locking | [`ComandaAprovizionare.java`](src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/ComandaAprovizionare.java)<br>[`ScorecardLunar.java`](src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/ScorecardLunar.java)<br>[`FacturaFurnizor.java`](src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/FacturaFurnizor.java) |
+| **JPA Entities (`@Entity`, `@Table`, `@Version`)** | Root & Child Relational Entities | Relational mapping of domain aggregates with optimistic concurrency locking | [`ComandaAprovizionare.java`](src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/ComandaAprovizionare.java)<br>[`ScorecardLunar.java`](src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/ScorecardLunar.java)<br>[`FacturaFurnizor.java`](src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/FacturaFurnizor.java) |
 | **Value Objects (`@Enumerated`, `@Convert`)** | Strongly Typed Domain Primitives | String-based enums and custom JPA 3.1 `AttributeConverter` implementations | [`CodMaterialConverter.java`](src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/persistence/converters/CodMaterialConverter.java)<br>[`IdComandaConverter.java`](src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/persistence/converters/IdComandaConverter.java)<br>[`StareComanda.java`](src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/StareComanda.java) |
 | **JPA Aggregates (`@OneToMany`, `CascadeType.ALL`, `orphanRemoval`)** | Aggregate Boundary Lifecycle | Parent-child lifecycle binding where deleting/updating root cascades to components | [`ComandaAprovizionare.java`](src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/ComandaAprovizionare.java)<br>[`Furnizor.java`](src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/Furnizor.java)<br>[`Expediere.java`](src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/Expediere.java) |
+| **Component Relationships (`@ElementCollection`, `@CollectionTable`)** | Value Collection Persistence | Storing child value objects without identity in separate normalized relational tables | [`Expediere.java`](src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/Expediere.java)<br>[`ComandaAprovizionare.java`](src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/ComandaAprovizionare.java)<br>[`Furnizor.java`](src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/Furnizor.java) |
 | **Spring Repositories (`JpaRepository<T, ID>`)** | Declarative Data Access | Interfaces extending `JpaRepository` with derived `findBy*` queries and `@Query` | [`SpringDataComandaRepository.java`](src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/infrastructure/persistence/SpringDataComandaRepository.java)<br>[`SpringDataFacturaRepository.java`](src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/infrastructure/persistence/SpringDataFacturaRepository.java)<br>[`SpringDataFurnizorRepository.java`](src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/infrastructure/persistence/SpringDataFurnizorRepository.java) |
 | **(Bonus) Complete JPA Repositories** | Pure DDD Ports & `EntityManager` Adapters | Pure interface contracts (`IRepository`) implemented via injected `EntityManager` DAOs | [`ComandaRepo.java`](src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/ComandaRepo.java) $\rightarrow$ [`ComandaRepoJPA.java`](src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/infrastructure/ComandaRepoJPA.java)<br>[`AbstractRepositoryJPA.java`](src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/AbstractRepositoryJPA.java) |
 | **Business Services & Factories Refactoring** | JPA Repository Injection | Updating Application Services and Factories to consume JPA repositories | [`ComandaApplicationService.java`](src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/application/ComandaApplicationService.java)<br>[`FacturaApplicationService.java`](src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/application/FacturaApplicationService.java)<br>[`FurnizorFactory.java`](src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/factory/FurnizorFactory.java) |
@@ -191,201 +193,142 @@ The table below proves complete, 1:1 coverage of every theoretical and practical
 
 ---
 
-# 3. PERSISTENCE MODEL IMPLEMENTATION (JPA ENTITIES & VALUE OBJECTS)
+# 3. DOMAIN MODELING & ARCHITECTURAL DECISIONS (THE "WHY" SECTION)
 
-### 3.1. Root Entities & Child Entities (`@Entity`, `@Table`, `@Inheritance`, `@Version`)
+### 3.1. Why `@Inheritance` is NOT Used in Our Domain Aggregates
 
-All persistent entities are mapped to relational tables in conformity with Third Normal Form (3NF) and the First Normal Form (1NF) collection normalization remediated in `V10`:
+A frequent question in enterprise ORM design is whether to use JPA entity inheritance (`@Inheritance(strategy = InheritanceType.SINGLE_TABLE | JOINED | TABLE_PER_CLASS)`). In this solution, **relational entity inheritance is deliberately omitted** across all Bounded Contexts.
 
-```mermaid
-classDiagram
-    class ComandaAprovizionare {
-        +IdComanda id
-        +IdFurnizor furnizorId
-        +String numarComanda
-        +StareComanda stare
-        +LocalDate dataEmitere
-        +Long version
-    }
-    class LinieComanda {
-        +Integer numarLinie
-        +CodMaterial codMaterial
-        +Cantitate cantitate
-        +PretUnitar pretUnitar
-    }
-    class Lot {
-        +IdLot id
-        +Cantitate cantitate
-        +StareLot stare
-    }
-    class Expediere {
-        +UUID id
-        +String transportator
-        +String nrAWB
-        +LocalDate dataExpediere
-    }
-    class Furnizor {
-        +IdFurnizor id
-        +String denumire
-        +String codFiscal
-        +StareFurnizor stare
-        +Long version
-    }
-    class ScorecardLunar {
-        +UUID id
-        +YearMonth luna
-        +BigDecimal scorTotal
-        +Long version
-    }
-    class FacturaFurnizor {
-        +UUID id
-        +IdFurnizor furnizorId
-        +String serie
-        +String numar
-        +Suma totalPlata
-        +StareFactura stare
-        +Long version
-    }
-    class NIR {
-        +UUID id
-        +IdComanda comandaId
-        +String numarNIR
-        +UUID eventSursaId
-        +StareNIR stare
-        +Long version
-    }
-    class OrdinPlata {
-        +UUID id
-        +UUID facturaId
-        +Suma suma
-        +StareOrdinPlata stare
-        +String aprobatDe
-        +Long version
-    }
+#### The Architectural Rationale:
+1. **The Core DDD Principle: "Favor Composition Over Inheritance"**:
+   - In Domain-Driven Design, business concepts change independently. Forcing domain aggregates into an inheritance hierarchy (e.g., having `ComandaAprovizionare` and `ComandaServicii` inherit from an abstract `ComandaEntity`) tightly couples their lifecycle and schema, violating the **Single Responsibility Principle**.
+   - Instead of relational inheritance, our model achieves polymorphic variance through:
+     * **Strategy Pattern** for algorithmic variance (e.g., [`IMetodaEstimareLeadTime`](src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/IMetodaEstimareLeadTime.java) implemented by [`MedieMobilaStrategy`](src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/MedieMobilaStrategy.java), [`NetezireExponentialaStrategy`](src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/NetezireExponentialaStrategy.java), and [`Percentila90Strategy`](src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/Percentila90Strategy.java)).
+     * **Embedded Value Objects** for behavioral and structured components (e.g., `Suma`, `Cantitate`, `Adresa`, `Perioada`).
+2. **Elimination of Relational Impedance & Performance Penalties**:
+   - **`InheritanceType.SINGLE_TABLE`**: Forces multiple subclasses into one massive table with a discriminator column. This leads to **column nullability proliferation** (columns specific to subclass B must be nullable, disabling database-level `NOT NULL` constraints) and compromises data integrity.
+   - **`InheritanceType.JOINED`**: Requires Hibernate to generate complex `LEFT OUTER JOIN` queries across 3 to 5 physical tables for every read operation, creating massive query overhead and disabling index optimization on high-volume tables like `comenzi_aprovizionare`.
+3. **Decoupled Bounded Contexts via Strong Identifiers**:
+   - Bounded Contexts do not share database entities. A `Furnizor` in the Quality context and an `IdFurnizor` reference in the Orders context are kept completely distinct. Relational inheritance would create cross-module schema leaks, violating the modular boundary enforced by **Spring Modulith** and **ArchUnit**.
 
-    ComandaAprovizionare "1" *-- "many" LinieComanda : @ElementCollection
-    ComandaAprovizionare "1" *-- "many" Lot : @OneToMany (CascadeType.ALL)
-    ComandaAprovizionare "1" *-- "many" Expediere : @OneToMany (CascadeType.ALL)
-    Furnizor "1" *-- "many" ScorecardLunar : @OneToMany (CascadeType.ALL)
-    FacturaFurnizor --> NIR : Reconciled via 3-Way Match
-    FacturaFurnizor --> OrdinPlata : Triggers disbursement
+---
+
+### 3.2. Value Collection Management: `@ElementCollection` and `@CollectionTable` Deep Dive
+
+In JPA, not every relational table maps to an independent `@Entity`. A significant portion of domain models consists of **Value Objects** that belong exclusively to their parent entity and have no separate identity (`@Id`).
+
+#### Purpose of `@ElementCollection`:
+* Informs Hibernate that the collection does **not** contain independent entities, but rather embeddable value objects or basic types (e.g., `Set<IdLot>`, `List<LinieComanda>`, `Set<Email>`).
+* **Inherent Lifecycle Binding**: When the parent aggregate is created, updated, or removed, Hibernate automatically synchronizes the child collection records. No explicit cascading annotations (`cascade = CascadeType.ALL`) are required because value objects by definition cannot exist without their owner.
+
+#### Purpose of `@CollectionTable`:
+* Specifies the **exact physical database table** and foreign key join column used to store the collection elements:
+```java
+// Expediere.java: Storing associated delivery lots in the 1NF normalized table
+@ElementCollection(fetch = FetchType.LAZY)
+@CollectionTable(
+    name = "comenzi_expedieri_loturi", 
+    joinColumns = @JoinColumn(name = "expediere_id", nullable = false)
+)
+@AttributeOverride(name = "value", column = @Column(name = "lot_id", nullable = false))
+private Set<IdLot> loturi = new HashSet<>();
+```
+* In `ComandaAprovizionare.java`:
+```java
+@ElementCollection(fetch = FetchType.LAZY)
+@CollectionTable(
+    name = "comenzi_linii", 
+    joinColumns = @JoinColumn(name = "comanda_id", nullable = false)
+)
+private List<LinieComanda> linii = new ArrayList<>();
 ```
 
-#### Detailed Class Catalog:
-1. 📄 [`ComandaAprovizionare.java`](src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/ComandaAprovizionare.java)
-   * **Mapping**: `@Entity`, `@Table(name = "comenzi_aprovizionare")`, `@EmbeddedId`, `@Version`.
-   * **Role**: Aggregate Root controlling order creation, vendor validation, line item calculations, lot allocations, delivery tracking, and atomic cascading cancellations.
-2. 📄 [`Lot.java`](src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/Lot.java)
-   * **Mapping**: `@Entity`, `@Table(name = "comenzi_loturi")`, `@EmbeddedId`, `@ManyToOne(fetch = FetchType.LAZY)`.
-   * **Role**: Component entity representing a physical batch of items manufactured for a specific purchase order.
-3. 📄 [`Expediere.java`](src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/Expediere.java)
-   * **Mapping**: `@Entity`, `@Table(name = "comenzi_expedieri")`, `@Id`, `@ManyToOne(fetch = FetchType.LAZY)`.
-   * **Role**: Component entity tracking logistics dispatch, carrier details, tracking numbers (AWB), and 1NF normalized lots association (`comenzi_expedieri_loturi`).
-4. 📄 [`Furnizor.java`](src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/Furnizor.java)
-   * **Mapping**: `@Entity`, `@Table(name = "calitate_furnizori")`, `@EmbeddedId`, `@Version`.
-   * **Role**: Aggregate Root representing an approved or candidate supplier, encapsulating negotiated prices, certifications, and historical monthly evaluation scorecards.
-5. 📄 [`ScorecardLunar.java`](src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/ScorecardLunar.java)
-   * **Mapping**: `@Entity`, `@Table(name = "calitate_scorecards")`, `@Id`, `@Version`, `@ManyToOne(fetch = FetchType.LAZY)`.
-   * **Role**: Child performance entity guarded against concurrent overwrites via optimistic locking (`@Version`).
-6. 📄 [`InspectieCalitate.java`](src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/InspectieCalitate.java)
-   * **Mapping**: `@Entity`, `@Table(name = "calitate_inspectii")`, `@Id`, `@Version`.
-   * **Role**: Aggregate Root executing statistical sampling (ISO 2859-1 AQL), defect recording, and automated NCR triggering upon rejection.
-7. 📄 [`InspectorCalitate.java`](src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/InspectorCalitate.java)
-   * **Mapping**: `@Entity`, `@Table(name = "calitate_inspectori")`, `@Id`.
-   * **Role**: Quality assurance officer entity maintaining technical certifications and operational availability windows.
-8. 📄 [`RaportNeconformitate.java`](src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/RaportNeconformitate.java)
-   * **Mapping**: `@Entity`, `@Table(name = "calitate_ncr")`, `@Id`.
-   * **Role**: Non-Conformance Report (NCR) aggregate root tracking defective lots, root causes, and corrective action workflows (8D / CAPA).
-9. 📄 [`FacturaFurnizor.java`](src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/FacturaFurnizor.java)
-   * **Mapping**: `@Entity`, `@Table(name = "facturi_furnizori", uniqueConstraints = @UniqueConstraint(name = "uk_facturi_furnizor_numar", columnNames = {"furnizor_id", "serie", "numar"}))`, `@Id`, `@Version`.
-   * **Role**: Commercial supplier invoice aggregate preventing duplicate billing per supplier.
-10. 📄 [`NIR.java`](src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/NIR.java)
-    * **Mapping**: `@Entity`, `@Table(name = "facturi_nir")`, `@Id`, `@Version`.
-    * **Role**: Warehouse Goods Receipt Note (Nota de Intrare-Receptie) enforcing idempotent intake via unique `event_sursa_id`.
-11. 📄 [`OrdinPlata.java`](src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/OrdinPlata.java)
-    * **Mapping**: `@Entity`, `@Table(name = "facturi_ordine_plata")`, `@Id`, `@Version`.
-    * **Role**: Bank disbursement order aggregate implementing the Four-Eyes approval principle and external payment states.
-12. 📄 [`UserAccountEntity.java`](src/main/java/ro/uaic/feaa/sdbis/supplychain/securitate/UserAccountEntity.java)
-    * **Mapping**: `@Entity`, `@Table(name = "users")`, `@Id`, `@ElementCollection(fetch = FetchType.EAGER)`.
-    * **Role**: RBAC security credential entity managing password hashes (BCrypt) and role authorities.
-13. 📄 [`OutboxEventEntity.java`](src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/OutboxEventEntity.java)
-    * **Mapping**: `@Entity`, `@Table(name = "shared_outbox")`, `@Id`.
-    * **Role**: Transactional Outbox pattern message entity for reliable distributed domain event publishing.
-14. 📄 [`InboxEventEntity.java`](src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/InboxEventEntity.java)
-    * **Mapping**: `@Entity`, `@Table(name = "shared_inbox")`, `@Id`.
-    * **Role**: Idempotent Inbox message entity tracking processed incoming event UUIDs per consumer.
-15. 📄 [`DistributedLockEntity.java`](src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/DistributedLockEntity.java)
-    * **Mapping**: `@Entity`, `@Table(name = "distributed_locks")`, `@Id`.
-    * **Role**: Clustered mutual-exclusion lease entity with automatic TTL expiration.
-16. 📄 [`DeadLetterMessageEntity.java`](src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/DeadLetterMessageEntity.java)
-    * **Mapping**: `@Entity`, `@Table(name = "shared_dlq_parking_lot")`, `@Id`.
-    * **Role**: Quarantine entity persisting poison-pill AMQP messages that failed consumer retry attempts.
-17. 📄 [`DocumentAtasatEntity.java`](src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/DocumentAtasatEntity.java)
-    * **Mapping**: `@Entity`, `@Table(name = "shared_documente_atasate")`, `@Id`, `@Lob`.
-    * **Role**: Binary attachment storage entity storing signed PDFs, invoices, and inspection evidence.
+---
+
+### 3.3. Fetch Strategy & Concurrency: Why `FetchType.LAZY` Everywhere & Eliminating N+1
+
+#### The Problem with `FetchType.EAGER`:
+`FetchType.EAGER` is considered an anti-pattern in high-throughput enterprise applications. If a collection is mapped with `FetchType.EAGER`:
+1. **Memory & Bandwidth Explosion**: Every time an aggregate root is loaded (e.g., retrieving a list of 100 purchase orders), Hibernate immediately executes additional queries or huge SQL joins to fetch every single order line, batch lot, and dispatch record, loading thousands of unused rows into JVM heap memory.
+2. **`MultipleBagFetchException`**: If an entity contains two or more eager collection mappings (`List`), Hibernate refuses to start due to Cartesian product explosion.
+3. **Unavoidable N+1 Query Problem**: If EAGER joins are bypassed in JPQL, Hibernate issues 1 initial query followed by N individual queries to fetch the children of each row.
+
+#### Why We Enforce `FetchType.LAZY` Everywhere:
+By marking all `@OneToMany` and `@ElementCollection` associations as `FetchType.LAZY`:
+* Hibernate creates lightweight bytecode proxies for collections.
+* Data is loaded from the database **only if and when** business logic accesses that specific collection within an active transaction session.
+* Read operations (such as generating paginated dashboards, summary tables, or status checks) execute in microseconds without touching child tables.
+
+#### How We Solve the N+1 Problem: Two-Step Eager Fetching
+When a business operation genuinely requires loading the complete aggregate tree into memory (e.g., calculating order totals or 3-Way matching), we **never** switch the mapping to EAGER. Instead, we execute **Two-Step Eager Fetching** in our custom repositories:
+
+```java
+// Sursa: ro.uaic.feaa.sdbis.supplychain.comenzi.infrastructure.ComandaRepoJPA.java
+public List<ComandaAprovizionare> findAllWithLiniiAndLoturi(IdFurnizor furnizorId) {
+    // Step 1: Eagerly join and load the root orders and their line items in a single query
+    List<ComandaAprovizionare> comenzi = em.createQuery(
+        "SELECT DISTINCT c FROM ComandaAprovizionare c " +
+        "LEFT JOIN FETCH c.linii " +
+        "WHERE c.furnizorId = :furnizorId", ComandaAprovizionare.class)
+        .setParameter("furnizorId", furnizorId)
+        .getResultList();
+
+    if (comenzi.isEmpty()) return comenzi;
+
+    // Step 2: Initialize the lot allocations for the fetched orders within the same session
+    em.createQuery(
+        "SELECT DISTINCT c FROM ComandaAprovizionare c " +
+        "LEFT JOIN FETCH c.loturi " +
+        "WHERE c IN :comenzi", ComandaAprovizionare.class)
+        .setParameter("comenzi", comenzi)
+        .getResultList();
+
+    // Result: Both collections are fully initialized in the Hibernate Level 1 cache in exactly 2 SQL trips!
+    return comenzi;
+}
+```
+*Verified in:* 📄 [`NPlusOneOptimizationIntegrationTest.java`](src/test/java/ro/uaic/feaa/sdbis/supplychain/integration/NPlusOneOptimizationIntegrationTest.java) — asserts query count is strictly $O(1)$ and never $O(N)$.
 
 ---
 
-### 3.2. Value Objects & Embedded Types (`@Embeddable`, `@Embedded`, `@Enumerated`)
+# 4. COMPREHENSIVE PERSISTENCE MAPPING & RELATIONAL SCHEMAS
 
-Value objects lack independent relational identity and are completely embedded within their parent tables or stored in normalized collection tables:
+The table below details **where and how every domain aggregate, child entity, and value collection is persisted** across the 31 relational database tables:
 
-* **Monetary & Numeric Value Objects**:
-  * [`Suma.java`](src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/Suma.java): Embeds `valoare` (`NUMERIC(15,2)`) and `moneda` (`VARCHAR(3)` ISO-4217).
-  * [`Cantitate.java`](src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/Cantitate.java): Embeds `valoare` (`NUMERIC(15,3)`) and `unitateMasura` (`VARCHAR(20)`).
-  * [`PretUnitar.java`](src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/PretUnitar.java): Embeds unit price amount and currency with arithmetic operations.
-* **Structural & Contact Value Objects**:
-  * [`Adresa.java`](src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/Adresa.java): Embeds `strada`, `numar`, `oras`, `codPostal`, `tara`.
-  * [`Perioada.java`](src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/Perioada.java): Embeds `dataStart` and `dataSfarsit` with temporal overlap validation.
-  * [`Email.java`](src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/Email.java): Enforces RFC 5322 email syntax validation.
-* **Enumerated State Machines (`@Enumerated(EnumType.STRING)`)**:
-  * Stored strictly as descriptive strings in the database (never ordinal integers) to prevent data corruption upon refactoring:
-    * [`StareComanda.java`](src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/StareComanda.java) (`Creata`, `Aprobata`, `Confirmata`, `InLivrare`, `Receptionata`, `Anulata`)
-    * [`StareLot.java`](src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/StareLot.java) (`Planificat`, `InInspectie`, `Aprobat`, `Respins`, `Carantinat`, `Returnat`)
-    * [`StareFurnizor.java`](src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/StareFurnizor.java) (`Candidat`, `Aprobat`, `Suspendat`, `Blocat`)
-    * [`StareInspectie.java`](src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/StareInspectie.java) (`Programata`, `InCurs`, `Finalizata`, `Anulata`)
-    * [`StareFactura.java`](src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/StareFactura.java) (`Inregistrata`, `Reconciliata`, `InAprobare`, `Aprobata`, `Platita`, `Litigiu`)
-    * [`StareNIR.java`](src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/StareNIR.java) (`Generat`, `Validat`, `Anulat`)
-    * [`StareOrdinPlata.java`](src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/StareOrdinPlata.java) (`Initiat`, `InAprobare`, `Aprobat`, `InCursDeTransmitere`, `Executat`, `Respins`)
-
----
-
-### 3.3. Attribute Converters (`@Convert`, `@Converter`)
-
-Custom implementations of `jakarta.persistence.AttributeConverter<X, Y>` allow seamless bidirectional conversion between rich domain Value Objects and primitive JDBC SQL types:
-
-* 📄 [`IdComandaConverter.java`](src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/persistence/converters/IdComandaConverter.java): Maps `IdComanda` Value Object to `java.util.UUID` (native SQL `UUID` or `BINARY(16)`).
-* 📄 [`IdFurnizorConverter.java`](src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/persistence/converters/IdFurnizorConverter.java): Maps `IdFurnizor` Value Object to `java.util.UUID`.
-* 📄 [`IdLotConverter.java`](src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/persistence/converters/IdLotConverter.java): Maps `IdLot` Value Object to `java.util.UUID`.
-* 📄 [`CodMaterialConverter.java`](src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/persistence/converters/CodMaterialConverter.java): Maps `CodMaterial` Value Object to `java.lang.String` (`VARCHAR(50)`).
-* 📄 [`CurrencyConverter.java`](src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/persistence/converters/CurrencyConverter.java): Maps `java.util.Currency` to ISO-4217 standard 3-letter string (`VARCHAR(3)`).
-
----
-
-# 4. JPA AGGREGATES & RELATIONAL MAPPINGS
-
-Every Domain Aggregate establishes an encapsulation boundary. Child entities and value collections cannot be mutated or loaded in isolation without respecting the root entity's transactional context:
-
-| Aggregate Root | Component Target | JPA Mapping Annotation | Cascade & Fetch Configuration | Database Table |
+| Domain Class | Architectural Role | Persistence Mechanism | Database Table Name | Primary Key / Index Strategy |
 | :--- | :--- | :--- | :--- | :--- |
-| `ComandaAprovizionare` | `LinieComanda` | `@ElementCollection` | `@CollectionTable`, `FetchType.LAZY` | `comenzi_linii` |
-| `ComandaAprovizionare` | `Lot` | `@OneToMany` | `cascade = CascadeType.ALL`, `orphanRemoval = true`, `FetchType.LAZY` | `comenzi_loturi` |
-| `ComandaAprovizionare` | `Expediere` | `@OneToMany` | `cascade = CascadeType.ALL`, `orphanRemoval = true`, `FetchType.LAZY` | `comenzi_expedieri` |
-| `Expediere` | `IdLot` | `@ElementCollection` | `@CollectionTable`, `FetchType.LAZY` | `comenzi_expedieri_loturi` |
-| `Furnizor` | `Email` | `@ElementCollection` | `@CollectionTable`, `FetchType.LAZY` | `calitate_furnizori_emailuri` |
-| `Furnizor` | `categoriiMateriale` | `@ElementCollection` | `@CollectionTable`, `FetchType.LAZY` | `calitate_furnizori_categorii` |
-| `Furnizor` | `PretNegociat` | `@ElementCollection` | `@CollectionTable`, `FetchType.LAZY` | `furnizor_preturi_negociate` |
-| `Furnizor` | `ScorecardLunar` | `@OneToMany` | `cascade = CascadeType.ALL`, `orphanRemoval = true`, `FetchType.LAZY` | `calitate_scorecards` |
-| `InspectieCalitate` | `EsantionAQL` | `@ElementCollection` | `@CollectionTable`, `FetchType.LAZY` | `calitate_inspectii_esantioane` |
-| `InspectorCalitate` | `Certificare` | `@ElementCollection` | `@CollectionTable`, `FetchType.LAZY` | `calitate_inspectori_certificari` |
-| `InspectorCalitate` | `Perioada` | `@ElementCollection` | `@CollectionTable`, `FetchType.LAZY` | `calitate_inspectori_disponibilitate` |
-| `FacturaFurnizor` | `LinieFactura` | `@ElementCollection` | `@CollectionTable`, `FetchType.LAZY` | `facturi_linii` |
-| `NIR` | `LinieNIR` | `@ElementCollection` | `@CollectionTable`, `FetchType.LAZY` | `facturi_nir_linii` |
-
-#### Architectural Invariants:
-1. **Cascade Lifecycle (`CascadeType.ALL`)**: Saving, updating, or deleting a `ComandaAprovizionare` cascades automatically to all its lines, lots, and dispatches.
-2. **Orphan Removal (`orphanRemoval = true`)**: Removing a `Lot` from the internal set in `ComandaAprovizionare.getLoturi()` triggers an automatic SQL `DELETE` in `comenzi_loturi` upon transaction commit.
-3. **Eager vs. Lazy Strategy**: All `@OneToMany` and `@ElementCollection` mappings strictly specify `FetchType.LAZY` to prevent massive memory overhead. When eager loading is required for query operations, it is performed via specialized repository methods using two-step queries to eliminate the **N+1 Query Problem**.
+| [`ComandaAprovizionare`](src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/ComandaAprovizionare.java) | Aggregate Root | `@Entity`, `@Table`, `@EmbeddedId`, `@Version` | `comenzi_aprovizionare` | PK: `id` (UUID via `IdComandaConverter`), `@Version: version` |
+| [`LinieComanda`](src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/LinieComanda.java) | Component Value Object | `@ElementCollection`, `@CollectionTable` | `comenzi_linii` | FK: `comanda_id`, Composite Index: `(comanda_id, numar_linie)` |
+| [`Lot`](src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/Lot.java) | Child Entity | `@Entity`, `@Table`, `@EmbeddedId` | `comenzi_loturi` | PK: `id` (UUID via `IdLotConverter`), FK: `comanda_id` |
+| [`Expediere`](src/main/java/ro/uaic/feaa/sdbis/supplychain/comenzi/domain/Expediere.java) | Child Entity | `@Entity`, `@Table`, `@Id` | `comenzi_expedieri` | PK: `id` (UUID), FK: `comanda_id`, Index: `nr_awb` |
+| `Expediere.loturi` | Normalized Join Set | `@ElementCollection`, `@CollectionTable` | `comenzi_expedieri_loturi` | FK: `expediere_id`, `lot_id` (1NF normalized in V10) |
+| [`Furnizor`](src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/Furnizor.java) | Aggregate Root | `@Entity`, `@Table`, `@EmbeddedId`, `@Version` | `calitate_furnizori` | PK: `id` (UUID via `IdFurnizorConverter`), Unique: `cod_fiscal` |
+| `Furnizor.emailuri` | Value Collection | `@ElementCollection`, `@CollectionTable` | `calitate_furnizori_emailuri` | FK: `furnizor_id`, `email` |
+| `Furnizor.categorii` | Value Collection | `@ElementCollection`, `@CollectionTable` | `calitate_furnizori_categorii` | FK: `furnizor_id`, `categorie` |
+| [`PretNegociat`](src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/PretNegociat.java) | Value Collection | `@ElementCollection`, `@CollectionTable` | `furnizor_preturi_negociate` | FK: `furnizor_id`, Composite: `(furnizor_id, cod_material)` |
+| [`ScorecardLunar`](src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/ScorecardLunar.java) | Child Entity | `@Entity`, `@Table`, `@Id`, `@Version` | `calitate_scorecards` | PK: `id` (UUID), FK: `furnizor_id`, `@Version: version` (V15) |
+| [`InspectieCalitate`](src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/InspectieCalitate.java) | Aggregate Root | `@Entity`, `@Table`, `@Id`, `@Version` | `calitate_inspectii` | PK: `id` (UUID), Index: `lot_id`, `@Version: version` |
+| `InspectieCalitate.esantioane` | Value Collection | `@ElementCollection`, `@CollectionTable` | `calitate_inspectii_esantioane` | FK: `inspectie_id` |
+| [`InspectorCalitate`](src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/InspectorCalitate.java) | Aggregate Root | `@Entity`, `@Table`, `@Id` | `calitate_inspectori` | PK: `id` (UUID), Index: `cod_inspector` |
+| `Inspector.certificari` | Value Collection | `@ElementCollection`, `@CollectionTable` | `calitate_inspectori_certificari` | FK: `inspector_id` |
+| `Inspector.disponibilitate` | Value Collection | `@ElementCollection`, `@CollectionTable` | `calitate_inspectori_disponibilitate` | FK: `inspector_id` |
+| [`RaportNeconformitate`](src/main/java/ro/uaic/feaa/sdbis/supplychain/calitate/domain/RaportNeconformitate.java) | Aggregate Root | `@Entity`, `@Table`, `@Id` | `calitate_ncr` | PK: `id` (UUID), Index: `lot_id`, `status` |
+| [`FacturaFurnizor`](src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/FacturaFurnizor.java) | Aggregate Root | `@Entity`, `@Table`, `@Id`, `@Version` | `facturi_furnizori` | PK: `id` (UUID), Unique: `uk_facturi_furnizor_numar` (V12) |
+| [`LinieFactura`](src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/LinieFactura.java) | Component Value Object | `@ElementCollection`, `@CollectionTable` | `facturi_linii` | FK: `factura_id`, Index: `cod_material` |
+| [`NIR`](src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/NIR.java) | Aggregate Root | `@Entity`, `@Table`, `@Id`, `@Version` | `facturi_nir` | PK: `id` (UUID), Unique: `event_sursa_id`, Index: `comanda_id` |
+| [`LinieNIR`](src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/LinieNIR.java) | Component Value Object | `@ElementCollection`, `@CollectionTable` | `facturi_nir_linii` | FK: `nir_id`, Index: `cod_material` |
+| `Reconciliere` | Value / Entity | Schema Table | `facturi_reconcilieri` | PK: `id`, Composite FKs: `factura_id, comanda_id, nir_id` (V4) |
+| [`OrdinPlata`](src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/domain/OrdinPlata.java) | Aggregate Root | `@Entity`, `@Table`, `@Id`, `@Version` | `facturi_ordine_plata` | PK: `id` (UUID), Index: `factura_id`, `stripe_intent_id` (V5) |
+| [`FurnizorBlocatFactura`](src/main/java/ro/uaic/feaa/sdbis/supplychain/facturi/infrastructure/FurnizorBlocatFactura.java) | Infrastructure Entity | `@Entity`, `@Table`, `@Id` | `facturi_furnizori_blocati` | PK: `furnizor_id`, Index: `activ` |
+| [`UserAccountEntity`](src/main/java/ro/uaic/feaa/sdbis/supplychain/securitate/UserAccountEntity.java) | Security Entity | `@Entity`, `@Table`, `@Id` | `users` | PK: `id` (UUID), Unique: `username`, `email` |
+| `UserAccount.roles` | Security Roles | `@ElementCollection`, `@CollectionTable` | `user_roles` | FK: `user_id`, Composite: `(user_id, role)` |
+| [`OutboxEventEntity`](src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/OutboxEventEntity.java) | Messaging Entity | `@Entity`, `@Table`, `@Id` | `shared_outbox` | PK: `id` (UUID), Index: `idx_outbox_published_timestamp` |
+| [`InboxEventEntity`](src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/InboxEventEntity.java) | Messaging Entity | `@Entity`, `@Table`, `@Id` | `shared_inbox` | PK: `id` (UUID), Unique: `uk_inbox_events_message_id` |
+| [`DistributedLockEntity`](src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/DistributedLockEntity.java) | Concurrency Entity | `@Entity`, `@Table`, `@Id` | `distributed_locks` | PK: `lock_key` (VARCHAR), Index: `expires_at` (V12) |
+| [`AuditLogEntry`](src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/AuditLogEntry.java) | Governance Entity | `@Entity`, `@Table`, `@Id` | `shared_audit_log` | PK: `id` (BIGINT SERIAL), Index: `data_eveniment` |
+| [`AuditLogArchiveEntry`](src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/AuditLogArchiveEntry.java) | Archive Entity | `@Entity`, `@Table`, `@Id` | `shared_audit_log_archive` | PK: `id`, Index: `archived_at` (V13) |
+| [`DeadLetterMessageEntity`](src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/DeadLetterMessageEntity.java) | Resiliency Entity | `@Entity`, `@Table`, `@Id` | `shared_dlq_parking_lot` | PK: `id` (UUID), Index: `captured_at` (V14) |
+| [`DocumentAtasatEntity`](src/main/java/ro/uaic/feaa/sdbis/supplychain/shared/DocumentAtasatEntity.java) | Content Entity | `@Entity`, `@Table`, `@Id`, `@Lob` | `shared_documente_atasate` | PK: `id` (UUID), Index: `referinta_id`, `tip_document` |
 
 ---
 
